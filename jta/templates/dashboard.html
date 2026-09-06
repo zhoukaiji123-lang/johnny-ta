@@ -148,6 +148,9 @@ function banner(cls, text) {
 }
 if (D.any_stale) banner("bad",
   "⚠ 部分标的抓取失败，本页使用缓存数据，不是最新收盘。确认网络后重新运行。");
+if (D.any_too_old) banner("bad",
+  `⚠ 部分标的的最后一根 bar 已超过 ${D.max_age_sessions} 个交易日：抓取虽然成功，` +
+  "但数据源可能返回了旧响应，或该标的已停牌。逐行看「数据陈旧」标记。");
 if (D.any_failed) banner("bad", "⚠ 有标的完全失败，见页面底部「抓取失败」分组。");
 
 const groups = document.getElementById("groups");
@@ -179,7 +182,8 @@ function card(r, key) {
       (r.benchmark ? ` · 基准 ${r.benchmark} ${L.stack[r.benchmark_stack] || "—"}` : "")));
   }
   if (r.price_is_live) top.appendChild(h("span", "chip warn", "盘中"));
-  if (r.stale) top.appendChild(h("span", "chip bad", "数据过期"));
+  if (r.stale) top.appendChild(h("span", "chip bad", "回退缓存"));
+  if (r.too_old) top.appendChild(h("span", "chip bad", `数据陈旧 ${r.age_sessions} 日`));
   if (r.unreliable_emas && r.unreliable_emas.length)
     top.appendChild(h("span", "chip warn", "warmup 不足"));
   top.appendChild(h("span", "spacer"));

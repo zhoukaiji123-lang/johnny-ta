@@ -193,3 +193,72 @@ def test_split_incomplete_handles_empty_frame():
     empty = sample_df(0)
     kept, live = split_incomplete(empty, "1d")
     assert kept.empty and live is None
+
+
+# ------------------------------------------------------------------ 数据年龄
+
+def test_data_age_counts_business_days_not_calendar_days():
+    """周末不该被算成"数据陈旧"。"""
+    from jta.data.provider import data_age_sessions
+
+    friday = pd.Timestamp("2026-09-04 16:00", tz=TZ)          # 周五收盘
+    monday = datetime(2026, 9, 7, 20, 0, tzinfo=timezone.utc)  # 下周一
+    assert data_age_sessions(friday, monday) == 1              # 只隔一个交易日
+
+
+def test_data_age_flags_a_genuinely_old_last_bar():
+    from jta.data.provider import MAX_DATA_AGE_SESSIONS, data_age_sessions
+
+    old = pd.Timestamp("2026-08-03 16:00", tz=TZ)
+    now = datetime(2026, 9, 4, 20, 0, tzinfo=timezone.utc)
+    assert data_age_sessions(old, now) > MAX_DATA_AGE_SESSIONS
+
+
+def test_data_age_uses_as_of_not_wall_clock():
+    """回放时参考点是 as_of 那一天，否则历史回测里每根 bar 都会被判为陈旧。"""
+    from jta.data.provider import data_age_sessions
+
+    bar = pd.Timestamp("2025-03-14 16:00", tz=TZ)
+    as_of = datetime(2025, 3, 17, 20, 0, tzinfo=timezone.utc)
+    assert data_age_sessions(bar, as_of) == 1
+
+
+def test_forced_refresh_fails_loudly_instead_of_serving_cache(tmp_path, monkeypatch):
+    """--refresh 下抓取失败必须抛错。
+
+    悄悄回退缓存正是"刷新了但数据没变"的来源：命令看起来成功了，
+    产物却还是旧的。无人值守时这种失败方式最危险。
+    """
+    from jta.data.provider import DataUnavailable
+    from jta.data.yf_provider import YFinanceProvider
+
+    cache = ParquetCache(tmp_path)
+    p = YFinanceProvider(cache=cache, force_refresh=True)
+    key = cache.key(p.name, "X", "1d", "back")
+    cache.write(key, sample_df(), {"fetched_at": datetime.now(timezone.utc).isoformat()})
+
+    def boom(*a, **k):
+        raise RuntimeError("network down")
+
+    monkeypatch.setattr(p, "_download", boom)
+    with pytest.raises(DataUnavailable):
+        p.fetch("X", "1d")
+
+
+def test_without_refresh_cache_fallback_is_marked_stale(tmp_path, monkeypatch):
+    """不强制刷新时允许回退缓存，但必须打上 stale，让展示层能提示。"""
+    from jta.data.yf_provider import YFinanceProvider
+
+    cache = ParquetCache(tmp_path)
+    p = YFinanceProvider(cache=cache)
+    key = cache.key(p.name, "X", "1d", "back")
+    old = (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()
+    cache.write(key, sample_df(), {"fetched_at": old, "splits": []})
+
+    def boom(*a, **k):
+        raise RuntimeError("network down")
+
+    monkeypatch.setattr(p, "_download", boom)
+    got = p.fetch("X", "1d")
+    assert got.meta.stale is True
+    assert any("回退缓存" in w for w in got.meta.warnings)

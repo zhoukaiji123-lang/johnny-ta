@@ -161,11 +161,18 @@ def test_default_render_stays_a_fragment_for_the_artifact_host():
     assert "fonts.googleapis.com" in html
 
 
-def test_stale_data_is_surfaced_on_the_page():
-    """抓取失败回退缓存时，页面必须显著提示——静默展示过期数据比抓取失败更危险。"""
+def test_both_staleness_modes_are_surfaced_on_the_page():
+    """数据会以两种方式变旧，页面必须都提示：
+
+    stale   —— 抓取失败、回退缓存
+    too_old —— 抓取成功，但返回的最后一根 bar 本身就很旧（数据源旧响应、停牌）
+
+    只查前者会漏掉后者，而后者更隐蔽：它一路都是"成功"的。
+    """
     html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False))
-    assert "数据已过期" in html
-    assert "A.data.daily.stale" in html
+    assert "数据不可信" in html
+    assert "h.stale" in html and "h.too_old" in html
+    assert "抓取失败" in html and "个交易日" in html
 
 
 def test_refresh_flag_reaches_every_fetch():

@@ -68,6 +68,14 @@ def render_text(r: dict[str, Any], account: float | None = None, risk_pct: float
     lines.append(
         f"展示粒度：{d['display_step']}（约 0.1 ATR）— {d['display_step_note']}"
     )
+    health = r.get("data_health") or {}
+    if health.get("stale"):
+        lines.append("⚠ 抓取失败已回退缓存，本次结论基于旧数据，不是最新收盘")
+    if health.get("too_old"):
+        lines.append(
+            f"⚠ 数据陈旧：最后一根 bar 距今 {health['age_sessions']} 个交易日"
+            f"（阈值 {health['max_age_sessions']}）——数据源可能返回旧响应，或标的已停牌"
+        )
     if d["intraday"].get("bar_alignment"):
         lines.append(f"4H 对齐：{d['intraday']['bar_alignment']}")
 

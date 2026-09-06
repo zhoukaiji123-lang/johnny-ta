@@ -10,6 +10,7 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime, time, timedelta, timezone
 from typing import Protocol, Literal, Any
 
+import numpy as np
 import pandas as pd
 
 Interval = Literal["1wk", "1d", "4h", "60m", "30m", "15m"]
@@ -39,6 +40,8 @@ class SeriesMeta:
     warnings: list[str] = field(default_factory=list)
     last_bar_complete: bool = True
     live_bar: dict[str, Any] | None = None
+    age_sessions: int = 0
+    too_old: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -156,6 +159,25 @@ def split_incomplete(
         "note": "未完成 bar：high/low/volume 仍在变化，已排除在结构计算之外",
     }
     return df.iloc[:-1], live
+
+
+#: 最后一根 bar 距参考时点允许的最大交易日数。
+#: 正常情况是 0–1（今日收盘或昨日收盘）；留到 3 是为了容纳周末加连续假期。
+MAX_DATA_AGE_SESSIONS = 3
+
+
+def data_age_sessions(last_bar: "pd.Timestamp", reference: datetime | None = None) -> int:
+    """最后一根 bar 距参考时点隔了几个交易日。
+
+    `stale` 只说明"这次抓取失败了"，不说明数据是新的：数据源故障时可能
+    成功返回一份旧响应，标的停牌或退市也会让最后一根 bar 停在过去。
+    两者是不同的失败模式，必须分别检测。
+    """
+    ref = pd.Timestamp(reference or utcnow())
+    if ref.tz is None:
+        ref = ref.tz_localize("UTC")
+    ref_local = ref.tz_convert(last_bar.tz) if last_bar.tz is not None else ref
+    return max(0, int(np.busday_count(last_bar.date(), ref_local.date())))
 
 
 def normalize_index(df: pd.DataFrame) -> pd.DataFrame:

@@ -20,7 +20,7 @@ from typing import Any
 
 from .analyze import analyze
 from .chart import build_payload, render_html
-from .data.provider import DataUnavailable
+from .data.provider import MAX_DATA_AGE_SESSIONS, DataUnavailable
 from .data.yf_provider import YFinanceProvider
 
 TEMPLATE = Path(__file__).with_name("templates") / "dashboard.html"
@@ -64,6 +64,8 @@ class Row:
     event_reason: str | None = None
     earnings: str | None = None
     stale: bool = False
+    too_old: bool = False
+    age_sessions: int = 0
     fetched_at: str | None = None
     structure_as_of: str | None = None
     price_is_live: bool = False
@@ -141,7 +143,10 @@ def collect_row(
     row.supports = [_brief(l) for l in r["supports"]]
     row.resistances = [_brief(l) for l in r["resistances"]]
     row.plans = [_plan_brief(p) for p in r["plans"]]
-    row.stale = bool(daily.get("stale") or r["data"]["intraday"].get("stale"))
+    health = r.get("data_health") or {}
+    row.stale = bool(health.get("stale"))
+    row.too_old = bool(health.get("too_old"))
+    row.age_sessions = int(health.get("age_sessions") or 0)
     row.fetched_at = daily.get("fetched_at")
     row.structure_as_of = r["structure_as_of"]
     row.price_is_live = r["price_is_live"]
@@ -209,6 +214,8 @@ def build_watchlist(
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "data_dates": sorted(dates),
         "any_stale": any(r.stale for r in rows),
+        "any_too_old": any(r.too_old for r in rows),
+        "max_age_sessions": MAX_DATA_AGE_SESSIONS,
         "any_failed": any(r.group == "failed" for r in rows),
         "account": account,
         "risk_pct": risk_pct,

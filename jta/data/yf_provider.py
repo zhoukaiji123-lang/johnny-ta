@@ -21,8 +21,10 @@ from .provider import (
     Adjust,
     DataUnavailable,
     Interval,
+    MAX_DATA_AGE_SESSIONS,
     OHLCV,
     SeriesMeta,
+    data_age_sessions,
     normalize_index,
     split_incomplete,
     truncate_as_of,
@@ -187,6 +189,16 @@ class YFinanceProvider:
         if df.empty:
             raise DataUnavailable(f"{symbol} {interval} 在 as_of={as_of} 之前没有数据")
 
+        # 数据年龄按 as_of 计（回放时参考点是那一天，不是现在）
+        age = data_age_sessions(df.index[-1], as_of)
+        too_old = age > MAX_DATA_AGE_SESSIONS
+        if too_old:
+            warnings.append(
+                f"最后一根 {interval} bar 距参考时点已 {age} 个交易日"
+                f"（阈值 {MAX_DATA_AGE_SESSIONS}）：数据源可能返回了旧响应，"
+                "或该标的已停牌/退市"
+            )
+
         meta = SeriesMeta(
             symbol=symbol,
             interval=interval,
@@ -204,5 +216,7 @@ class YFinanceProvider:
             warnings=warnings,
             last_bar_complete=live is None,
             live_bar=live,
+            age_sessions=age,
+            too_old=too_old,
         )
         return OHLCV(df=df, meta=meta)

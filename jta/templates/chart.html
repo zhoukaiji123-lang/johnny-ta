@@ -365,38 +365,27 @@ if (A.price_is_live) {
   c.hidden = false;
   c.textContent = `盘中 · 结构截至 ${A.structure_as_of.slice(0, 10)} 收盘`;
 }
-// 抓取失败回退缓存时，数据层会置 stale。不显著提示就等于静默展示过期数据——
-// 那比抓取失败本身危险得多，因为读图的人无从分辨。
-if (A.data.daily.stale || A.data.intraday.stale) {
+// 数据可能以两种方式变旧，必须分别检测：
+//   stale   —— 抓取失败、回退到了缓存
+//   too_old —— 抓取成功了，但返回的最后一根 bar 本身就很旧
+// 只查前者会漏掉数据源故障返回旧响应、以及标的停牌的情形。
+(function () {
+  const h = A.data_health || {};
+  const msgs = [];
+  if (h.stale)
+    msgs.push(`抓取失败，本页使用 ${A.data.daily.fetched_at.replace("T", " ").slice(0, 16)} UTC 的缓存`);
+  if (h.too_old)
+    msgs.push(`最后一根 bar 距今 ${h.age_sessions} 个交易日（阈值 ${h.max_age_sessions}），可能是数据源旧响应或标的停牌`);
+  if (!msgs.length) return;
   const bar = document.createElement("div");
   bar.style.cssText =
     "background:var(--resist);color:var(--ground);padding:9px 24px;font-size:13.5px;font-weight:600;";
   const inner = document.createElement("div");
   inner.style.cssText = "max-width:1180px;margin:0 auto";
-  inner.textContent =
-    `⚠ 数据已过期：抓取失败，本页使用 ${A.data.daily.fetched_at.replace("T", " ").slice(0, 16)} UTC 的缓存，` +
-    `不是最新收盘。重新运行 jta chart 并确认网络后再用。`;
+  inner.textContent = "⚠ 数据不可信：" + msgs.join("；") + "。请确认网络后重新运行 jta chart。";
   bar.appendChild(inner);
   document.querySelector("header.masthead").after(bar);
-}
-
-const colo = document.getElementById("colophon");
-[["标的 / 币种", `${A.symbol} · USD`],
- ["结构数据截至", A.structure_as_of.slice(0, 10)],
- ["复权口径", A.data.daily.adjust === "back" ? "后复权" : "未复权"],
- ["数据源 / 时区", `${A.data.daily.source} · ${A.data.daily.tz.split("/")[1] || A.data.daily.tz}`],
- ["4H bar 切法", "09:30–13:30 / 13:30–16:00"],
- ["基准指数", A.benchmark ? `${A.benchmark.symbol} · ${STACK[A.benchmark.ema_stack]}` : "未指定"],
-].forEach(([k, v]) => {
-  const d = h("div"); d.appendChild(h("dt", null, k)); d.appendChild(h("dd", null, v)); colo.appendChild(d);
-});
-if (C.window && C.window.compressed) {
-  const w = document.createElement("div");
-  w.className = "rule-line";
-  w.style.color = "var(--warn)";
-  w.textContent = "⚠ " + C.window.note;
-  document.querySelector("#layers").after(w);
-}
+})();
 document.getElementById("foot-gen").textContent =
   `数据抓取于 ${A.data.daily.fetched_at.replace("T", " ").slice(0, 19)} UTC · schema ${A.schema_version}`;
 document.getElementById("disclaimer").innerHTML =

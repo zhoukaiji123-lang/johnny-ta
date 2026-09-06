@@ -149,9 +149,12 @@ def cmd_dashboard(args: argparse.Namespace) -> int:
         elif row["group"] == "failed":
             print(f"  ✗ {row['symbol']:<6}{'':>10}  {row['error']}")
     if payload["any_stale"]:
-        print("  [警告] 部分标的使用了缓存数据，不是最新收盘")
-    # 无人值守时用退出码表达失败，让调度器能察觉
-    return 1 if (payload["any_failed"] or payload["any_stale"]) else 0
+        print("  [警告] 部分标的抓取失败并回退了缓存，不是最新收盘")
+    if payload["any_too_old"]:
+        print(f"  [警告] 部分标的的最后一根 bar 超过 {payload['max_age_sessions']} 个交易日")
+    # 无人值守时用退出码表达失败，让调度器能察觉并重试
+    bad = payload["any_failed"] or payload["any_stale"] or payload["any_too_old"]
+    return 1 if bad else 0
 
 
 def cmd_backtest(args: argparse.Namespace) -> int:

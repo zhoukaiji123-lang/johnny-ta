@@ -13,7 +13,7 @@ from typing import Any, Sequence
 import numpy as np
 import pandas as pd
 
-from .data.provider import OHLCV
+from .data.provider import MAX_DATA_AGE_SESSIONS, OHLCV
 from .events import fetch_events
 from .data.yf_provider import YFinanceProvider
 from .indicators.atr import atr as atr_series
@@ -398,6 +398,12 @@ def analyze(
             "price": round(float(bdf["close"].iloc[-1]), 4),
             "ema_stack": ema_stack(ema_set(bdf["close"]).iloc[-1]),
             "as_of_bar": bdf.index[-1].isoformat(),
+            # 基准驱动着方向降级判断；它自己的数据可信度必须一起传出，
+            # 否则一份过期的基准会悄悄改变个股结论
+            "stale": bool(b.meta.stale),
+            "too_old": bool(b.meta.too_old),
+            "age_sessions": b.meta.age_sessions,
+            "fetched_at": b.meta.fetched_at.isoformat(),
         }
 
     td_sig = latest_td_signal(daily.td, within=3)
@@ -496,6 +502,30 @@ def analyze(
                 "换一组合理锚点后同一条 Fib 可漂移接近一个 ATR，"
                 "报到个位数是伪精度"
             ),
+        },
+        "data_health": {
+            "stale": bool(
+                daily_series.meta.stale
+                or intraday_series.meta.stale
+                or (index_summary or {}).get("stale")
+            ),
+            "too_old": bool(
+                daily_series.meta.too_old
+                or intraday_series.meta.too_old
+                or (index_summary or {}).get("too_old")
+            ),
+            "age_sessions": daily_series.meta.age_sessions,
+            "max_age_sessions": MAX_DATA_AGE_SESSIONS,
+            "sources": {
+                "daily": {"stale": daily_series.meta.stale,
+                          "age_sessions": daily_series.meta.age_sessions},
+                "intraday": {"stale": intraday_series.meta.stale,
+                             "age_sessions": intraday_series.meta.age_sessions},
+                "benchmark": {
+                    "stale": (index_summary or {}).get("stale"),
+                    "age_sessions": (index_summary or {}).get("age_sessions"),
+                } if index_summary else None,
+            },
         },
         "market_state": state,
         "benchmark": index_summary,
