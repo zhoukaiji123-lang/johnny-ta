@@ -1,0 +1,62 @@
+name: 每日看板
+
+on:
+  schedule:
+    # 22:00 UTC = 收盘后 1.5–2 小时（EDT 18:00 / EST 17:00），周一至周五
+    - cron: "0 22 * * 1-5"
+  workflow_dispatch:          # 也可手动触发
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dashboard
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: 生成看板
+        id: build
+        # 无人值守时网络抖动是常态，重试三次；仍失败则让步骤失败并保留上次产物
+        run: |
+          for attempt in 1 2 3; do
+            echo "第 $attempt 次尝试"
+            if python -m jta.cli dashboard \
+                MU:SOXX SNDK:SOXX AVGO:SOXX AMD:SOXX INTC:SOXX \
+                LITE:SOXX COHR:SOXX TSLA:QQQ SPCX:QQQ SOXX:QQQ QQQ:SPY \
+                --out-dir docs; then
+              echo "ok=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "失败，等待后重试"
+            sleep 60
+          done
+          echo "三次均失败" >&2
+          exit 1
+
+      - name: 提交产物
+        if: always() && steps.build.outputs.ok == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs
+          if git diff --staged --quiet; then
+            echo "无变化，跳过提交"
+          else
+            git commit -m "看板更新 $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git push
+          fi

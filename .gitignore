@@ -1,0 +1,10 @@
+.venv/
+cache/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# 看板产物由 CI 生成后提交；本地跑的临时输出不进版本库
+/tmp/
+*.parquet
