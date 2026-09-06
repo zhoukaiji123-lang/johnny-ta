@@ -182,3 +182,11 @@ def test_refresh_flag_reaches_every_fetch():
     p = YFinanceProvider(force_refresh=True)
     assert p.force_refresh is True
     assert YFinanceProvider().force_refresh is False
+
+
+def test_attribution_is_present_on_every_generated_page():
+    """方法不是本项目原创，生成的每个页面都要指回上游。"""
+    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False))
+    assert "m4yOvO/johnny-finance-skill" in html
+    assert "Johnny0725" in html
+    assert "未经其背书" in html
