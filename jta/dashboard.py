@@ -47,7 +47,7 @@ SECTOR_MAP = {
     "MU": "存储", "SNDK": "存储", "000660.KS": "存储",
     "LITE": "光模块", "COHR": "光模块",
     "AVGO": "半导体设计", "AMD": "半导体设计", "INTC": "半导体设计",
-    "AMZN": "云计算",
+    "AMZN": "云计算", "GOOGL": "云计算",
     "TSLA": "汽车",
     "SPCX": "航天",
     "SOXX": "指数/ETF", "QQQ": "指数/ETF",
