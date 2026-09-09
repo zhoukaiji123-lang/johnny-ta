@@ -54,6 +54,9 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-u
 a.side-link:hover{background:var(--sunk);color:var(--ink)}
 a.side-link:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .side-link.disabled{color:var(--muted);opacity:.55;cursor:default}
+.side-heading{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+              padding:12px 9px 3px;white-space:nowrap}
+.side-heading:first-child{padding-top:0}
 .dot{flex:0 0 auto;width:6px;height:6px;border-radius:50%;background:var(--muted)}
 .dot.actionable{background:var(--good)}
 .dot.event{background:var(--warn)}
@@ -64,6 +67,8 @@ a.side-link:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
            overflow-y:visible;max-height:none;padding-top:14px;padding-bottom:10px;
            border-bottom:1px solid var(--rule-faint)}
   .side-link{flex:0 0 auto}
+  .side-heading{flex:0 0 auto;padding:8px 6px 0 14px;align-self:center}
+  .side-heading:first-child{padding-left:9px}
 }
 
 .masthead{background:var(--surface);border-bottom:1px solid var(--rule)}
@@ -198,15 +203,29 @@ for (const key of ["actionable", "event", "quiet", "failed"]) {
 if (!D.rows.length) groups.appendChild(h("div", "quiet-line", "关注列表为空"));
 
 const sidebar = document.getElementById("sidebar");
+const sectorOrder = D.sector_order || [];
+const bySector = new Map();
 D.rows.forEach(r => {
-  const link = r.detail_page
-    ? Object.assign(document.createElement("a"), { href: r.detail_page })
-    : document.createElement("span");
-  link.className = `side-link ${r.group}` + (r.detail_page ? "" : " disabled");
-  link.title = r.detail_page ? `${r.symbol} 技术地图` : (r.error || "无详情页");
-  link.appendChild(h("span", `dot ${r.group}`));
-  link.appendChild(document.createTextNode(r.symbol));
-  sidebar.appendChild(link);
+  const key = r.sector || "其他";
+  if (!bySector.has(key)) bySector.set(key, []);
+  bySector.get(key).push(r);
+});
+const sectors = [...bySector.keys()].sort((a, b) => {
+  const ia = sectorOrder.indexOf(a), ib = sectorOrder.indexOf(b);
+  return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib);
+});
+sectors.forEach(sector => {
+  sidebar.appendChild(h("div", "side-heading", sector));
+  bySector.get(sector).forEach(r => {
+    const link = r.detail_page
+      ? Object.assign(document.createElement("a"), { href: r.detail_page })
+      : document.createElement("span");
+    link.className = `side-link ${r.group}` + (r.detail_page ? "" : " disabled");
+    link.title = r.detail_page ? `${r.symbol} 技术地图` : (r.error || "无详情页");
+    link.appendChild(h("span", `dot ${r.group}`));
+    link.appendChild(document.createTextNode(r.symbol));
+    sidebar.appendChild(link);
+  });
 });
 
 function card(r, key) {

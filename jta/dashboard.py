@@ -41,12 +41,25 @@ PHASE_LABELS = {
 ZONE_LABELS = {"at_support": "贴近支撑", "at_resistance": "贴近压力", "between": "中间区"}
 STACK_LABELS = {"bull": "多头", "bear": "空头", "mixed": "交错", "unknown": "—"}
 
+#: 侧栏按行业分组的顺序；未登记的标的落进"其他"，排在最后
+SECTOR_ORDER = ["存储", "光模块", "半导体设计", "云计算", "汽车", "航天", "指数/ETF", "其他"]
+SECTOR_MAP = {
+    "MU": "存储", "SNDK": "存储", "000660.KS": "存储",
+    "LITE": "光模块", "COHR": "光模块",
+    "AVGO": "半导体设计", "AMD": "半导体设计", "INTC": "半导体设计",
+    "AMZN": "云计算",
+    "TSLA": "汽车",
+    "SPCX": "航天",
+    "SOXX": "指数/ETF", "QQQ": "指数/ETF",
+}
+
 
 @dataclass
 class Row:
     symbol: str
     benchmark: str | None
     group: str = "quiet"
+    sector: str = "其他"
     price: float | None = None
     prev_close: float | None = None
     change_pct: float | None = None
@@ -118,7 +131,7 @@ def collect_row(
     account: float | None,
     risk_pct: float,
 ) -> Row:
-    row = Row(symbol=symbol, benchmark=benchmark)
+    row = Row(symbol=symbol, benchmark=benchmark, sector=SECTOR_MAP.get(symbol.upper(), "其他"))
     try:
         r = analyze(
             symbol, benchmark=benchmark, provider=provider,
@@ -225,6 +238,7 @@ def build_watchlist(
             "group": GROUP_LABELS, "phase": PHASE_LABELS,
             "zone": ZONE_LABELS, "stack": STACK_LABELS,
         },
+        "sector_order": SECTOR_ORDER,
     }
 
 
