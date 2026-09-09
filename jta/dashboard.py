@@ -42,7 +42,7 @@ ZONE_LABELS = {"at_support": "贴近支撑", "at_resistance": "贴近压力", "b
 STACK_LABELS = {"bull": "多头", "bear": "空头", "mixed": "交错", "unknown": "—"}
 
 #: 侧栏按行业分组的顺序；未登记的标的落进"其他"，排在最后
-SECTOR_ORDER = ["存储", "光模块", "半导体设计", "云计算", "汽车", "航天", "指数/ETF", "其他"]
+SECTOR_ORDER = ["指数/ETF", "存储", "光模块", "半导体设计", "云计算", "汽车", "航天", "其他"]
 SECTOR_MAP = {
     "MU": "存储", "SNDK": "存储", "000660.KS": "存储",
     "LITE": "光模块", "COHR": "光模块",
@@ -53,6 +53,12 @@ SECTOR_MAP = {
     "SOXX": "指数/ETF", "QQQ": "指数/ETF",
 }
 
+#: 侧栏显示名——非直观的代码（比如境外股票代码）换成人读得懂的名字，
+#: 完整代码仍保留在链接的 title 提示里，不丢信息
+DISPLAY_NAME = {
+    "000660.KS": "海力士",
+}
+
 
 @dataclass
 class Row:
@@ -60,6 +66,7 @@ class Row:
     benchmark: str | None
     group: str = "quiet"
     sector: str = "其他"
+    display: str = ""
     price: float | None = None
     prev_close: float | None = None
     change_pct: float | None = None
@@ -131,7 +138,11 @@ def collect_row(
     account: float | None,
     risk_pct: float,
 ) -> Row:
-    row = Row(symbol=symbol, benchmark=benchmark, sector=SECTOR_MAP.get(symbol.upper(), "其他"))
+    row = Row(
+        symbol=symbol, benchmark=benchmark,
+        sector=SECTOR_MAP.get(symbol.upper(), "其他"),
+        display=DISPLAY_NAME.get(symbol.upper(), symbol),
+    )
     try:
         r = analyze(
             symbol, benchmark=benchmark, provider=provider,

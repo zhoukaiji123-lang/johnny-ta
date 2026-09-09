@@ -223,7 +223,7 @@ sectors.forEach(sector => {
     link.className = `side-link ${r.group}` + (r.detail_page ? "" : " disabled");
     link.title = r.detail_page ? `${r.symbol} 技术地图` : (r.error || "无详情页");
     link.appendChild(h("span", `dot ${r.group}`));
-    link.appendChild(document.createTextNode(r.symbol));
+    link.appendChild(document.createTextNode(r.display || r.symbol));
     sidebar.appendChild(link);
   });
 });
