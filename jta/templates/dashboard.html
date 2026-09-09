@@ -43,6 +43,29 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-u
 .num{font-family:var(--font-num);font-variant-numeric:tabular-nums}
 .shell{max-width:1020px;margin:0 auto;padding:0 20px 80px}
 
+.layout{max-width:1200px;margin:0 auto;padding:0 20px 80px;display:flex;gap:28px;align-items:flex-start}
+.main{flex:1;min-width:0}
+.sidebar{flex:0 0 168px;width:168px;position:sticky;top:20px;display:flex;
+         flex-direction:column;gap:1px;max-height:calc(100vh - 40px);overflow-y:auto;
+         padding-top:26px}
+.side-link{display:flex;align-items:center;gap:8px;padding:6px 9px;border-radius:2px;
+           font-family:var(--font-num);font-size:13.5px;color:var(--ink-soft);
+           text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+a.side-link:hover{background:var(--sunk);color:var(--ink)}
+a.side-link:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.side-link.disabled{color:var(--muted);opacity:.55;cursor:default}
+.dot{flex:0 0 auto;width:6px;height:6px;border-radius:50%;background:var(--muted)}
+.dot.actionable{background:var(--good)}
+.dot.event{background:var(--warn)}
+.dot.failed{background:var(--bad)}
+@media (max-width:760px){
+  .layout{flex-direction:column;gap:6px;padding-bottom:60px}
+  .sidebar{position:static;width:100%;flex:none;flex-direction:row;overflow-x:auto;
+           overflow-y:visible;max-height:none;padding-top:14px;padding-bottom:10px;
+           border-bottom:1px solid var(--rule-faint)}
+  .side-link{flex:0 0 auto}
+}
+
 .masthead{background:var(--surface);border-bottom:1px solid var(--rule)}
 .masthead .shell{padding-top:22px;padding-bottom:18px;display:flex;flex-wrap:wrap;
                  align-items:baseline;gap:8px 18px}
@@ -116,18 +139,21 @@ footer a{color:var(--accent)}
 </header>
 <div id="alerts"></div>
 
-<div class="shell">
-  <div class="groups" id="groups"></div>
-  <footer>
-    <div id="foot-note"></div>
-    <div>关键位与计划由 johnny-ta 计算层生成，本页只做汇总渲染。前向验证显示：控制距现价远近后，
-      这些关键位的守住率与随机价位没有可检测差异；价值在口径统一、失效位明确与仓位可反推。</div>
-    <div><strong>方法来源</strong>：分析规则来自
-      <a href="https://github.com/m4yOvO/johnny-finance-skill" target="_blank" rel="noopener noreferrer">m4yOvO/johnny-finance-skill</a>，
-      其上游是小红书博主自由交易员 Johnny（@Johnny0725）的公开博文与技术图。
-      本工具只是该方法的工程实现，与原作者无隶属关系，未经其背书。</div>
-    <div>仅供研究与交易计划辅助，不构成投资建议。</div>
-  </footer>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="标的列表"></nav>
+  <div class="main">
+    <div class="groups" id="groups"></div>
+    <footer>
+      <div id="foot-note"></div>
+      <div>关键位与计划由 johnny-ta 计算层生成，本页只做汇总渲染。前向验证显示：控制距现价远近后，
+        这些关键位的守住率与随机价位没有可检测差异；价值在口径统一、失效位明确与仓位可反推。</div>
+      <div><strong>方法来源</strong>：分析规则来自
+        <a href="https://github.com/m4yOvO/johnny-finance-skill" target="_blank" rel="noopener noreferrer">m4yOvO/johnny-finance-skill</a>，
+        其上游是小红书博主自由交易员 Johnny（@Johnny0725）的公开博文与技术图。
+        本工具只是该方法的工程实现，与原作者无隶属关系，未经其背书。</div>
+      <div>仅供研究与交易计划辅助，不构成投资建议。</div>
+    </footer>
+  </div>
 </div>
 
 <script id="payload" type="application/json">__PAYLOAD__</script>
@@ -170,6 +196,18 @@ for (const key of ["actionable", "event", "quiet", "failed"]) {
   groups.appendChild(g);
 }
 if (!D.rows.length) groups.appendChild(h("div", "quiet-line", "关注列表为空"));
+
+const sidebar = document.getElementById("sidebar");
+D.rows.forEach(r => {
+  const link = r.detail_page
+    ? Object.assign(document.createElement("a"), { href: r.detail_page })
+    : document.createElement("span");
+  link.className = `side-link ${r.group}` + (r.detail_page ? "" : " disabled");
+  link.title = r.detail_page ? `${r.symbol} 技术地图` : (r.error || "无详情页");
+  link.appendChild(h("span", `dot ${r.group}`));
+  link.appendChild(document.createTextNode(r.symbol));
+  sidebar.appendChild(link);
+});
 
 function card(r, key) {
   const c = h("div", "card");
