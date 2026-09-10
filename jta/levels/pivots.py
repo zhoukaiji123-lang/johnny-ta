@@ -113,14 +113,31 @@ def horizontal_pivots(
 def prior_session_levels(
     df: pd.DataFrame, current_price: float, *, timeframe: str
 ) -> list[Level]:
-    """前一交易日高/低/收。日内导航的基础锚点。"""
+    """前一交易日高/低/收。
+
+    按自然日分组取上一个完整交易日的 H/L/C，而不是简单地取 iloc[-2]。
+    日线数据下两者等价（一天一根 bar）；但 4H 一天有两根 bar，iloc[-2]
+    在下午那根 bar 上其实是"今天上午"，不是前一交易日——会产出一个跟现价
+    只差几美分的伪"结构证据"，被合并算法当成独立支撑/压力，把关键位拽到
+    贴着现价的位置。按日期分组能在任意 bar 粒度下都取到真正的前一交易日。
+    """
     if len(df) < 2:
         return []
-    prev = df.iloc[-2]
-    ts = df.index[-2].isoformat()
+    dates = df.index.normalize()
+    last_date = dates[-1]
+    prior_mask = dates < last_date
+    if not prior_mask.any():
+        return []
+    prior_date = dates[prior_mask][-1]
+    day_df = df.loc[dates == prior_date]
+    ts = day_df.index[-1].isoformat()
+    values = {
+        "prev_high": float(day_df["high"].max()),
+        "prev_low": float(day_df["low"].min()),
+        "prev_close": float(day_df["close"].iloc[-1]),
+    }
     out = []
-    for name, key in (("prev_high", "high"), ("prev_low", "low"), ("prev_close", "close")):
-        price = float(prev[key])
+    for name, price in values.items():
         out.append(
             Level(
                 price=price,
@@ -128,7 +145,7 @@ def prior_session_levels(
                 side=_side(price, current_price),
                 timeframe=timeframe,
                 confirmed_at=df.index[-1].isoformat(),
-                detail={"bar_ts": ts},
+                detail={"bar_ts": ts, "session_date": str(prior_date.date())},
             )
         )
     return out

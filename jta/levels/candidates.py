@@ -143,6 +143,12 @@ def build_candidates(
     """把 (价格, 来源) 对合并成候选点。
 
     合并只发生在数值几乎相同、且位于现价同一侧的来源之间。
+
+    合并判据是"新点是否落在簇的**锚点**（该簇第一个成员）半径内"，
+    不是跟不断漂移的簇内均值比较。后者会链式传导：A-B 差 0.4、B-C 差 0.4，
+    各自都在半径内，但 A-C 可能已经差出去一个 ATR——三个本不该合并的独立
+    来源就这样被拼成一个跨度远超 dedup_atr 的候选点。锚定在第一个成员上，
+    能保证任何一簇的总跨度都不超过 radius。
     """
     if atr_value <= 0 or not np.isfinite(atr_value):
         return []
@@ -158,15 +164,19 @@ def build_candidates(
     items.sort(key=lambda t: t[0])
     radius = dedup_atr * atr_value
     out: list[Candidate] = []
+    anchors: list[float] = []
+    members: list[list[float]] = []
     for price, src in items:
         side: Side = "support" if price < current_price else "resistance"
-        if out and out[-1].side == side and price - out[-1].price <= radius:
+        if out and out[-1].side == side and price - anchors[-1] <= radius:
             cur = out[-1]
             cur.sources.append(src)
-            # 代表价取簇内均值，避免被单一来源的小数拖走
-            cur.price = float(np.mean([cur.price, price]))
+            members[-1].append(float(price))
+            cur.price = float(np.mean(members[-1]))
             continue
         out.append(Candidate(price=float(price), side=side, sources=[src]))
+        anchors.append(float(price))
+        members.append([float(price)])
 
     step = display_step(atr_value)
     for c in out:
