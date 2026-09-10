@@ -36,7 +36,7 @@ jobs:
           for attempt in 1 2 3; do
             echo "第 $attempt 次尝试"
             if python -m jta.cli dashboard \
-                MU:SOXX SNDK:SOXX 000660.KS:SOXX AVGO:SOXX AMD:SOXX INTC:SOXX \
+                MU:SOXX SNDK:SOXX SKHY:SOXX AVGO:SOXX AMD:SOXX INTC:SOXX \
                 LITE:SOXX COHR:SOXX AMZN:QQQ GOOGL:QQQ NOW:QQQ NET:QQQ \
                 TSLA:QQQ SPCX:QQQ SOXX:QQQ QQQ:SPY \
                 --out-dir docs; then

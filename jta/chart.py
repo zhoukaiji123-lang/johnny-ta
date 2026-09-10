@@ -202,6 +202,24 @@ def build_payload(
 TEMPLATE = __file__.replace("chart.py", "templates/chart.html")
 
 
+def _json_safe(obj: Any) -> Any:
+    """把 NaN/Inf 换成 None，再交给 json.dumps。
+
+    Python 的 json.dumps 默认会把 float("nan") 写成裸的 NaN 字面量——
+    不是合法 JSON，浏览器的 JSON.parse 会直接报错，整页 JS 全部跑不起来。
+    新上市、历史数据不足一年的标的（比如刚做美股 ADR 的次新股）最容易触发：
+    早期某个 ATR 除法算不出来就会产出 NaN。这里统一兜底，而不是指望每个
+    计算点都记得处理，防止同类问题在其他字段上再犯一次。
+    """
+    if isinstance(obj, float):
+        return obj if np.isfinite(obj) else None
+    if isinstance(obj, dict):
+        return {k: _json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_json_safe(v) for v in obj]
+    return obj
+
+
 #: 去掉 Google Fonts 后的替代字体栈。模板里本来就写了 fallback，
 #: 这里只是把首选项换成系统字体，避免在无法访问 Google 的网络里空等
 OFFLINE_FONT_UI = '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif'
@@ -221,7 +239,7 @@ def render_html(payload: dict[str, Any], *, standalone: bool = False) -> str:
     import re
     from pathlib import Path
 
-    blob = json.dumps(payload, ensure_ascii=False, default=str).replace("</", "<\\/")
+    blob = json.dumps(_json_safe(payload), ensure_ascii=False, default=str).replace("</", "<\\/")
     # 标题要带标的：多张图并列时，一个通用名让人分不出哪张是哪只票。
     # symbol 进 HTML 前必须转义——它最终来自命令行参数，不是可信输入。
     title = _html.escape(f"{payload['analysis']['symbol']} 技术交易地图", quote=False)

@@ -35,7 +35,7 @@ class EarningsMove:
     earnings_date: str
     next_session: str
     move_pct: float
-    move_atr: float
+    move_atr: float | None
 
 
 def _to_ts(v: Any, tz: str) -> pd.Timestamp | None:
@@ -72,7 +72,7 @@ def historical_earnings_moves(
                 earnings_date=ed.date().isoformat(),
                 next_session=idx[pos].date().isoformat(),
                 move_pct=round((cur - prev) / prev * 100, 2),
-                move_atr=round(abs(cur - prev) / a, 2) if np.isfinite(a) and a > 0 else float("nan"),
+                move_atr=round(abs(cur - prev) / a, 2) if np.isfinite(a) and a > 0 else None,
             )
         )
         if len(out) >= limit:

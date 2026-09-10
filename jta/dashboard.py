@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from .analyze import analyze
-from .chart import build_payload, render_html
+from .chart import _json_safe, build_payload, render_html
 from .data.provider import MAX_DATA_AGE_SESSIONS, DataUnavailable
 from .data.yf_provider import YFinanceProvider
 
@@ -44,7 +44,7 @@ STACK_LABELS = {"bull": "多头", "bear": "空头", "mixed": "交错", "unknown"
 #: 侧栏按行业分组的顺序；未登记的标的落进"其他"，排在最后
 SECTOR_ORDER = ["指数/ETF", "存储", "光模块", "半导体设计", "云计算", "汽车", "航天", "其他"]
 SECTOR_MAP = {
-    "MU": "存储", "SNDK": "存储", "000660.KS": "存储",
+    "MU": "存储", "SNDK": "存储", "SKHY": "存储",
     "LITE": "光模块", "COHR": "光模块",
     "AVGO": "半导体设计", "AMD": "半导体设计", "INTC": "半导体设计",
     "AMZN": "云计算", "GOOGL": "云计算", "NOW": "云计算", "NET": "云计算",
@@ -56,7 +56,7 @@ SECTOR_MAP = {
 #: 侧栏显示名——非直观的代码（比如境外股票代码）换成人读得懂的名字，
 #: 完整代码仍保留在链接的 title 提示里，不丢信息
 DISPLAY_NAME = {
-    "000660.KS": "海力士",
+    "SKHY": "海力士",
 }
 
 
@@ -254,7 +254,7 @@ def build_watchlist(
 
 
 def render_dashboard(payload: dict[str, Any]) -> str:
-    blob = json.dumps(payload, ensure_ascii=False, default=str).replace("</", "<\\/")
+    blob = json.dumps(_json_safe(payload), ensure_ascii=False, default=str).replace("</", "<\\/")
     title = _html.escape("johnny-ta 看板", quote=False)
     return (
         TEMPLATE.read_text(encoding="utf-8")
