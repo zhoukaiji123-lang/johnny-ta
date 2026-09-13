@@ -432,7 +432,10 @@ document.getElementById("disclaimer").innerHTML =
 <script>
 /* ---------- 日线图 ---------- */
 const D = C.daily, bars = D.bars;
-const W = 1120, H = 560, PAD = { l: 14, r: 74, t: 18, b: 100 };
+// 右侧留出独立的关键位标签栏（LEVEL_COL_W）+ 坐标轴数字栏（AXIS_COL_W），
+// 二者都在蜡烛图绘制区之外，标签不会再跟最近几十根 K 线的影线叠在一起
+const LEVEL_COL_W = 128, AXIS_COL_W = 46, COL_GAP = 8;
+const W = 1120, H = 560, PAD = { l: 14, r: 6 + LEVEL_COL_W + COL_GAP + AXIS_COL_W + 6, t: 18, b: 100 };
 const PRICE_H = 384, VOL_TOP = 416, VOL_H = 70;
 const plotW = W - PAD.l - PAD.r;
 const bw = plotW / bars.length;
@@ -455,15 +458,16 @@ svg.appendChild(el("defs", {}, [
 layerOrder.forEach(k => { L[k] = el("g", { "data-layer": k }); svg.appendChild(L[k]); });
 ["fib","ema","vegas","trend","levels","plan"].forEach(k => L[k].setAttribute("clip-path", "url(#clip-price)"));
 
-/* 网格与坐标 */
+/* 网格与坐标：坐标轴数字栏在关键位标签栏right侧，二者互不重叠 */
+const axisX = W - PAD.r + LEVEL_COL_W + COL_GAP + 6;
 const ticks = 6;
 for (let i = 0; i <= ticks; i++) {
   const p = lo + (hi - lo) * i / ticks, yy = y(p);
   L.grid.appendChild(el("line", { x1: PAD.l, x2: W - PAD.r, y1: yy, y2: yy, class: "s-grid", "stroke-width": 1 }));
-  L.axis.appendChild(el("text", { x: W - PAD.r + 8, y: yy + 4, class: "s-tx-muted",
+  L.axis.appendChild(el("text", { x: axisX, y: yy + 4, class: "s-tx-muted",
     "font-size": 11, "font-family": "var(--font-num)", text: fmt(p, 0) }));
 }
-L.axis.appendChild(el("text", { x: W - PAD.r + 8, y: VOL_TOP + 10, class: "s-tx-muted",
+L.axis.appendChild(el("text", { x: axisX, y: VOL_TOP + 10, class: "s-tx-muted",
   "font-size": 10, "font-family": "var(--font-num)", text: "VOL" }));
 const step = Math.ceil(bars.length / 9);
 bars.forEach((b, i) => {
@@ -572,36 +576,29 @@ labels.forEach((l, i) => {
 const overflow = labels.length ? labels[labels.length - 1].ly - (PAD.t + PRICE_H) : 0;
 if (overflow > 0) labels.forEach(l => { l.ly -= overflow; });
 
-const boxX = W - PAD.r - BOX_W - 4;
+// 标签栏整体挪到蜡烛图绘制区右侧的独立留白里（W - PAD.r 之外），
+// 不再跟最近的 K 线影线叠在一起挡字；现价也并进同一栏、同一套避让逻辑，
+// 不再用旧的窄小徽章挤在坐标轴数字缝里
+const boxX = W - PAD.r + 6;
 labels.forEach(l => {
-  if (l.kind === "now") return;
+  const now = l.kind === "now";
   const sup = l.kind === "support";
+  const cls = now ? "ink" : (sup ? "sup" : "res");
   const g = el("g", {});
   g.appendChild(el("line", { x1: PAD.l, x2: boxX, y1: l.y, y2: l.y,
-    class: sup ? "s-ln-sup" : "s-ln-res", "stroke-width": 1.6, opacity: .9 }));
+    class: `s-ln-${cls}`, "stroke-width": now ? 1 : 1.6, "stroke-dasharray": now ? "4 3" : null,
+    opacity: now ? .55 : .9 }));
   // 引线：标签被推开时，把它连回真实价格位置
   g.appendChild(el("line", { x1: boxX, y1: l.y, x2: boxX + 4, y2: l.ly,
-    class: sup ? "s-ln-sup" : "s-ln-res", "stroke-width": 1, opacity: .55 }));
+    class: `s-ln-${cls}`, "stroke-width": 1, opacity: .55 }));
   g.appendChild(el("rect", { x: boxX + 4, y: l.ly - BOX_H / 2, width: BOX_W, height: BOX_H,
-    class: sup ? "s-fill-sup" : "s-fill-res", opacity: .16, rx: 2 }));
+    class: now ? "s-fill-ink" : (sup ? "s-fill-sup" : "s-fill-res"), opacity: now ? 1 : .16, rx: 2 }));
   g.appendChild(el("text", { x: boxX + 4 + BOX_W - 8, y: l.ly + 4, "text-anchor": "end",
-    class: sup ? "s-tx-sup" : "s-tx-res",
+    class: now ? "s-tx-ground" : (sup ? "s-tx-sup" : "s-tx-res"),
     "font-size": 11.5, "font-weight": 600, "font-family": "var(--font-num)", text: l.text }));
-  L.levels.appendChild(g);
-  levelNodes.set(l.lv.label, g);
+  (now ? L.now : L.levels).appendChild(g);
+  if (!now) levelNodes.set(l.lv.label, g);
 });
-
-/* 现价 */
-const nowLabel = labels.find(l => l.kind === "now");
-if (nowLabel) {
-  L.now.appendChild(el("line", { x1: PAD.l, x2: W - PAD.r, y1: nowLabel.y, y2: nowLabel.y,
-    class: "s-ln-ink", "stroke-width": 1, "stroke-dasharray": "4 3", opacity: .55 }));
-  L.now.appendChild(el("rect", { x: W - PAD.r + 2, y: nowLabel.ly - 9, width: 66, height: 18,
-    class: "s-fill-ink", rx: 2 }));
-  L.now.appendChild(el("text", { x: W - PAD.r + 35, y: nowLabel.ly + 4, "text-anchor": "middle",
-    class: "s-tx-ground", "font-size": 11.5, "font-weight": 600,
-    "font-family": "var(--font-num)", text: nowLabel.text }));
-}
 </script>
 <script>
 /* ---------- 图层开关 ---------- */
