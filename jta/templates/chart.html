@@ -157,6 +157,34 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent
 .readout.on { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .readout { transition: none; } }
 
+/* ---- 当前位置刻度 ---- */
+.ladder {
+  display: flex; align-items: flex-start; gap: 2px; padding: 10px 2px 16px;
+  border-bottom: 1px solid var(--rule-faint); margin-bottom: 14px; overflow-x: auto;
+}
+.ladder-cell {
+  flex: 1 1 0; min-width: 46px; display: flex; flex-direction: column; align-items: center;
+  gap: 5px; position: relative; padding-top: 9px;
+}
+.ladder-cell::before {
+  content: ""; position: absolute; top: 3px; left: 0; right: 0; height: 1px; background: var(--rule);
+}
+.ladder-cell:first-child::before { left: 50%; }
+.ladder-cell:last-child::before { right: 50%; }
+.ladder-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); z-index: 1; }
+.ladder-s .ladder-dot { background: var(--support); }
+.ladder-r .ladder-dot { background: var(--resist); }
+.ladder-now .ladder-dot { width: 9px; height: 9px; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.ladder-label { font-size: 10.5px; color: var(--muted); font-weight: 600; }
+.ladder-now .ladder-label { color: var(--accent); }
+.ladder-value {
+  font-family: var(--font-num); font-size: 12px; font-weight: 600; white-space: nowrap;
+  color: var(--ink-soft);
+}
+.ladder-s .ladder-value { color: var(--support); }
+.ladder-r .ladder-value { color: var(--resist); }
+.ladder-now .ladder-value { color: var(--accent); font-size: 13px; }
+
 /* ---- 关键位表 ---- */
 .split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 28px; align-items: start; }
 @media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
@@ -277,6 +305,7 @@ footer { font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--rul
   <section class="split">
     <div>
       <h2>关键位</h2>
+      <div class="ladder" id="ladder"></div>
       <div class="panel levels">
         <table>
           <thead>
@@ -360,8 +389,13 @@ const EV = { primary_fib:"主Fib", extension_fib:"扩展Fib", horizontal:"水平
 /* ---------- 顶栏与图签 ---------- */
 document.getElementById("m-symbol").textContent = A.symbol;
 document.getElementById("m-price").textContent = fmt(A.current_price);
-document.getElementById("m-pricemeta").textContent =
-  `ATR ${fmt(A.data.atr_daily)} · 展示粒度 ${A.data.display_step}`;
+let pricemeta = `ATR ${fmt(A.data.atr_daily)} · 展示粒度 ${A.data.display_step}`;
+if (A.benchmark) {
+  const bc = A.benchmark.change_pct;
+  const bcTxt = bc == null ? "" : ` ${bc >= 0 ? "+" : ""}${bc}%`;
+  pricemeta += ` · 基准 ${A.benchmark.symbol}${bcTxt}`;
+}
+document.getElementById("m-pricemeta").textContent = pricemeta;
 document.getElementById("m-phase").textContent = PHASE[A.market_state.phase] || A.market_state.phase;
 document.getElementById("m-zone").textContent = ZONE[A.position_zone] || A.position_zone;
 if (A.price_is_live) {
@@ -519,15 +553,18 @@ const labels = [];
 allLevels.forEach(lv => {
   const p = lv.display ?? lv.raw_price;
   if (!inRange(p)) return;
-  labels.push({ price: p, y: y(p), kind: lv.side, lv,
-    text: `${lv.label} ${lv.dynamic ? "约" : ""}${fmt(p, 0)}` });
+  // display_text 是后端算好的展示串（含"约"前缀、含区间"217–217.5"这种格式）；
+  // 前端不再自己用 fmt() 重新拼一遍，不然区间信息传不到图上
+  labels.push({ price: p, y: y(p), kind: lv.side, lv, text: `${lv.label} ${lv.display_text}` });
 });
 if (inRange(A.current_price))
   labels.push({ price: A.current_price, y: y(A.current_price), kind: "now", text: fmt(A.current_price, 0) });
 
-// 自上而下推开：相邻标签至少留 19px，避免叠字
+// 自上而下推开：相邻标签留够 GAP，且必须明显大于标签背景框高度（18px），
+// 否则相邻两个框只隔 1px，视觉上会连成一整条、看不清是几个数字粘在一起
 labels.sort((a, b) => a.y - b.y);
-const GAP = 19;
+const GAP = 27;
+const BOX_W = 128, BOX_H = 18;
 labels.forEach((l, i) => {
   l.ly = l.y;
   if (i > 0) l.ly = Math.max(l.ly, labels[i - 1].ly + GAP);
@@ -535,18 +572,19 @@ labels.forEach((l, i) => {
 const overflow = labels.length ? labels[labels.length - 1].ly - (PAD.t + PRICE_H) : 0;
 if (overflow > 0) labels.forEach(l => { l.ly -= overflow; });
 
+const boxX = W - PAD.r - BOX_W - 4;
 labels.forEach(l => {
   if (l.kind === "now") return;
   const sup = l.kind === "support";
   const g = el("g", {});
-  g.appendChild(el("line", { x1: PAD.l, x2: W - PAD.r - 96, y1: l.y, y2: l.y,
+  g.appendChild(el("line", { x1: PAD.l, x2: boxX, y1: l.y, y2: l.y,
     class: sup ? "s-ln-sup" : "s-ln-res", "stroke-width": 1.6, opacity: .9 }));
   // 引线：标签被推开时，把它连回真实价格位置
-  g.appendChild(el("line", { x1: W - PAD.r - 96, y1: l.y, x2: W - PAD.r - 92, y2: l.ly,
+  g.appendChild(el("line", { x1: boxX, y1: l.y, x2: boxX + 4, y2: l.ly,
     class: sup ? "s-ln-sup" : "s-ln-res", "stroke-width": 1, opacity: .55 }));
-  g.appendChild(el("rect", { x: W - PAD.r - 92, y: l.ly - 9, width: 88, height: 18,
-    class: sup ? "s-fill-sup" : "s-fill-res", opacity: .14, rx: 2 }));
-  g.appendChild(el("text", { x: W - PAD.r - 8, y: l.ly + 4, "text-anchor": "end",
+  g.appendChild(el("rect", { x: boxX + 4, y: l.ly - BOX_H / 2, width: BOX_W, height: BOX_H,
+    class: sup ? "s-fill-sup" : "s-fill-res", opacity: .16, rx: 2 }));
+  g.appendChild(el("text", { x: boxX + 4 + BOX_W - 8, y: l.ly + 4, "text-anchor": "end",
     class: sup ? "s-tx-sup" : "s-tx-res",
     "font-size": 11.5, "font-weight": 600, "font-family": "var(--font-num)", text: l.text }));
   L.levels.appendChild(g);
@@ -654,6 +692,25 @@ svg.addEventListener("mouseleave", () => readout.classList.remove("on"));
   });
   s.appendChild(el("text", { x: P2.l, y: H2 - 6, class: "s-tx-muted", "font-size": 10,
     "font-family": "var(--font-num)", text: `${bars2.length} 根 4H bar · ${bars2[0].t.slice(2, 10)} 起` }));
+})();
+
+/* ---------- 当前位置：关键位 + 现价 一条横向刻度 ---------- */
+(() => {
+  const ladder = document.getElementById("ladder");
+  if (!ladder) return;
+  // 从深到浅排到最左，现价插在最近支撑与最近压力之间，最右是最浅的压力
+  const items = [
+    ...[...A.supports].reverse().map(lv => ({ label: lv.label, text: lv.display_text, kind: "s" })),
+    { label: "现价", text: fmt(A.current_price), kind: "now" },
+    ...A.resistances.map(lv => ({ label: lv.label, text: lv.display_text, kind: "r" })),
+  ];
+  items.forEach(it => {
+    const cell = h("div", `ladder-cell ladder-${it.kind}`);
+    cell.appendChild(h("span", "ladder-dot"));
+    cell.appendChild(h("span", "ladder-label", it.label));
+    cell.appendChild(h("span", "ladder-value", it.text));
+    ladder.appendChild(cell);
+  });
 })();
 
 /* ---------- 关键位表 ---------- */
@@ -865,8 +922,14 @@ ecard(E.event_mode ? "事件模式 · 已降级" : "事件日程", c => {
   if (m.length) {
     c.appendChild(h("div", "rule-line", "历史财报后次日跳空："));
     const ul = h("ul", "list");
-    m.slice(0, 4).forEach(x => ul.appendChild(h("li", null,
-      `${x.earnings_date} → ${x.move_pct > 0 ? "+" : ""}${x.move_pct}%（${x.move_atr} ATR）`)));
+    m.slice(0, 4).forEach(x => {
+      const eps = x.eps_actual != null
+        ? `EPS ${x.eps_actual}（预期 ${x.eps_estimate ?? "—"}` +
+          (x.surprise_pct != null ? `，${x.surprise_pct >= 0 ? "+" : ""}${x.surprise_pct}%` : "") + `） · `
+        : "";
+      ul.appendChild(h("li", null,
+        `${x.earnings_date} → ${eps}次日 ${x.move_pct > 0 ? "+" : ""}${x.move_pct}%（${x.move_atr ?? "—"} ATR）`));
+    });
     c.appendChild(ul);
   }
 });

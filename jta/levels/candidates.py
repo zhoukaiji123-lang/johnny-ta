@@ -52,6 +52,8 @@ class Candidate:
     side: Side
     sources: list[dict[str, Any]] = field(default_factory=list)
     display: float | None = None
+    range_low: float | None = None
+    range_high: float | None = None
     role: str | None = None
     snap: dict[str, Any] | None = None
     resonance: dict[str, Any] = field(default_factory=dict)
@@ -75,8 +77,16 @@ class Candidate:
         d["dynamic"] = self.dynamic
         d["confirmed_at"] = self.confirmed_at
         d["role_label"] = ROLE_LABELS.get(self.role or "", None)
-        shown = self.display if self.display is not None else self.price
-        text = f"{shown:,.10g}" if shown == int(shown) else f"{shown:,}"
+
+        def _fmt(v: float) -> str:
+            return f"{v:,.10g}" if v == int(v) else f"{v:,}"
+
+        low, high = d.get("range_low"), d.get("range_high")
+        if low is not None and high is not None and high > low:
+            text = f"{_fmt(low)}–{_fmt(high)}"
+        else:
+            shown = self.display if self.display is not None else self.price
+            text = _fmt(shown)
         d["display_text"] = f"约 {text}" if self.dynamic else text
         d["raw_price"] = round(self.price, 4)
         return d
@@ -132,6 +142,14 @@ def quantize(price: float, step: float) -> float:
     return round(round(price / step) * step, decimals)
 
 
+def _quantize_edge(price: float, step: float, edge: Any) -> float:
+    """向外取整到展示步长——下边界向下、上边界向上，保证区间盖住全部原始来源。"""
+    if step <= 0:
+        return price
+    decimals = max(0, -int(np.floor(np.log10(step))) + 2)
+    return round(edge(price / step) * step, decimals)
+
+
 def build_candidates(
     raw: Sequence[tuple[float, dict[str, Any]]],
     current_price: float,
@@ -179,9 +197,13 @@ def build_candidates(
         members.append([float(price)])
 
     step = display_step(atr_value)
-    for c in out:
+    for c, group in zip(out, members):
         c.distance_atr = round(abs(c.price - current_price) / atr_value, 3)
         c.display = quantize(c.price, step)
+        # 区间向外取整，保证展示的低/高边界盖住这一簇全部原始来源；
+        # 单一来源时 floor==ceil，to_dict() 会退回单一数字，不会显示"X–X"
+        c.range_low = _quantize_edge(min(group), step, np.floor)
+        c.range_high = _quantize_edge(max(group), step, np.ceil)
     return out
 
 

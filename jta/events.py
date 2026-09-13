@@ -36,6 +36,9 @@ class EarningsMove:
     next_session: str
     move_pct: float
     move_atr: float | None
+    eps_estimate: float | None = None
+    eps_actual: float | None = None
+    surprise_pct: float | None = None
 
 
 def _to_ts(v: Any, tz: str) -> pd.Timestamp | None:
@@ -50,29 +53,39 @@ def _to_ts(v: Any, tz: str) -> pd.Timestamp | None:
 
 
 def historical_earnings_moves(
-    df: pd.DataFrame, earnings_dates: pd.DatetimeIndex, atr: pd.Series, limit: int = 6
+    df: pd.DataFrame, earnings: pd.DataFrame, atr: pd.Series, limit: int = 6
 ) -> list[EarningsMove]:
-    """历史财报后第一个交易日的跳空幅度。
+    """历史财报后第一个交易日的跳空幅度，附带实际披露的 EPS 与超出预期幅度。
 
     用来回答"这只票财报后通常动多少"——决定事件模式该降级多少，
-    比笼统说一句"注意财报风险"有用。
+    比笼统说一句"注意财报风险"有用。EPS 实际值/预期值/超预期幅度直接取自
+    数据源的 earnings_dates 表，不做任何推算；缺失就是缺失，报 None 而不是
+    NaN（NaN 写进页面内嵌 JSON 不是合法语法，会让整页 JS 崩掉）。
     """
     out: list[EarningsMove] = []
     idx = df.index
     closes = df["close"].to_numpy(dtype=float)
-    for ed in earnings_dates:
+    for ed, row in earnings.iterrows():
         ed = ed.tz_convert(idx.tz) if ed.tz is not None else ed.tz_localize(idx.tz)
         pos = idx.searchsorted(ed, side="right")
         if pos <= 0 or pos >= len(idx):
             continue
         prev, cur = closes[pos - 1], closes[pos]
         a = float(atr.iloc[pos - 1]) if np.isfinite(atr.iloc[pos - 1]) else np.nan
+
+        def _num(key: str) -> float | None:
+            v = row.get(key)
+            return float(v) if v is not None and np.isfinite(v) else None
+
         out.append(
             EarningsMove(
                 earnings_date=ed.date().isoformat(),
                 next_session=idx[pos].date().isoformat(),
                 move_pct=round((cur - prev) / prev * 100, 2),
                 move_atr=round(abs(cur - prev) / a, 2) if np.isfinite(a) and a > 0 else None,
+                eps_estimate=_num("EPS Estimate"),
+                eps_actual=_num("Reported EPS"),
+                surprise_pct=_num("Surprise(%)"),
             )
         )
         if len(out) >= limit:
@@ -160,7 +173,7 @@ def fetch_events(
     try:
         ed = getattr(ticker, "earnings_dates", None)
         if ed is not None and len(ed):
-            past = ed[ed.index <= last_bar].index
+            past = ed[ed.index <= last_bar]
             result["historical_earnings_moves"] = [
                 m.__dict__ for m in historical_earnings_moves(df, past, atr)
             ]

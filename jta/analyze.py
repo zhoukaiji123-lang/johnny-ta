@@ -393,9 +393,17 @@ def analyze(
     if benchmark:
         b = provider.fetch(benchmark, "1d", as_of=as_of)
         bdf = b.df.tail(DAILY_LOOKBACK)
+        # 基准指数走的是普通日线抓取，没有盘中 live 拼接，iloc[-1]/[-2] 就是
+        # 最近两根已收盘的 bar，算当日涨跌幅不涉及"现价是否盘中"的歧义
+        change_pct = (
+            round((float(bdf["close"].iloc[-1]) / float(bdf["close"].iloc[-2]) - 1) * 100, 2)
+            if len(bdf) >= 2 and float(bdf["close"].iloc[-2])
+            else None
+        )
         index_summary = {
             "symbol": benchmark,
             "price": round(float(bdf["close"].iloc[-1]), 4),
+            "change_pct": change_pct,
             "ema_stack": ema_stack(ema_set(bdf["close"]).iloc[-1]),
             "as_of_bar": bdf.index[-1].isoformat(),
             # 基准驱动着方向降级判断；它自己的数据可信度必须一起传出，
