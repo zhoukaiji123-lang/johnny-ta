@@ -2,8 +2,8 @@ name: 每日看板
 
 on:
   schedule:
-    # 22:00 UTC = 收盘后 1.5–2 小时（EDT 18:00 / EST 17:00），周一至周五
-    - cron: "0 22 * * 1-5"
+    # 01:00 UTC = 北京时间早上 9 点（收盘后 5 小时缓冲），周一至周五
+    - cron: "0 1 * * 1-5"
   workflow_dispatch:          # 也可手动触发
 
 permissions:
