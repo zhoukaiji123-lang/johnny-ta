@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 from .analyze import DAILY_LOOKBACK, INTRADAY_LOOKBACK, _prepare, analyze
-from .data.yf_provider import YFinanceProvider
+from .data.fallback_provider import build_provider
 from .indicators.ema import ALL_SPANS, SHORT_SPANS, ema_set
 from .indicators.swing import DEFAULT_K, detect_swings, visible_at
 from .indicators.td import SETUP_LENGTH, td_setup
@@ -97,7 +97,7 @@ def build_payload(
     provider: Any | None = None,
     include_events: bool = True,
 ) -> dict[str, Any]:
-    provider = provider or YFinanceProvider()
+    provider = provider or build_provider("auto")
     result = analyze(
         symbol,
         benchmark=benchmark,

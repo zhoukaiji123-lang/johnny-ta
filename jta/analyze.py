@@ -13,9 +13,9 @@ from typing import Any, Sequence
 import numpy as np
 import pandas as pd
 
+from .data.fallback_provider import build_provider
 from .data.provider import MAX_DATA_AGE_SESSIONS, OHLCV
 from .events import fetch_events
-from .data.yf_provider import YFinanceProvider
 from .indicators.atr import atr as atr_series
 from .indicators.ema import ALL_SPANS, ema_set, ema_stack, vegas_zone, warmup_status
 from .indicators.price_action import bar_signals
@@ -367,7 +367,7 @@ def analyze(
     account: float | None = None,
     risk_pct: float = 0.01,
 ) -> dict[str, Any]:
-    provider = provider or YFinanceProvider()
+    provider = provider or build_provider("auto")
     daily_series = provider.fetch(symbol, "1d", as_of=as_of)
     intraday_series = provider.fetch(symbol, "4h", as_of=as_of)
 

@@ -10,8 +10,8 @@ from datetime import datetime, timezone
 import pandas as pd
 
 from .analyze import analyze
+from .data.fallback_provider import SOURCES, build_provider
 from .data.provider import DataUnavailable
-from .data.yf_provider import YFinanceProvider
 from .report import render_text
 
 INTERVALS = ["1wk", "1d", "4h", "60m", "30m", "15m"]
@@ -30,7 +30,7 @@ def _parse_as_of(value: str | None) -> datetime | None:
 
 
 def cmd_fetch(args: argparse.Namespace) -> int:
-    provider = YFinanceProvider()
+    provider = build_provider(args.source, force_refresh=args.refresh)
     try:
         series = provider.fetch(
             args.symbol,
@@ -76,7 +76,7 @@ def cmd_analyze(args: argparse.Namespace) -> int:
             args.symbol,
             as_of=_parse_as_of(args.as_of),
             benchmark=args.benchmark,
-            provider=YFinanceProvider(force_refresh=args.refresh),
+            provider=build_provider(args.source, force_refresh=args.refresh),
         )
     except DataUnavailable as exc:
         print(f"错误: {exc}", file=sys.stderr)
@@ -99,7 +99,7 @@ def cmd_chart(args: argparse.Namespace) -> int:
         payload = build_payload(
             args.symbol, benchmark=args.benchmark, account=args.account,
             risk_pct=args.risk, holding=holding,
-            provider=YFinanceProvider(force_refresh=args.refresh),
+            provider=build_provider(args.source, force_refresh=args.refresh),
         )
     except DataUnavailable as exc:
         print(f"错误: {exc}", file=sys.stderr)
@@ -125,6 +125,7 @@ def cmd_dashboard(args: argparse.Namespace) -> int:
     payload = build_watchlist(
         pairs, account=args.account, risk_pct=args.risk,
         out_dir=out_dir, write_details=not args.no_details, refresh=not args.no_refresh,
+        provider=build_provider(args.source, force_refresh=not args.no_refresh),
     )
     index = out_dir / "index.html"
     index.write_text(render_dashboard(payload), encoding="utf-8")
@@ -269,6 +270,10 @@ def main(argv: list[str] | None = None) -> int:
     f.add_argument("--as-of", default=None, help="只使用该时点之前的数据（前向测试）")
     f.add_argument("--tail", type=int, default=10)
     f.add_argument("--refresh", action="store_true", help="忽略缓存强制重抓")
+    f.add_argument(
+        "--source", default="yfinance", choices=SOURCES,
+        help="数据源，默认 yfinance；auto 会在滞后/失败时自动切到 twelvedata",
+    )
     f.add_argument("--json", action="store_true")
     f.set_defaults(func=cmd_fetch)
 
@@ -279,6 +284,10 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--account", type=float, default=None, help="账户净值，用于反推仓位")
     a.add_argument("--risk", type=float, default=0.01, help="单笔风险比例，默认 1%%")
     a.add_argument("--refresh", action="store_true", help="忽略缓存强制重抓")
+    a.add_argument(
+        "--source", default="auto", choices=SOURCES,
+        help="数据源，默认 auto（yfinance 优先，滞后/失败时切到 twelvedata）",
+    )
     a.add_argument("--json", action="store_true")
     a.set_defaults(func=cmd_analyze)
 
@@ -291,6 +300,7 @@ def main(argv: list[str] | None = None) -> int:
     ch.add_argument("--shares", type=int, default=None, help="持仓股数")
     ch.add_argument("--out", default=None)
     ch.add_argument("--refresh", action="store_true", help="忽略缓存强制重抓")
+    ch.add_argument("--source", default="auto", choices=SOURCES)
     ch.add_argument(
         "--standalone", action="store_true",
         help="产出完整 HTML 文档并去掉 Google Fonts 外链，适合转发或离线打开",
@@ -315,6 +325,7 @@ def main(argv: list[str] | None = None) -> int:
     db.add_argument("--risk", type=float, default=0.01)
     db.add_argument("--no-details", action="store_true", help="只生成看板，不生成各标的的图")
     db.add_argument("--no-refresh", action="store_true", help="允许使用缓存（默认强制重抓）")
+    db.add_argument("--source", default="auto", choices=SOURCES)
     db.add_argument("--json", action="store_true")
     db.set_defaults(func=cmd_dashboard)
 

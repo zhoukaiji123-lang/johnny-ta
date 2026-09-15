@@ -20,8 +20,8 @@ from typing import Any
 
 from .analyze import analyze
 from .chart import _json_safe, build_payload, render_html
+from .data.fallback_provider import build_provider
 from .data.provider import MAX_DATA_AGE_SESSIONS, DataUnavailable
-from .data.yf_provider import YFinanceProvider
 
 TEMPLATE = Path(__file__).with_name("templates") / "dashboard.html"
 
@@ -210,7 +210,7 @@ def build_watchlist(
     refresh: bool = True,
 ) -> dict[str, Any]:
     """跑完整个关注列表，可选地把各标的的详情页写到 out_dir。"""
-    provider = provider or YFinanceProvider(force_refresh=refresh)
+    provider = provider or build_provider("auto", force_refresh=refresh)
     rows: list[Row] = []
     for symbol, bm in pairs:
         row = collect_row(
