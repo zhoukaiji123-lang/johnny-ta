@@ -31,7 +31,10 @@ jobs:
 
       - name: 生成看板
         id: build
+        env:
+          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
         # 无人值守时网络抖动是常态，重试三次；仍失败则让步骤失败并保留上次产物
+        # --source auto：yfinance 优先，滞后或失败时切到 twelvedata（未设置 key 时静默退化为纯 yfinance）
         run: |
           for attempt in 1 2 3; do
             echo "第 $attempt 次尝试"
