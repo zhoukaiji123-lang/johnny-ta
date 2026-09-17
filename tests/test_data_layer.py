@@ -223,6 +223,19 @@ def test_data_age_uses_as_of_not_wall_clock():
     assert data_age_sessions(bar, as_of) == 1
 
 
+def test_data_age_before_todays_close_is_not_penalised():
+    """凌晨查数据时纽约日期已经翻到今天，但今天还没收盘——
+    昨天的收盘就是此刻唯一该有的数据，不该被算成滞后 1 天。"""
+    from jta.data.provider import data_age_sessions
+
+    wed_close = pd.Timestamp("2026-09-16 16:00", tz=TZ)
+    thu_2am_et = datetime(2026, 9, 17, 5, 58, tzinfo=timezone.utc)  # 纽约周四凌晨 1:58
+    assert data_age_sessions(wed_close, thu_2am_et) == 0
+
+    thu_5pm_et = datetime(2026, 9, 17, 21, 0, tzinfo=timezone.utc)  # 周四已收盘
+    assert data_age_sessions(wed_close, thu_5pm_et) == 1  # 周四收盘后还停在周三，才算真滞后
+
+
 def test_forced_refresh_fails_loudly_instead_of_serving_cache(tmp_path, monkeypatch):
     """--refresh 下抓取失败必须抛错。
 

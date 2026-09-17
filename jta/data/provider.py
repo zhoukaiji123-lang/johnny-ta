@@ -171,16 +171,22 @@ MAX_DATA_AGE_SESSIONS = 3
 
 
 def data_age_sessions(last_bar: "pd.Timestamp", reference: datetime | None = None) -> int:
-    """最后一根 bar 距参考时点隔了几个交易日。
+    """最后一根 bar 距参考时点隔了几个"理应已收盘"的交易日。
 
     `stale` 只说明"这次抓取失败了"，不说明数据是新的：数据源故障时可能
     成功返回一份旧响应，标的停牌或退市也会让最后一根 bar 停在过去。
     两者是不同的失败模式，必须分别检测。
+
+    纯按日历日期算差值会在收盘前的时段（尤其是凌晨，纽约日期已经翻页但
+    当天盘还没开）把"唯一该有的数据"误判成滞后一天：参考时点落在当天
+    RTH_CLOSE 之前，就按前一天算，不然凌晨查数据永远显示"差 1 天"。
     """
     ref = pd.Timestamp(reference or utcnow())
     if ref.tz is None:
         ref = ref.tz_localize("UTC")
     ref_local = ref.tz_convert(last_bar.tz) if last_bar.tz is not None else ref
+    if ref_local.time() < RTH_CLOSE:
+        ref_local = ref_local - pd.Timedelta(days=1)
     return max(0, int(np.busday_count(last_bar.date(), ref_local.date())))
 
 
