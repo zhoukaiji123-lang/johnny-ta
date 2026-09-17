@@ -79,6 +79,10 @@ class DataUnavailable(RuntimeError):
     """行情抓取失败且无可用缓存。绝不静默返回空数据。"""
 
 
+class DataNotCurrent(DataUnavailable):
+    """拿到了数据，但不是最新一个已收盘交易日的——按规则拒绝发布，而不是带着旧数据继续跑。"""
+
+
 class Provider(Protocol):
     name: str
 

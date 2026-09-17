@@ -21,7 +21,7 @@ from typing import Any
 from .analyze import analyze
 from .chart import _json_safe, build_payload, render_html
 from .data.fallback_provider import build_provider
-from .data.provider import MAX_DATA_AGE_SESSIONS, DataUnavailable
+from .data.provider import MAX_DATA_AGE_SESSIONS, DataNotCurrent, DataUnavailable
 
 TEMPLATE = Path(__file__).with_name("templates") / "dashboard.html"
 
@@ -208,28 +208,52 @@ def build_watchlist(
     write_details: bool = True,
     provider: Any | None = None,
     refresh: bool = True,
+    require_fresh: bool = True,
 ) -> dict[str, Any]:
-    """跑完整个关注列表，可选地把各标的的详情页写到 out_dir。"""
+    """跑完整个关注列表，可选地把各标的的详情页写到 out_dir。
+
+    require_fresh=True（默认）：只要有一个标的没拿到最新一个已收盘交易日的数据
+    （age_sessions > 0）或者直接抓取失败，就不写任何文件、抛 DataNotCurrent——
+    宁可看板不更新，也不能让"看起来是今天生成的"页面挂着过期数据。判定用
+    age_sessions 而不是 too_old：too_old 阈值 3 天是为了容忍周末假期，
+    不是"今天数据到位了没有"的口径，周一早上看到上周五收盘不算不新鲜。
+    """
     provider = provider or build_provider("auto", force_refresh=refresh)
     rows: list[Row] = []
+    pending_details: list[tuple[str, str | None, Row]] = []
     for symbol, bm in pairs:
         row = collect_row(
             symbol, bm, provider=provider, account=account, risk_pct=risk_pct
         )
-        if write_details and out_dir is not None and row.error is None:
-            try:
-                page = f"{_slug(symbol)}.html"
-                payload = build_payload(
-                    symbol, benchmark=bm, account=account,
-                    risk_pct=risk_pct, provider=provider,
-                )
-                (out_dir / page).write_text(
-                    render_html(payload, standalone=True), encoding="utf-8"
-                )
-                row.detail_page = page
-            except Exception as exc:  # noqa: BLE001
-                row.error = f"详情页生成失败: {exc}"
         rows.append(row)
+        if write_details and out_dir is not None and row.error is None:
+            pending_details.append((symbol, bm, row))
+
+    if require_fresh:
+        not_current = [
+            f"{r.symbol}（{'抓取失败: ' + r.error if r.error else f'最后收盘距今 {r.age_sessions} 个交易日'}）"
+            for r in rows
+            if r.error is not None or r.age_sessions > 0
+        ]
+        if not_current:
+            raise DataNotCurrent(
+                "以下标的未拿到最新一个已收盘交易日的数据，本轮不发布："
+                + "；".join(not_current)
+            )
+
+    for symbol, bm, row in pending_details:
+        try:
+            page = f"{_slug(symbol)}.html"
+            payload = build_payload(
+                symbol, benchmark=bm, account=account,
+                risk_pct=risk_pct, provider=provider,
+            )
+            (out_dir / page).write_text(
+                render_html(payload, standalone=True), encoding="utf-8"
+            )
+            row.detail_page = page
+        except Exception as exc:  # noqa: BLE001
+            row.error = f"详情页生成失败: {exc}"
 
     order = {g: i for i, g in enumerate(GROUP_ORDER)}
     rows.sort(key=lambda r: (order.get(r.group, 9), -(r.best_rr or 0), r.symbol))

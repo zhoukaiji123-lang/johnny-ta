@@ -4,7 +4,15 @@ on:
   schedule:
     # 01:07 UTC ≈ 北京时间早上 9 点（收盘后 5 小时缓冲），周一至周五
     # 错开整点几分钟：GitHub 官方文档提示整点是 Actions 调度高峰，容易被限流/跳过
+    #
+    # 三个定时点间隔 1 小时：`jta dashboard` 只要有一个标的没拿到最新已收盘
+    # 交易日的数据就直接失败、不发布（见 jta/dashboard.py 的 require_fresh），
+    # 这不是网络抖动能靠立即重试解决的，是数据源那边批处理没跑完，所以用
+    # "隔一小时再整个跑一遍"而不是在同一个 job 里死等几小时。三次都不新鲜，
+    # 会让最后一次 run 失败，仓库 owner 会收到 GitHub 的失败通知去人工看一眼。
     - cron: "7 1 * * 1-5"
+    - cron: "7 2 * * 1-5"
+    - cron: "7 3 * * 1-5"
   workflow_dispatch:          # 也可手动触发
 
 permissions:

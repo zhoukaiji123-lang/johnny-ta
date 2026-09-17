@@ -122,11 +122,17 @@ def cmd_dashboard(args: argparse.Namespace) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     pairs = parse_pairs(args.pairs)
 
-    payload = build_watchlist(
-        pairs, account=args.account, risk_pct=args.risk,
-        out_dir=out_dir, write_details=not args.no_details, refresh=not args.no_refresh,
-        provider=build_provider(args.source, force_refresh=not args.no_refresh),
-    )
+    try:
+        payload = build_watchlist(
+            pairs, account=args.account, risk_pct=args.risk,
+            out_dir=out_dir, write_details=not args.no_details, refresh=not args.no_refresh,
+            provider=build_provider(args.source, force_refresh=not args.no_refresh),
+            require_fresh=not args.allow_stale,
+        )
+    except DataUnavailable as exc:
+        # 不写任何文件——宁可看板不更新，也不能让过期数据顶着"刚生成"的时间戳发布
+        print(f"错误: {exc}", file=sys.stderr)
+        return 2
     index = out_dir / "index.html"
     index.write_text(render_dashboard(payload), encoding="utf-8")
 
@@ -326,6 +332,10 @@ def main(argv: list[str] | None = None) -> int:
     db.add_argument("--no-details", action="store_true", help="只生成看板，不生成各标的的图")
     db.add_argument("--no-refresh", action="store_true", help="允许使用缓存（默认强制重抓）")
     db.add_argument("--source", default="auto", choices=SOURCES)
+    db.add_argument(
+        "--allow-stale", action="store_true",
+        help="即使没拿到最新一个已收盘交易日的数据也照常发布（默认拒绝发布，只报错退出）",
+    )
     db.add_argument("--json", action="store_true")
     db.set_defaults(func=cmd_dashboard)
 
