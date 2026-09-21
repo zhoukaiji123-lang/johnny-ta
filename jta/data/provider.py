@@ -187,7 +187,9 @@ def data_age_sessions(last_bar: "pd.Timestamp", reference: datetime | None = Non
     ref_local = ref.tz_convert(last_bar.tz) if last_bar.tz is not None else ref
     if ref_local.time() < RTH_CLOSE:
         ref_local = ref_local - pd.Timedelta(days=1)
-    return max(0, int(np.busday_count(last_bar.date(), ref_local.date())))
+    # 参考日落在周末时退回最近的工作日：周一凌晨退一天是周日，busday_count 会把周五算成差 1 天
+    ref_day = np.busday_offset(ref_local.date(), 0, roll="backward")
+    return max(0, int(np.busday_count(last_bar.date(), ref_day)))
 
 
 def normalize_index(df: pd.DataFrame) -> pd.DataFrame:

@@ -236,6 +236,23 @@ def test_data_age_before_todays_close_is_not_penalised():
     assert data_age_sessions(wed_close, thu_5pm_et) == 1  # 周四收盘后还停在周三，才算真滞后
 
 
+def test_data_age_on_weekend_and_monday_morning_is_zero_for_friday_close():
+    """周一凌晨/周末，周五收盘就是最新数据。参考日退一天会落在周日，
+    不回退到工作日的话 busday_count 会把周五算成差 1 天，看板每个周一都被拦。"""
+    from jta.data.provider import data_age_sessions
+
+    fri_close = pd.Timestamp("2026-09-18 16:00", tz=TZ)
+    mon_4am_et = datetime(2026, 9, 21, 8, 50, tzinfo=timezone.utc)
+    sat_noon_et = datetime(2026, 9, 19, 16, 0, tzinfo=timezone.utc)
+    sun_noon_et = datetime(2026, 9, 20, 16, 0, tzinfo=timezone.utc)
+    assert data_age_sessions(fri_close, mon_4am_et) == 0
+    assert data_age_sessions(fri_close, sat_noon_et) == 0
+    assert data_age_sessions(fri_close, sun_noon_et) == 0
+
+    mon_5pm_et = datetime(2026, 9, 21, 21, 0, tzinfo=timezone.utc)
+    assert data_age_sessions(fri_close, mon_5pm_et) == 1  # 周一收盘后还停在周五，才算真滞后
+
+
 def test_forced_refresh_fails_loudly_instead_of_serving_cache(tmp_path, monkeypatch):
     """--refresh 下抓取失败必须抛错。
 
