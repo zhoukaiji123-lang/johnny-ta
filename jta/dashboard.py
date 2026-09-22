@@ -42,7 +42,10 @@ ZONE_LABELS = {"at_support": "贴近支撑", "at_resistance": "贴近压力", "b
 STACK_LABELS = {"bull": "多头", "bear": "空头", "mixed": "交错", "unknown": "—"}
 
 #: 侧栏按行业分组的顺序；未登记的标的落进"其他"，排在最后
-SECTOR_ORDER = ["指数/ETF", "存储", "光模块", "半导体设计", "硬件", "云计算", "汽车", "航天", "其他"]
+SECTOR_ORDER = [
+    "指数/ETF", "存储", "光模块", "半导体设计", "硬件", "云计算", "汽车", "航天",
+    "生物医药", "其他",
+]
 SECTOR_MAP = {
     "MU": "存储", "SNDK": "存储", "SKHY": "存储",
     "LITE": "光模块", "COHR": "光模块",
@@ -51,6 +54,7 @@ SECTOR_MAP = {
     "AMZN": "云计算", "GOOGL": "云计算", "NOW": "云计算", "NET": "云计算",
     "TSLA": "汽车",
     "SPCX": "航天",
+    "MRNA": "生物医药",
     "SOXX": "指数/ETF", "QQQ": "指数/ETF", "DRAM": "指数/ETF",
 }
 
