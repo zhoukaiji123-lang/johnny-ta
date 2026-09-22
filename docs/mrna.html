@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MRNA 技术交易地图</title>
+</head>
+<body>
+<style>
+:root {
+  --ground: #F7F8F6;
+  --surface: #FFFFFF;
+  --surface-sunk: #EFF1EE;
+  --ink: #1A2126;
+  --ink-soft: #4A555C;
+  --muted: #7E8C93;
+  --rule: #D9DEDA;
+  --rule-faint: #E7EBE7;
+  --accent: #3A6C8C;
+  --accent-soft: #E2ECF2;
+  --support: #3F7A5E;
+  --support-soft: #E3EFE8;
+  --resist: #A3462F;
+  --resist-soft: #F6E5E0;
+  --warn: #96702A;
+  --warn-soft: #F6EEDC;
+  --grid: rgba(26, 33, 38, 0.07);
+  --up: #3F7A5E;
+  --down: #A3462F;
+  --shadow: 0 1px 2px rgba(26, 33, 38, .06), 0 8px 24px rgba(26, 33, 38, .05);
+  --step: 4px;
+  --font-ui: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --font-num: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0E1418;
+    --surface: #151D22;
+    --surface-sunk: #111920;
+    --ink: #DDE4E7;
+    --ink-soft: #A9B5BB;
+    --muted: #78868D;
+    --rule: #26323A;
+    --rule-faint: #1D272E;
+    --accent: #6FA6C6;
+    --accent-soft: #17303F;
+    --support: #63A583;
+    --support-soft: #162A21;
+    --resist: #CE7358;
+    --resist-soft: #2E1B15;
+    --warn: #C6A05B;
+    --warn-soft: #2A2317;
+    --grid: rgba(221, 228, 231, 0.06);
+    --up: #63A583;
+    --down: #CE7358;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0E1418;
+  --surface: #151D22;
+  --surface-sunk: #111920;
+  --ink: #DDE4E7;
+  --ink-soft: #A9B5BB;
+  --muted: #78868D;
+  --rule: #26323A;
+  --rule-faint: #1D272E;
+  --accent: #6FA6C6;
+  --accent-soft: #17303F;
+  --support: #63A583;
+  --support-soft: #162A21;
+  --resist: #CE7358;
+  --resist-soft: #2E1B15;
+  --warn: #C6A05B;
+  --warn-soft: #2A2317;
+  --grid: rgba(221, 228, 231, 0.06);
+  --up: #63A583;
+  --down: #CE7358;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px 72px; display: flex; flex-direction: column; gap: 28px; }
+
+/* ---- 状态条 ---- */
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+  position: sticky; top: 0; z-index: 20;
+}
+.masthead-inner {
+  max-width: 1180px; margin: 0 auto; padding: 14px 24px;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px;
+}
+.ticker { font-size: 26px; font-weight: 700; letter-spacing: -.02em; }
+.price { font-family: var(--font-num); font-size: 26px; font-weight: 500; letter-spacing: -.02em; }
+.price-meta { font-size: 12.5px; color: var(--muted); }
+.masthead-spacer { flex: 1 1 auto; }
+.chip {
+  font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  padding: 3px 9px; border: 1px solid var(--rule); border-radius: 2px; color: var(--ink-soft);
+  white-space: nowrap;
+}
+.chip-live { color: var(--warn); border-color: var(--warn); background: var(--warn-soft); }
+.chip-zone { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+/* ---- 数据口径条：图纸的图签栏 ---- */
+.colophon {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  border: 1px solid var(--rule); background: var(--surface); border-radius: 3px;
+  overflow: hidden; margin-top: 24px;
+}
+.colophon div { padding: 10px 14px; border-right: 1px solid var(--rule-faint); }
+.colophon div:last-child { border-right: 0; }
+.colophon dt { font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 0 0 3px; }
+.colophon dd { margin: 0; font-family: var(--font-num); font-size: 13px; }
+
+/* ---- 通用块 ---- */
+section { display: flex; flex-direction: column; gap: 14px; }
+h2 {
+  font-size: 12px; letter-spacing: .11em; text-transform: uppercase; color: var(--muted);
+  margin: 0; font-weight: 600; display: flex; align-items: center; gap: 10px;
+}
+h2::after { content: ""; flex: 1; height: 1px; background: var(--rule-faint); }
+.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 3px; }
+
+/* ---- 图层控制 ---- */
+.layers { display: flex; flex-wrap: wrap; gap: 6px; }
+.layers button {
+  font-family: var(--font-ui); font-size: 12.5px; font-weight: 500;
+  padding: 5px 11px; border: 1px solid var(--rule); background: var(--surface);
+  color: var(--ink-soft); border-radius: 2px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.layers button:hover { border-color: var(--accent); color: var(--ink); }
+.layers button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.swatch { width: 10px; height: 2px; border-radius: 1px; background: currentColor; }
+button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---- 图 ---- */
+/* 容器比图窄时横向滚动，而不是让整张图（含所有文字）一起缩小到看不清——
+   字号跟着 viewBox 整体缩放是 SVG 的天生行为，锁最小宽度是最小代价的解法 */
+.chart-frame { position: relative; background: var(--surface); border: 1px solid var(--rule); border-radius: 3px;
+              overflow-x: auto; }
+.chart-frame svg { display: block; width: 100%; height: auto; }
+#chart-daily { min-width: 1000px; }
+#chart-intraday { min-width: 500px; }
+.readout {
+  position: absolute; top: 10px; left: 12px; pointer-events: none;
+  font-family: var(--font-num); font-size: 12px; color: var(--ink-soft);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  padding: 4px 8px; border: 1px solid var(--rule-faint); border-radius: 2px;
+  display: flex; gap: 12px; opacity: 0; transition: opacity .12s;
+}
+.readout.on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .readout { transition: none; } }
+
+/* ---- 当前位置刻度 ---- */
+.ladder {
+  display: flex; align-items: flex-start; gap: 2px; padding: 10px 2px 16px;
+  border-bottom: 1px solid var(--rule-faint); margin-bottom: 14px; overflow-x: auto;
+}
+.ladder-cell {
+  flex: 1 1 0; min-width: 46px; display: flex; flex-direction: column; align-items: center;
+  gap: 5px; position: relative; padding-top: 9px;
+}
+.ladder-cell::before {
+  content: ""; position: absolute; top: 3px; left: 0; right: 0; height: 1px; background: var(--rule);
+}
+.ladder-cell:first-child::before { left: 50%; }
+.ladder-cell:last-child::before { right: 50%; }
+.ladder-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); z-index: 1; }
+.ladder-s .ladder-dot { background: var(--support); }
+.ladder-r .ladder-dot { background: var(--resist); }
+.ladder-now .ladder-dot { width: 9px; height: 9px; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.ladder-label { font-size: 10.5px; color: var(--muted); font-weight: 600; }
+.ladder-now .ladder-label { color: var(--accent); }
+.ladder-value {
+  font-family: var(--font-num); font-size: 12px; font-weight: 600; white-space: nowrap;
+  color: var(--ink-soft);
+}
+.ladder-s .ladder-value { color: var(--support); }
+.ladder-r .ladder-value { color: var(--resist); }
+.ladder-now .ladder-value { color: var(--accent); font-size: 13px; }
+
+/* ---- 关键位表 ---- */
+.split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+.levels { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th {
+  text-align: left; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); font-weight: 600; padding: 8px 12px; border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+td { padding: 9px 12px; border-bottom: 1px solid var(--rule-faint); vertical-align: top; }
+tbody tr { cursor: default; }
+tbody tr:hover { background: var(--surface-sunk); }
+tbody tr.hot { background: var(--accent-soft); }
+.tag { font-family: var(--font-num); font-weight: 600; font-size: 12.5px; }
+.tag-s { color: var(--support); }
+.tag-r { color: var(--resist); }
+.lvl { font-family: var(--font-num); font-size: 15px; font-weight: 500; white-space: nowrap; }
+.raw { font-family: var(--font-num); font-size: 11px; color: var(--muted); }
+.role { font-size: 12.5px; color: var(--ink-soft); }
+.ev { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+.ev span {
+  font-size: 10px; font-family: var(--font-num); padding: 1px 5px;
+  border: 1px solid var(--rule); border-radius: 2px; color: var(--muted);
+}
+.rule-line { font-size: 12px; color: var(--ink-soft); line-height: 1.45; }
+.rule-line b { font-weight: 600; color: var(--muted); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; }
+
+/* ---- 计划 ---- */
+.plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.plan {
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 3px;
+  padding: 16px; display: flex; flex-direction: column; gap: 12px; text-align: left;
+  font-family: var(--font-ui); color: var(--ink); cursor: pointer;
+}
+.plan:hover { border-color: var(--accent); }
+.plan[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.plan-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.plan-title { font-size: 14.5px; font-weight: 600; }
+.verdict { font-size: 10.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; padding: 2px 7px; border-radius: 2px; white-space: nowrap; }
+.verdict.ok { color: var(--support); background: var(--support-soft); }
+.verdict.no { color: var(--resist); background: var(--resist-soft); }
+.legs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--rule-faint); border: 1px solid var(--rule-faint); border-radius: 2px; }
+.leg { background: var(--surface); padding: 7px 9px; }
+.leg dt { font-size: 9.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.leg dd { margin: 2px 0 0; font-family: var(--font-num); font-size: 13.5px; }
+.plan-note { font-size: 12px; color: var(--ink-soft); }
+.blockers { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--resist); }
+.cancel { font-size: 11.5px; color: var(--muted); border-top: 1px dashed var(--rule); padding-top: 9px; display: flex; flex-direction: column; gap: 3px; }
+
+/* ---- 事件 / 信息块 ---- */
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 3px; padding: 14px 16px; }
+.card h3 { margin: 0 0 8px; font-size: 12.5px; font-weight: 600; }
+.kv { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; padding: 3px 0; }
+.kv span:last-child { font-family: var(--font-num); }
+.list { margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--ink-soft); display: flex; flex-direction: column; gap: 4px; }
+.news { display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; }
+.news a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule); }
+.news a:hover { border-color: var(--accent); color: var(--accent); }
+.news time { display: block; font-family: var(--font-num); font-size: 10.5px; color: var(--muted); }
+
+.disclaimer {
+  border-left: 2px solid var(--accent); padding: 12px 16px; background: var(--surface);
+  font-size: 12.5px; color: var(--ink-soft); border-radius: 0 3px 3px 0;
+}
+.disclaimer strong { color: var(--ink); font-weight: 600; }
+/* SVG 配色一律走 class → token：presentation attribute 里的 var() 不生效，
+   而写死字面色会让图形卡在渲染时那一个主题上 */
+.s-up { fill: var(--up); stroke: var(--up); }
+.s-dn { fill: var(--down); stroke: var(--down); }
+.s-grid { stroke: var(--grid); }
+.s-ln-accent { stroke: var(--accent); }
+.s-ln-muted { stroke: var(--muted); }
+.s-ln-soft { stroke: var(--ink-soft); }
+.s-ln-warn { stroke: var(--warn); }
+.s-ln-sup { stroke: var(--support); }
+.s-ln-res { stroke: var(--resist); }
+.s-ln-ink { stroke: var(--ink); }
+.s-tx-muted { fill: var(--muted); }
+.s-tx-soft { fill: var(--ink-soft); }
+.s-tx-accent { fill: var(--accent); }
+.s-tx-sup { fill: var(--support); }
+.s-tx-res { fill: var(--resist); }
+.s-tx-ground { fill: var(--ground); }
+.s-fill-accent { fill: var(--accent); }
+.s-fill-sup { fill: var(--support); }
+.s-fill-res { fill: var(--resist); }
+.s-fill-ink { fill: var(--ink); }
+.s-fill-none { fill: none; }
+footer { font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--rule-faint); padding-top: 16px; display: flex; flex-direction: column; gap: 5px; }
+</style>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <span class="ticker" id="m-symbol">—</span>
+    <span class="price" id="m-price">—</span>
+    <span class="price-meta" id="m-pricemeta"></span>
+    <span class="masthead-spacer"></span>
+    <span class="chip" id="m-phase"></span>
+    <span class="chip chip-zone" id="m-zone"></span>
+    <span class="chip chip-live" id="m-live" hidden></span>
+  </div>
+</header>
+
+<div class="wrap">
+  <dl class="colophon" id="colophon"></dl>
+
+  <section>
+    <h2>日线结构图</h2>
+    <div class="layers" id="layers"></div>
+    <div class="chart-frame">
+      <div class="readout" id="readout"></div>
+      <svg id="chart-daily" viewBox="0 0 1120 560" role="img" aria-label="日线K线与关键位结构图"></svg>
+    </div>
+  </section>
+
+  <section class="split">
+    <div>
+      <h2>关键位</h2>
+      <div class="ladder" id="ladder"></div>
+      <div class="panel levels">
+        <table>
+          <thead>
+            <tr><th>档</th><th>关键位</th><th>结构角色 / 证据</th><th>确认与失效</th></tr>
+          </thead>
+          <tbody id="levels-body"></tbody>
+        </table>
+      </div>
+      <p class="rule-line" id="selection-note" style="margin:10px 2px 0"></p>
+    </div>
+    <div>
+      <h2>4 小时执行图</h2>
+      <div class="chart-frame">
+        <svg id="chart-intraday" viewBox="0 0 560 300" role="img" aria-label="4小时执行周期K线图"></svg>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h3>市场状态</h3>
+        <div id="state-kv"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>三套互斥交易计划</h2>
+    <div class="plans" id="plans"></div>
+    <p class="rule-line" style="margin:2px">选中某套计划，其入场、止损与目标会标注在上方日线图中。箭头一律表示条件情景，不是方向预测。</p>
+  </section>
+
+  <section>
+    <h2>持仓管理与仓位</h2>
+    <div class="cols" id="holder"></div>
+  </section>
+
+  <section>
+    <h2>事件与数据缺口</h2>
+    <div class="cols" id="events"></div>
+  </section>
+
+  <div class="disclaimer" id="disclaimer"></div>
+
+  <footer>
+    <div id="foot-gen"></div>
+    <div>本页所有数值由 johnny-ta 计算层生成，页面只负责渲染，不做任何推断或补值。</div>
+    <div><strong>方法来源</strong>：分析规则来自
+      <a href="https://github.com/m4yOvO/johnny-finance-skill" target="_blank" rel="noopener noreferrer">m4yOvO/johnny-finance-skill</a>，
+      其上游是小红书博主自由交易员 Johnny（@Johnny0725）的公开博文与技术图。
+      本工具只是该方法的工程实现，与原作者无隶属关系，未经其背书。仅供研究，不构成投资建议。</div>
+  </footer>
+</div>
+
+<script type="application/json" id="payload">{"analysis": {"schema_version": "1.1", "symbol": "MRNA", "current_price": 169.26, "price_is_live": true, "structure_as_of": "2026-09-21T00:00:00-04:00", "live_bar": {"ts": "2026-09-22T00:00:00-04:00", "bar_end": "2026-09-22T16:00:00-04:00", "open": 168.5800018310547, "high": 172.0, "low": 168.3000030517578, "close": 169.25999450683594, "volume": 1093627.0, "note": "未完成 bar：high/low/volume 仍在变化，已排除在结构计算之外"}, "data": {"daily": {"symbol": "MRNA", "interval": "1d", "adjust": "back", "tz": "America/New_York", "source": "yfinance", "fetched_at": "2026-09-22T13:36:23.415849+00:00", "stale": false, "bar_alignment": null, "as_of": null, "rows": 1956, "first_bar": "2018-12-07T00:00:00-05:00", "last_bar": "2026-09-21T00:00:00-04:00", "splits": [], "warnings": ["末根 1d bar（2026-09-22T00:00:00-04:00）尚未收盘，已排除在结构计算之外；现价取该 bar 的最新成交价"], "last_bar_complete": false, "live_bar": {"ts": "2026-09-22T00:00:00-04:00", "bar_end": "2026-09-22T16:00:00-04:00", "open": 168.5800018310547, "high": 172.0, "low": 168.3000030517578, "close": 169.25999450683594, "volume": 1093627.0, "note": "未完成 bar：high/low/volume 仍在变化，已排除在结构计算之外"}, "age_sessions": 0, "too_old": false}, "intraday": {"symbol": "MRNA", "interval": "4h", "adjust": "back", "tz": "America/New_York", "source": "yfinance", "fetched_at": "2026-09-22T13:36:23.702096+00:00", "stale": false, "bar_alignment": "RTH-anchored: 每交易日自常规盘开盘起按 4 小时切分 (09:30-13:30 / 13:30-16:00 ET)，时间戳为 bar 开始时间", "as_of": null, "rows": 1447, "first_bar": "2023-10-25T09:30:00-04:00", "last_bar": "2026-09-21T13:30:00-04:00", "splits": [], "warnings": ["10 个交易日只有 1 根 4H bar（半日市或数据缺失）", "末根 4h bar（2026-09-22T09:30:00-04:00）尚未收盘，已排除在结构计算之外；现价取该 bar 的最新成交价"], "last_bar_complete": false, "live_bar": {"ts": "2026-09-22T09:30:00-04:00", "bar_end": "2026-09-22T13:30:00-04:00", "open": 168.5800018310547, "high": 172.0, "low": 168.3000030517578, "close": 169.25999450683594, "volume": 1071992.0, "note": "未完成 bar：high/low/volume 仍在变化，已排除在结构计算之外"}, "age_sessions": 0, "too_old": false}, "atr_daily": 12.5622, "atr_intraday": 8.0272, "display_step": 1.0, "display_step_note": "关键位按约 0.1 ATR 取整展示；原始计算值见每行 raw_price。换一组合理锚点后同一条 Fib 可漂移接近一个 ATR，报到个位数是伪精度"}, "data_health": {"stale": false, "too_old": false, "age_sessions": 0, "max_age_sessions": 3, "sources": {"daily": {"stale": false, "age_sessions": 0}, "intraday": {"stale": false, "age_sessions": 0}, "benchmark": null}}, "market_state": {"phase": "stabilizing", "phase_note": "4 小时走强但日线未突破关键压力时只算反弹，不算反转——低周期不得推翻高周期状态", "long_term_vs_vegas": "above_vegas", "vegas": {"upper": 78.86317643291855, "lower": 74.45372313465853}, "vegas_reliable": true, "daily_ema_stack": "bull", "intraday_ema_stack": "bull", "daily_structure": "lower_highs_lower_lows", "intraday_structure": "higher_highs_higher_lows", "ema_warmup": {"ema8": {"span": 8, "bars_available": 1956, "bars_needed": 40, "reliable": true}, "ema13": {"span": 13, "bars_available": 1956, "bars_needed": 65, "reliable": true}, "ema21": {"span": 21, "bars_available": 1956, "bars_needed": 105, "reliable": true}, "ema144": {"span": 144, "bars_available": 1956, "bars_needed": 720, "reliable": true}, "ema169": {"span": 169, "bars_available": 1956, "bars_needed": 845, "reliable": true}}, "unreliable_emas": []}, "benchmark": null, "td_signal": null, "events": {"available": true, "event_mode": false, "warnings": [], "next_earnings": {"date": "2026-11-05", "sessions_away": 33, "already_reported": false, "eps_estimate": -1.3114, "eps_range": [-3.32, -0.53]}, "historical_earnings_moves": [{"earnings_date": "2026-07-31", "next_session": "2026-08-03", "move_pct": 0.58, "move_atr": 0.08, "eps_estimate": -2.06, "eps_actual": -1.97, "surprise_pct": 4.33}, {"earnings_date": "2026-04-30", "next_session": "2026-05-01", "move_pct": -1.24, "move_atr": 0.2, "eps_estimate": -3.88, "eps_actual": -3.4, "surprise_pct": 12.37}, {"earnings_date": "2026-02-13", "next_session": "2026-02-17", "move_pct": 4.03, "move_atr": 0.53, "eps_estimate": -2.6, "eps_actual": -2.11, "surprise_pct": 18.88}, {"earnings_date": "2025-11-06", "next_session": "2025-11-07", "move_pct": 0.86, "move_atr": 0.14, "eps_estimate": -2.18, "eps_actual": -0.51, "surprise_pct": 76.6}, {"earnings_date": "2025-08-01", "next_session": "2025-08-04", "move_pct": 0.13, "move_atr": 0.02, "eps_estimate": -2.97, "eps_actual": -2.13, "surprise_pct": 28.28}, {"earnings_date": "2025-05-01", "next_session": "2025-05-02", "move_pct": 2.15, "move_atr": 0.32, "eps_estimate": -3.18, "eps_actual": -2.52, "surprise_pct": 20.69}], "news": [{"title": "MRNA Hits 52-Week High: How Melanoma Study Results Keep Rally Going", "published": "2026-09-22T12:57:00Z", "publisher": "Zacks", "link": "https://finance.yahoo.com/healthcare/articles/mrna-hits-52-week-high-125700042.html"}, {"title": "Moderna Stock Jumped 12% Yesterday. An ESMO Presidential Slot Explains Why.", "published": "2026-09-22T07:33:05Z", "publisher": "TIKR", "link": "https://www.tikr.com/blog/moderna-stock-jumped-12-yesterday-an-esmo-presidential-slot-explains-why?ref=yahoofinance"}, {"title": "Why Did AMD, WBD, MRNA Stocks Surge To 52-Week Highs Today?", "published": "2026-09-22T03:39:24Z", "publisher": "Stocktwits", "link": "https://stocktwits.com/news-articles/markets/equity/why-did-amd-wbd-mrna-stocks-surge-to-52-week-highs-today/cZMPBXGRBIy"}, {"title": "Moderna (MRNA) Stock Trades Up, Here Is Why", "published": "2026-09-22T00:06:25Z", "publisher": "StockStory", "link": "https://finance.yahoo.com/markets/stocks/articles/moderna-mrna-stock-trades-why-000625004.html"}, {"title": "Tempus AI Sees Pricing, Data Growth Fueling Long-Term Expansion", "published": "2026-09-22T00:02:02Z", "publisher": "MarketBeat", "link": "https://www.marketbeat.com/instant-alerts/event-tempus-ai-sees-pricing-data-growth-fueling-long-term-expansion-2026-09-21/?utm_source=yahoofinance&utm_medium=yahoofinance"}, {"title": "AMD, Intel, Meta, Warner Bros., Moderna, Grail, Strategy, and More Stocks That Explain Today’s Market", "published": "2026-09-21T20:40:00Z", "publisher": "Barrons.com", "link": "https://www.barrons.com/articles/stock-movers-7769c3ad?siteid=yhoof2&yptr=yahoo"}, {"title": "Moderna (MRNA) Soars to Fresh High Ahead of Pipeline Updates This Week", "published": "2026-09-21T19:13:31Z", "publisher": "Insider Monkey", "link": "https://finance.yahoo.com/healthcare/articles/moderna-mrna-soars-fresh-high-191331309.html"}, {"title": "Moderna Stock Jumps. Its mRNA Cancer Vaccine Is Getting Ready for Its Next Big Test.", "published": "2026-09-21T18:38:00Z", "publisher": "Barrons.com", "link": "https://www.barrons.com/articles/moderna-stock-cancer-vaccine-merck-ffc114d6?siteid=yhoof2&yptr=yahoo"}], "news_note": "以下为外部新闻标题，未经核验，不参与任何计算；请自行点开来源确认。"}, "supports": [{"price": 159.69597295228303, "side": "support", "sources": [{"family": "ema", "label": "EMA8", "timeframe": "4h", "confirmed_at": "2026-09-21T13:30:00-04:00", "detail": {"span": 8, "snapshot": 159.5079, "as_of_bar": "2026-09-21T13:30:00-04:00"}}, {"family": "prev_session", "label": "prev_high", "timeframe": "1d", "confirmed_at": "2026-09-21T00:00:00-04:00", "detail": {"bar_ts": "2026-09-18T00:00:00-04:00", "session_date": "2026-09-18"}}, {"family": "prev_session", "label": "prev_high", "timeframe": "4h", "confirmed_at": "2026-09-21T13:30:00-04:00", "detail": {"bar_ts": "2026-09-18T13:30:00-04:00", "session_date": "2026-09-18"}}], "display": 160.0, "range_low": 159.0, "range_high": 160.0, "role": "immediate_defense", "snap": null, "resonance": {"radius_atr": 0.25, "families": ["ema", "fib", "pivot", "prev_session"], "neighbours": [{"price": 157.4905, "families": ["fib"]}, {"price": 159.091, "families": ["fib"]}, {"price": 161.8124, "families": ["fib", "pivot"]}]}, "distance_atr": 0.761, "dynamic": true, "confirmed_at": "2026-09-21T13:30:00-04:00", "role_label": "即时持仓防守枢轴", "display_text": "约 159–160", "raw_price": 159.696, "label": "S1", "evidence_families": ["ema", "fib", "pivot", "prev_session"], "scoring": {"factors": {"primary_fib": {"label": "主波段回撤/反弹 Fib", "hit": true, "evidence": ["fib"]}, "extension_fib": {"label": "次级推动段扩展 Fib", "hit": false, "evidence": []}, "horizontal": {"label": "历史平台/前高前低/缺口/整数关口（同类合计一项）", "hit": true, "evidence": ["pivot", "prev_session"]}, "trendline": {"label": "趋势线或通道边界", "hit": false, "evidence": []}, "ema_cluster": {"label": "EMA 簇或 Vegas 隧道", "hit": true, "evidence": ["ema"]}, "price_action": {"label": "长影线/双底/反包/量能等真实反应", "hit": false, "evidence": []}, "td9": {"label": "TD 九转衰竭", "hit": false, "evidence": []}, "index": {"label": "基准指数同向确认", "hit": false, "evidence": []}}, "hits": 3, "band": "moderate", "caveat": "命中数只是证据类型的计数，不是加权评分：八项彼此相关，求和没有统计含义。强/中/弱仅为可读性标签，不得直接当作胜率或仓位依据。"}, "confirmation": "4 小时收盘不再有效跌破，并出现止跌信号（长下影/缩量/反包/更高低点）之一", "invalidation": "日线实体收于该位下方且次日无法收复", "note": "单次触及不构成买入；跌破后不沿途补仓，等待下一支撑重新确认"}, {"price": 147.94152250671385, "side": "support", "sources": [{"family": "fib", "label": "primary_rebound 0.382", "timeframe": "4h", "confirmed_at": "2026-08-25T09:30:00-04:00", "detail": {"ratio": 0.382, "kind": "primary_rebound", "anchor_low": {"ts": "2026-08-24T09:30:00-04:00", "price": 130.0, "kind": "low"}, "anchor_high": {"ts": "2026-08-19T13:30:00-04:00", "price": 176.6599, "kind": "high"}, "note": "0.382 反弹位"}}, {"family": "fib", "label": "primary_rebound 0.382", "timeframe": "1d", "confirmed_at": "2026-09-15T00:00:00-04:00", "detail": {"ratio": 0.382, "kind": "primary_rebound", "anchor_low": {"ts": "2026-09-10T00:00:00-04:00", "price": 130.38, "kind": "low"}, "anchor_high": {"ts": "2026-08-19T00:00:00-04:00", "price": 176.66, "kind": "high"}, "note": "0.382 反弹位"}}], "display": 148.0, "range_low": 147.0, "range_high": 149.0, "role": "executable_pullback", "snap": null, "resonance": {"radius_atr": 0.25, "families": ["ema", "fib", "prev_session", "round_number", "trendline"], "neighbours": [{"price": 145.2164, "families": ["fib", "trendline"]}, {"price": 148.5247, "families": ["ema"]}, {"price": 149.5278, "families": ["fib"]}, {"price": 150.156, "families": ["fib", "prev_session", "round_number"]}, {"price": 150.9719, "families": ["ema"]}]}, "distance_atr": 1.697, "dynamic": false, "confirmed_at": "2026-09-15T00:00:00-04:00", "role_label": "可执行回踩支撑", "display_text": "147–149", "raw_price": 147.9415, "label": "S2", "evidence_families": ["ema", "fib", "prev_session", "round_number", "trendline"], "scoring": {"factors": {"primary_fib": {"label": "主波段回撤/反弹 Fib", "hit": true, "evidence": ["fib"]}, "extension_fib": {"label": "次级推动段扩展 Fib", "hit": false, "evidence": []}, "horizontal": {"label": "历史平台/前高前低/缺口/整数关口（同类合计一项）", "hit": true, "evidence": ["prev_session", "round_number"]}, "trendline": {"label": "趋势线或通道边界", "hit": true, "evidence": ["trendline"]}, "ema_cluster": {"label": "EMA 簇或 Vegas 隧道", "hit": true, "evidence": ["ema"]}, "price_action": {"label": "长影线/双底/反包/量能等真实反应", "hit": true, "evidence": [{"ts": "2026-09-02T00:00:00-04:00", "signals": ["volume_dry_up"], "price_tested": 146.54}]}, "td9": {"label": "TD 九转衰竭", "hit": false, "evidence": []}, "index": {"label": "基准指数同向确认", "hit": false, "evidence": []}}, "hits": 5, "band": "strong", "caveat": "命中数只是证据类型的计数，不是加权评分：八项彼此相关，求和没有统计含义。强/中/弱仅为可读性标签，不得直接当作胜率或仓位依据。"}, "confirmation": "4 小时收盘不再有效跌破，并出现止跌信号（长下影/缩量/反包/更高低点）之一", "invalidation": "日线实体收于该位下方且次日无法收复", "note": "单次触及不构成买入；跌破后不沿途补仓，等待下一支撑重新确认"}, {"price": 141.1569101257324, "side": "support", "sources": [{"family": "fib", "label": "primary_rebound 0.236", "timeframe": "4h", "confirmed_at": "2026-08-25T09:30:00-04:00", "detail": {"ratio": 0.236, "kind": "primary_rebound", "anchor_low": {"ts": "2026-08-24T09:30:00-04:00", "price": 130.0, "kind": "low"}, "anchor_high": {"ts": "2026-08-19T13:30:00-04:00", "price": 176.6599, "kind": "high"}, "note": "0.236 反弹位"}}, {"family": "fib", "label": "primary_rebound 0.236", "timeframe": "1d", "confirmed_at": "2026-09-15T00:00:00-04:00", "detail": {"ratio": 0.236, "kind": "primary_rebound", "anchor_low": {"ts": "2026-09-10T00:00:00-04:00", "price": 130.38, "kind": "low"}, "anchor_high": {"ts": "2026-08-19T00:00:00-04:00", "price": 176.66, "kind": "high"}, "note": "0.236 反弹位"}}], "display": 141.0, "range_low": 141.0, "range_high": 142.0, "role": "core_defense", "snap": null, "resonance": {"radius_atr": 0.25, "families": ["ema", "fib"], "neighbours": [{"price": 139.8028, "families": ["ema", "fib"]}, {"price": 142.3408, "families": ["fib"]}]}, "distance_atr": 2.237, "dynamic": false, "confirmed_at": "2026-09-15T00:00:00-04:00", "role_label": "更深核心防守", "display_text": "141–142", "raw_price": 141.1569, "label": "S3", "evidence_families": ["ema", "fib"], "scoring": {"factors": {"primary_fib": {"label": "主波段回撤/反弹 Fib", "hit": true, "evidence": ["fib"]}, "extension_fib": {"label": "次级推动段扩展 Fib", "hit": false, "evidence": []}, "horizontal": {"label": "历史平台/前高前低/缺口/整数关口（同类合计一项）", "hit": false, "evidence": []}, "trendline": {"label": "趋势线或通道边界", "hit": false, "evidence": []}, "ema_cluster": {"label": "EMA 簇或 Vegas 隧道", "hit": true, "evidence": ["ema"]}, "price_action": {"label": "长影线/双底/反包/量能等真实反应", "hit": true, "evidence": [{"ts": "2026-09-14T00:00:00-04:00", "signals": ["long_lower_wick", "volume_dry_up"], "price_tested": 139.02}, {"ts": "2026-09-15T00:00:00-04:00", "signals": ["volume_dry_up"], "price_tested": 141.16}, {"ts": "2026-09-16T00:00:00-04:00", "signals": ["volume_dry_up"], "price_tested": 142.3}]}, "td9": {"label": "TD 九转衰竭", "hit": false, "evidence": []}, "index": {"label": "基准指数同向确认", "hit": false, "evidence": []}}, "hits": 3, "band": "moderate", "caveat": "命中数只是证据类型的计数，不是加权评分：八项彼此相关，求和没有统计含义。强/中/弱仅为可读性标签，不得直接当作胜率或仓位依据。"}, "confirmation": "4 小时收盘不再有效跌破，并出现止跌信号（长下影/缩量/反包/更高低点）之一", "invalidation": "日线实体收于该位下方且次日无法收复", "note": "单次触及不构成买入；跌破后不沿途补仓，等待下一支撑重新确认"}], "resistances": [], "selection": {"support": {"candidates_considered": 31, "eligible": 21, "selected": 3, "crowded_out": [{"price": 150.0, "hits": 4, "reason": "与已入选的 148.00 相距不足 0.5 ATR，无法表达独立的下一档路径"}, {"price": 149.0, "hits": 4, "reason": "与已入选的 148.00 相距不足 0.5 ATR，无法表达独立的下一档路径"}, {"price": 142.0, "hits": 4, "reason": "与已入选的 148.00 相距不足 0.5 ATR，无法表达独立的下一档路径"}, {"price": 159.0, "hits": 3, "reason": "与已入选的 160.00 相距不足 0.5 ATR，无法表达独立的下一档路径"}, {"price": 154.0, "hits": 3, "reason": "与已入选的 148.00 相距不足 0.5 ATR，无法表达独立的下一档路径"}, {"price": 153.0, "hits": 3, "reason": "与已入选的 148.00 相距不足 0.5 ATR，无法表达独立的下一档路径"}, {"price": 150.0, "hits": 3, "reason": "与已入选的 148.00 相距不足 0.5 ATR，无法表达独立的下一档路径"}, {"price": 145.0, "hits": 3, "reason": "与已入选的 148.00 相距不足 0.5 ATR，无法表达独立的下一档路径"}], "gap_note": null}, "resistance": {"candidates_considered": 4, "eligible": 0, "selected": 0, "crowded_out": [], "gap_note": "resistance 侧只输出 0 个关键位：仅 0 个候选达到最低证据标准（>= 3 类证据）。按纪律不用弱点补足数量。"}}, "position_zone": "between", "plans": [{"key": "aggressive", "title": "A 第一支撑激进试仓", "trigger": "4 小时收盘不再有效跌破，并出现止跌信号（长下影/缩量/反包/更高低点）之一", "entry": 160.0, "stop": 153.7189, "stop_basis": "S1 自身失效，0.5 ATR 缓冲", "t1": null, "t2": null, "rr": null, "tranche": [0.2, 0.25], "cancel_if": ["日线实体收于该位下方且次日无法收复", "触发前先跌穿该位，改等下一档，不在途中接刀", "止损后不补亏损，重新出现确认信号才重新交易"], "executable": false, "blocked_by": ["目标位缺失，收益风险比无法计算", "现价位于支撑与压力中间，按纪律不交易"], "entry_level": "S1", "entry_note": null, "position_scale": 1.0, "cautions": [], "tranche_text": "计划总仓位的 20%–25%"}, {"key": "deep", "title": "B 更深支撑低吸", "trigger": "价格进入 S2 且出现缩量止跌、长下影、双底、放量反包或更高低点之一", "entry": 148.0, "stop": 141.7189, "stop_basis": "S2 自身失效，0.5 ATR 缓冲", "t1": 160.0, "t2": null, "rr": 1.91, "tranche": [0.25, 0.5], "cancel_if": ["日线实体收于该位下方且次日无法收复", "日线连续跌破且无法收复时停止加仓，转向下一档", "不摊低成本"], "executable": false, "blocked_by": ["收益风险比 1.91 低于门槛 2.0", "现价位于支撑与压力中间，按纪律不交易"], "entry_level": "S2", "entry_note": null, "position_scale": 1.0, "cautions": [], "tranche_text": "计划总仓位的 25%–50%"}, {"key": "breakout", "title": "C 右侧突破回踩", "trigger": "没有距现价足够远的压力，计划不成立", "entry": null, "stop": null, "stop_basis": "回踩失败位，0.5 ATR 缓冲", "t1": null, "t2": null, "rr": null, "tranche": [0.3, 0.5], "cancel_if": ["—", "只有影线突破、收盘回落，不算有效突破", "回踩直接跌穿原压力则计划取消"], "executable": false, "blocked_by": ["没有距现价 >= 0.0 ATR 的可用档位", "目标位缺失，收益风险比无法计算", "现价位于支撑与压力中间，按纪律不交易"], "entry_level": null, "entry_note": null, "position_scale": 1.0, "cautions": [], "tranche_text": "计划总仓位的 30%–50%"}], "holder_playbook": {"take_profit": [{"at": null, "label": null, "action": "减 25%–50%，保留仓位观察能否突破"}, {"at": null, "label": null, "action": "继续兑现，除非放量突破且回踩成功"}], "protective_stop": {"at": 160.0, "rule": "价格站上并回踩 R1 成功后，把保护位抬到新形成的更高低点之下", "note": "没有突破第一压力前，不预设第二目标一定到达"}, "on_break": [{"level": 160.0, "action": "S1 失效：减仓，不在途中补仓"}, {"level": 148.0, "action": "S2 失效：退出该逻辑对应的仓位"}]}, "position_sizing": {"formula": "数量 = (账户净值 × 单笔风险比例) ÷ |入场价 - 止损价|", "risk_pct_guidance": {"swing": [0.005, 0.01], "leveraged_etf": [0.0025, 0.005]}, "note": "先定失效位再算仓位；不得为了放大仓位而放宽止损", "account": null, "risk_pct": 0.01}, "known_gaps": ["TD Countdown 13 未实现，只有 Setup 9", "基本面否决层未实现，需人工检查盈利周期与资本开支", "市值里程碑模块按要求未移植", "末根 1d bar（2026-09-22T00:00:00-04:00）尚未收盘，已排除在结构计算之外；现价取该 bar 的最新成交价", "10 个交易日只有 1 根 4H bar（半日市或数据缺失）", "末根 4h bar（2026-09-22T09:30:00-04:00）尚未收盘，已排除在结构计算之外；现价取该 bar 的最新成交价"], "validation_disclaimer": "前向验证（7 标的 / 2025-08–2026-07 / 1023 条已判定观察）显示：控制距现价远近后，这些关键位的守住率与同侧同距离的随机价位没有可检测差异，证据命中数与守住率也没有单调关系。本图的价值在于口径统一、失效位明确与仓位可反推，不在于预测胜率。"}, "chart": {"window": {"daily_bars": 70, "price_span_ratio": 3.82, "compressed": true, "note": "纵向跨度 3.8 倍，关键位区域被压缩，读数请以关键位表为准"}, "daily": {"bars": [{"t": "2026-06-11T00:00:00-04:00", "o": 46.43, "h": 49.94, "l": 46.3, "c": 49.64, "v": 6196200.0}, {"t": "2026-06-12T00:00:00-04:00", "o": 49.98, "h": 51.75, "l": 49.62, "c": 49.91, "v": 5080100.0}, {"t": "2026-06-15T00:00:00-04:00", "o": 51.37, "h": 52.23, "l": 49.84, "c": 52.13, "v": 6342100.0}, {"t": "2026-06-16T00:00:00-04:00", "o": 52.24, "h": 57.79, "l": 51.66, "c": 55.4, "v": 13050500.0}, {"t": "2026-06-17T00:00:00-04:00", "o": 56.21, "h": 62.3, "l": 54.51, "c": 61.8, "v": 12448000.0}, {"t": "2026-06-18T00:00:00-04:00", "o": 63.96, "h": 67.74, "l": 60.73, "c": 63.96, "v": 24078800.0}, {"t": "2026-06-22T00:00:00-04:00", "o": 64.07, "h": 65.51, "l": 57.5, "c": 59.345, "v": 8363500.0}, {"t": "2026-06-23T00:00:00-04:00", "o": 59.05, "h": 63.98, "l": 58.34, "c": 61.0, "v": 6814200.0}, {"t": "2026-06-24T00:00:00-04:00", "o": 61.17, "h": 62.75, "l": 59.85, "c": 60.42, "v": 11704000.0}, {"t": "2026-06-25T00:00:00-04:00", "o": 60.33, "h": 61.857, "l": 57.908, "c": 59.75, "v": 6797400.0}, {"t": "2026-06-26T00:00:00-04:00", "o": 59.465, "h": 69.285, "l": 59.23, "c": 67.27, "v": 14456700.0}, {"t": "2026-06-29T00:00:00-04:00", "o": 67.945, "h": 69.9, "l": 66.3, "c": 69.7, "v": 8077400.0}, {"t": "2026-06-30T00:00:00-04:00", "o": 69.835, "h": 73.28, "l": 69.22, "c": 70.03, "v": 11805900.0}, {"t": "2026-07-01T00:00:00-04:00", "o": 70.04, "h": 73.91, "l": 68.866, "c": 72.5, "v": 9275300.0}, {"t": "2026-07-02T00:00:00-04:00", "o": 73.71, "h": 81.4, "l": 73.68, "c": 79.76, "v": 14087700.0}, {"t": "2026-07-06T00:00:00-04:00", "o": 78.55, "h": 85.6, "l": 77.5, "c": 81.8, "v": 17296900.0}, {"t": "2026-07-07T00:00:00-04:00", "o": 82.1, "h": 82.9, "l": 77.41, "c": 79.77, "v": 8688300.0}, {"t": "2026-07-08T00:00:00-04:00", "o": 77.34, "h": 78.3, "l": 73.34, "c": 73.8, "v": 6581700.0}, {"t": "2026-07-09T00:00:00-04:00", "o": 73.8, "h": 76.84, "l": 73.14, "c": 76.56, "v": 4415000.0}, {"t": "2026-07-10T00:00:00-04:00", "o": 76.722, "h": 76.722, "l": 67.31, "c": 68.27, "v": 9176900.0}, {"t": "2026-07-13T00:00:00-04:00", "o": 66.33, "h": 69.55, "l": 65.54, "c": 67.01, "v": 8522000.0}, {"t": "2026-07-14T00:00:00-04:00", "o": 66.67, "h": 67.89, "l": 65.8, "c": 67.44, "v": 5812300.0}, {"t": "2026-07-15T00:00:00-04:00", "o": 67.79, "h": 68.49, "l": 65.95, "c": 68.28, "v": 3427800.0}, {"t": "2026-07-16T00:00:00-04:00", "o": 67.07, "h": 67.42, "l": 62.8, "c": 63.15, "v": 5593100.0}, {"t": "2026-07-17T00:00:00-04:00", "o": 61.68, "h": 63.28, "l": 61.06, "c": 61.82, "v": 4552000.0}, {"t": "2026-07-20T00:00:00-04:00", "o": 61.46, "h": 62.425, "l": 59.3, "c": 59.49, "v": 4967900.0}, {"t": "2026-07-21T00:00:00-04:00", "o": 59.51, "h": 60.83, "l": 58.61, "c": 59.66, "v": 4357400.0}, {"t": "2026-07-22T00:00:00-04:00", "o": 59.52, "h": 59.86, "l": 57.74, "c": 58.07, "v": 3780400.0}, {"t": "2026-07-23T00:00:00-04:00", "o": 57.2, "h": 58.43, "l": 56.275, "c": 57.02, "v": 4695600.0}, {"t": "2026-07-24T00:00:00-04:00", "o": 57.255, "h": 57.46, "l": 53.85, "c": 54.07, "v": 4427800.0}, {"t": "2026-07-27T00:00:00-04:00", "o": 54.75, "h": 57.07, "l": 54.39, "c": 55.63, "v": 5038200.0}, {"t": "2026-07-28T00:00:00-04:00", "o": 54.831, "h": 55.85, "l": 53.345, "c": 55.805, "v": 5553600.0}, {"t": "2026-07-29T00:00:00-04:00", "o": 55.04, "h": 56.25, "l": 54.16, "c": 54.49, "v": 4348300.0}, {"t": "2026-07-30T00:00:00-04:00", "o": 55.965, "h": 58.08, "l": 54.52, "c": 57.92, "v": 4458300.0}, {"t": "2026-07-31T00:00:00-04:00", "o": 57.85, "h": 59.49, "l": 54.71, "c": 54.82, "v": 7764500.0}, {"t": "2026-08-03T00:00:00-04:00", "o": 54.925, "h": 58.0, "l": 52.66, "c": 55.14, "v": 5176700.0}, {"t": "2026-08-04T00:00:00-04:00", "o": 56.84, "h": 58.34, "l": 55.875, "c": 56.99, "v": 4000100.0}, {"t": "2026-08-05T00:00:00-04:00", "o": 58.0, "h": 59.45, "l": 55.58, "c": 56.255, "v": 5163300.0}, {"t": "2026-08-06T00:00:00-04:00", "o": 57.54, "h": 59.0, "l": 53.71, "c": 53.86, "v": 5640300.0}, {"t": "2026-08-07T00:00:00-04:00", "o": 54.79, "h": 59.415, "l": 54.62, "c": 59.17, "v": 6820600.0}, {"t": "2026-08-10T00:00:00-04:00", "o": 59.75, "h": 60.77, "l": 58.41, "c": 59.81, "v": 6224500.0}, {"t": "2026-08-11T00:00:00-04:00", "o": 60.21, "h": 61.4, "l": 58.6, "c": 60.57, "v": 6556300.0}, {"t": "2026-08-12T00:00:00-04:00", "o": 60.58, "h": 64.26, "l": 59.29, "c": 63.67, "v": 6582000.0}, {"t": "2026-08-13T00:00:00-04:00", "o": 63.8, "h": 65.33, "l": 62.33, "c": 63.65, "v": 8159700.0}, {"t": "2026-08-14T00:00:00-04:00", "o": 62.89, "h": 63.782, "l": 60.82, "c": 63.32, "v": 4700900.0}, {"t": "2026-08-17T00:00:00-04:00", "o": 64.775, "h": 65.525, "l": 62.91, "c": 64.46, "v": 3979600.0}, {"t": "2026-08-18T00:00:00-04:00", "o": 63.04, "h": 64.46, "l": 62.129, "c": 62.96, "v": 4305000.0}, {"t": "2026-08-19T00:00:00-04:00", "o": 116.02, "h": 176.66, "l": 114.46, "c": 174.38, "v": 199252300.0}, {"t": "2026-08-20T00:00:00-04:00", "o": 150.14, "h": 155.0, "l": 128.61, "c": 133.32, "v": 99499900.0}, {"t": "2026-08-21T00:00:00-04:00", "o": 133.11, "h": 159.47, "l": 132.42, "c": 145.13, "v": 87316100.0}, {"t": "2026-08-24T00:00:00-04:00", "o": 142.7, "h": 145.5, "l": 130.0, "c": 138.89, "v": 31587200.0}, {"t": "2026-08-25T00:00:00-04:00", "o": 143.5, "h": 161.37, "l": 141.21, "c": 158.83, "v": 49225700.0}, {"t": "2026-08-26T00:00:00-04:00", "o": 154.2, "h": 156.13, "l": 145.1, "c": 149.66, "v": 22009500.0}, {"t": "2026-08-27T00:00:00-04:00", "o": 144.18, "h": 148.588, "l": 138.54, "c": 142.77, "v": 24993200.0}, {"t": "2026-08-28T00:00:00-04:00", "o": 137.19, "h": 138.8, "l": 133.33, "c": 137.99, "v": 25820600.0}, {"t": "2026-08-31T00:00:00-04:00", "o": 134.1, "h": 144.2, "l": 133.855, "c": 140.34, "v": 18570700.0}, {"t": "2026-09-01T00:00:00-04:00", "o": 140.25, "h": 154.7, "l": 138.09, "c": 154.27, "v": 25831700.0}, {"t": "2026-09-02T00:00:00-04:00", "o": 151.4, "h": 156.415, "l": 146.54, "c": 150.81, "v": 16563200.0}, {"t": "2026-09-03T00:00:00-04:00", "o": 145.945, "h": 150.2, "l": 142.78, "c": 148.87, "v": 13290400.0}, {"t": "2026-09-04T00:00:00-04:00", "o": 153.62, "h": 154.69, "l": 141.52, "c": 145.55, "v": 14966500.0}, {"t": "2026-09-08T00:00:00-04:00", "o": 145.98, "h": 147.5, "l": 139.7, "c": 140.33, "v": 10308600.0}, {"t": "2026-09-09T00:00:00-04:00", "o": 140.295, "h": 143.94, "l": 135.52, "c": 135.61, "v": 8650500.0}, {"t": "2026-09-10T00:00:00-04:00", "o": 134.86, "h": 137.13, "l": 130.38, "c": 136.62, "v": 7873500.0}, {"t": "2026-09-11T00:00:00-04:00", "o": 137.905, "h": 149.734, "l": 135.01, "c": 143.97, "v": 15409300.0}, {"t": "2026-09-14T00:00:00-04:00", "o": 144.925, "h": 147.34, "l": 139.02, "c": 146.69, "v": 10963000.0}, {"t": "2026-09-15T00:00:00-04:00", "o": 146.0, "h": 148.7, "l": 141.16, "c": 143.77, "v": 8414700.0}, {"t": "2026-09-16T00:00:00-04:00", "o": 145.26, "h": 148.93, "l": 142.3, "c": 145.62, "v": 8832100.0}, {"t": "2026-09-17T00:00:00-04:00", "o": 152.5, "h": 161.96, "l": 149.5, "c": 158.07, "v": 19175000.0}, {"t": "2026-09-18T00:00:00-04:00", "o": 158.355, "h": 159.79, "l": 150.26, "c": 154.04, "v": 20229600.0}, {"t": "2026-09-21T00:00:00-04:00", "o": 161.05, "h": 176.86, "l": 159.06, "c": 172.94, "v": 20972300.0}], "ema": {"ema8": [47.9842, 48.4121, 49.2383, 50.6076, 53.0948, 55.5093, 56.3617, 57.3924, 58.0652, 58.4396, 60.4019, 62.4682, 64.1486, 66.0044, 69.0612, 71.8921, 73.6427, 73.6777, 74.3182, 72.9741, 71.6488, 70.7135, 70.1727, 68.6121, 67.1028, 65.411, 64.133, 62.7857, 61.5044, 59.8523, 58.914, 58.2231, 57.3936, 57.5105, 56.9126, 56.5187, 56.6235, 56.5416, 55.9457, 56.6622, 57.3617, 58.0747, 59.3181, 60.2807, 60.9561, 61.7348, 62.007, 86.9788, 97.2768, 107.9109, 114.7951, 124.5807, 130.1538, 132.9574, 134.0758, 135.4678, 139.6461, 142.127, 143.6254, 144.0531, 143.2257, 141.5334, 140.4415, 141.2256, 142.4399, 142.7355, 143.3765, 146.6417, 148.2858, 153.7645], "ema13": [47.9871, 48.2618, 48.8144, 49.7552, 51.4759, 53.2593, 54.1287, 55.1103, 55.8689, 56.4233, 57.9728, 59.6481, 61.1313, 62.7554, 65.1846, 67.5582, 69.3028, 69.9452, 70.8902, 70.5159, 70.015, 69.6472, 69.4519, 68.5516, 67.5899, 66.4328, 65.4653, 64.4088, 63.3533, 62.0271, 61.1132, 60.3549, 59.5171, 59.2889, 58.6505, 58.149, 57.9834, 57.7365, 57.1827, 57.4666, 57.8014, 58.1969, 58.9788, 59.6461, 60.1709, 60.7837, 61.0946, 77.2782, 85.2842, 93.8336, 100.2702, 108.6359, 114.4965, 118.5356, 121.3148, 124.0327, 128.3523, 131.5605, 134.0333, 135.6785, 136.343, 136.2383, 136.2928, 137.3896, 138.7182, 139.4399, 140.3228, 142.8581, 144.4555, 148.5247], "ema21": [48.2017, 48.357, 48.7, 49.3091, 50.4446, 51.6733, 52.3707, 53.1552, 53.8156, 54.3551, 55.5292, 56.8175, 58.0186, 59.3351, 61.1919, 63.0654, 64.584, 65.4218, 66.4344, 66.6012, 66.6384, 66.7113, 66.8539, 66.5172, 66.0901, 65.4901, 64.9601, 64.3337, 63.6689, 62.7962, 62.1448, 61.5684, 60.9249, 60.6518, 60.1216, 59.6687, 59.4252, 59.137, 58.6573, 58.7039, 58.8044, 58.9649, 59.3927, 59.7797, 60.1016, 60.4978, 60.7216, 71.0542, 76.7147, 82.9343, 88.0212, 94.4583, 99.4767, 103.4124, 106.5558, 109.6271, 113.6856, 117.0605, 119.9523, 122.2794, 123.9203, 124.983, 126.0409, 127.6708, 129.3999, 130.7062, 132.062, 134.4264, 136.2094, 139.5486], "ema144": [44.5158, 44.5902, 44.6942, 44.8419, 45.0758, 45.3362, 45.5295, 45.7428, 45.9453, 46.1357, 46.4272, 46.7482, 47.0693, 47.4201, 47.8662, 48.3342, 48.7678, 49.1131, 49.4917, 49.7507, 49.9887, 50.2294, 50.4784, 50.6532, 50.8072, 50.927, 51.0474, 51.1443, 51.2254, 51.2646, 51.3248, 51.3866, 51.4294, 51.5189, 51.5645, 51.6138, 51.6879, 51.7509, 51.78, 51.8819, 51.9913, 52.1096, 52.2691, 52.4261, 52.5763, 52.7402, 52.8812, 54.557, 55.6434, 56.8777, 58.0089, 59.3996, 60.6445, 61.7773, 62.8285, 63.8976, 65.1441, 66.3257, 67.4643, 68.5413, 69.5315, 70.4429, 71.3557, 72.3573, 73.3826, 74.3535, 75.3364, 76.4776, 77.5474, 78.8632], "ema169": [43.6711, 43.7445, 43.8432, 43.9791, 44.1888, 44.4214, 44.597, 44.7899, 44.9738, 45.1477, 45.4079, 45.6937, 45.98, 46.292, 46.6858, 47.0989, 47.4832, 47.7928, 48.1313, 48.3682, 48.5875, 48.8093, 49.0384, 49.2044, 49.3528, 49.4721, 49.5919, 49.6917, 49.7779, 49.8284, 49.8966, 49.9662, 50.0194, 50.1123, 50.1677, 50.2262, 50.3058, 50.3758, 50.4168, 50.5197, 50.629, 50.746, 50.898, 51.0481, 51.1924, 51.3485, 51.4851, 52.931, 53.8767, 54.9503, 55.9378, 57.1483, 58.2367, 59.2312, 60.1578, 61.1011, 62.1972, 63.2397, 64.2471, 65.2036, 66.0874, 66.9054, 67.7255, 68.6225, 69.541, 70.4142, 71.299, 72.3199, 73.2813, 74.4537]}, "td": [{"t": "2026-07-21T00:00:00-04:00", "kind": "buy", "perfected": true}], "swings": [{"t": "2026-07-06T00:00:00-04:00", "price": 85.6, "kind": "high", "base": false}, {"t": "2026-07-28T00:00:00-04:00", "price": 53.345, "kind": "low", "base": false}, {"t": "2026-07-31T00:00:00-04:00", "price": 59.49, "kind": "high", "base": false}, {"t": "2026-08-03T00:00:00-04:00", "price": 52.66, "kind": "low", "base": false}, {"t": "2026-08-19T00:00:00-04:00", "price": 176.66, "kind": "high", "base": false}, {"t": "2026-08-28T00:00:00-04:00", "price": 133.33, "kind": "low", "base": false}, {"t": "2026-09-02T00:00:00-04:00", "price": 156.415, "kind": "high", "base": false}, {"t": "2026-09-10T00:00:00-04:00", "price": 130.38, "kind": "low", "base": false}, {"t": "2026-09-11T00:00:00-04:00", "price": 149.734, "kind": "high", "base": false}], "trendlines": [{"kind": "up", "from": {"t": "2026-06-02T00:00:00-04:00", "price": 43.9}, "to": {"t": "2026-08-03T00:00:00-04:00", "price": 52.66}, "current": 59.7514, "slope_per_bar": 0.208571, "anchor_index": 423, "touches": 5, "broken_at": null, "as_of_bar": "2026-09-21T00:00:00-04:00"}, {"kind": "down", "from": {"t": "2026-03-04T00:00:00-05:00", "price": 59.55}, "to": {"t": "2026-03-26T00:00:00-04:00", "price": 54.68}, "current": 17.5463, "slope_per_bar": -0.304375, "anchor_index": 361, "touches": 12, "broken_at": "2026-04-10T00:00:00-04:00", "as_of_bar": "2026-09-21T00:00:00-04:00"}]}, "intraday": {"bars": [{"t": "2026-06-26T09:30:00-04:00", "o": 59.82, "h": 69.285, "l": 59.23, "c": 67.23, "v": 9225362.0}, {"t": "2026-06-26T13:30:00-04:00", "o": 67.23, "h": 67.86, "l": 65.4179, "c": 67.29, "v": 3542632.0}, {"t": "2026-06-29T09:30:00-04:00", "o": 68.15, "h": 69.9, "l": 66.3, "c": 68.29, "v": 4428003.0}, {"t": "2026-06-29T13:30:00-04:00", "o": 68.275, "h": 69.815, "l": 67.795, "c": 69.67, "v": 2089357.0}, {"t": "2026-06-30T09:30:00-04:00", "o": 69.835, "h": 73.28, "l": 69.835, "c": 71.415, "v": 4421152.0}, {"t": "2026-06-30T13:30:00-04:00", "o": 71.365, "h": 71.6299, "l": 69.22, "c": 70.01, "v": 2713525.0}, {"t": "2026-07-01T09:30:00-04:00", "o": 70.1, "h": 73.87, "l": 68.8655, "c": 73.705, "v": 3448292.0}, {"t": "2026-07-01T13:30:00-04:00", "o": 73.65, "h": 73.9, "l": 71.29, "c": 72.49, "v": 2471610.0}, {"t": "2026-07-02T09:30:00-04:00", "o": 73.89, "h": 81.4, "l": 73.68, "c": 78.29, "v": 9130059.0}, {"t": "2026-07-02T13:30:00-04:00", "o": 78.27, "h": 79.91, "l": 78.03, "c": 79.8, "v": 3368375.0}, {"t": "2026-07-06T09:30:00-04:00", "o": 78.7, "h": 85.6, "l": 77.5, "c": 82.64, "v": 8607887.0}, {"t": "2026-07-06T13:30:00-04:00", "o": 82.595, "h": 82.8, "l": 80.22, "c": 81.76, "v": 5031165.0}, {"t": "2026-07-07T09:30:00-04:00", "o": 82.15, "h": 82.9, "l": 77.41, "c": 79.7199, "v": 3978882.0}, {"t": "2026-07-07T13:30:00-04:00", "o": 79.685, "h": 80.115, "l": 78.3, "c": 79.77, "v": 1961879.0}, {"t": "2026-07-08T09:30:00-04:00", "o": 77.34, "h": 78.3, "l": 73.74, "c": 74.895, "v": 4114163.0}, {"t": "2026-07-08T13:30:00-04:00", "o": 74.89, "h": 74.9894, "l": 73.3401, "c": 73.78, "v": 1738818.0}, {"t": "2026-07-09T09:30:00-04:00", "o": 73.8, "h": 76.5, "l": 73.14, "c": 75.19, "v": 2403724.0}, {"t": "2026-07-09T13:30:00-04:00", "o": 75.2, "h": 76.8, "l": 74.9405, "c": 76.56, "v": 1390452.0}, {"t": "2026-07-10T09:30:00-04:00", "o": 76.722, "h": 76.722, "l": 67.31, "c": 67.94, "v": 5798052.0}, {"t": "2026-07-10T13:30:00-04:00", "o": 67.945, "h": 68.92, "l": 67.77, "c": 68.265, "v": 2800725.0}, {"t": "2026-07-13T09:30:00-04:00", "o": 66.33, "h": 69.55, "l": 65.54, "c": 67.81, "v": 4218665.0}, {"t": "2026-07-13T13:30:00-04:00", "o": 67.81, "h": 67.96, "l": 66.28, "c": 67.0, "v": 3539719.0}, {"t": "2026-07-14T09:30:00-04:00", "o": 66.67, "h": 67.71, "l": 65.8, "c": 67.5, "v": 2095882.0}, {"t": "2026-07-14T13:30:00-04:00", "o": 67.55, "h": 67.89, "l": 66.9501, "c": 67.44, "v": 1379842.0}, {"t": "2026-07-15T09:30:00-04:00", "o": 67.79, "h": 68.36, "l": 65.95, "c": 67.085, "v": 1769675.0}, {"t": "2026-07-15T13:30:00-04:00", "o": 67.17, "h": 68.49, "l": 67.0721, "c": 68.28, "v": 1146162.0}, {"t": "2026-07-16T09:30:00-04:00", "o": 67.0, "h": 68.28, "l": 63.5, "c": 64.0646, "v": 3101491.0}, {"t": "2026-07-16T13:30:00-04:00", "o": 64.065, "h": 64.48, "l": 62.8, "c": 63.145, "v": 1824929.0}, {"t": "2026-07-17T09:30:00-04:00", "o": 61.63, "h": 63.28, "l": 61.06, "c": 62.935, "v": 2314331.0}, {"t": "2026-07-17T13:30:00-04:00", "o": 62.9599, "h": 62.98, "l": 61.41, "c": 61.82, "v": 1597880.0}, {"t": "2026-07-20T09:30:00-04:00", "o": 62.0, "h": 62.4251, "l": 60.9101, "c": 61.4, "v": 1518041.0}, {"t": "2026-07-20T13:30:00-04:00", "o": 61.41, "h": 61.58, "l": 59.3, "c": 59.5, "v": 2072520.0}, {"t": "2026-07-21T09:30:00-04:00", "o": 59.51, "h": 60.83, "l": 58.61, "c": 59.7, "v": 2211971.0}, {"t": "2026-07-21T13:30:00-04:00", "o": 59.72, "h": 59.91, "l": 59.24, "c": 59.69, "v": 1309517.0}, {"t": "2026-07-22T09:30:00-04:00", "o": 59.37, "h": 59.86, "l": 58.45, "c": 58.585, "v": 1663067.0}, {"t": "2026-07-22T13:30:00-04:00", "o": 58.5675, "h": 58.75, "l": 57.74, "c": 58.08, "v": 1454508.0}, {"t": "2026-07-23T09:30:00-04:00", "o": 57.14, "h": 58.43, "l": 56.62, "c": 57.33, "v": 1931368.0}, {"t": "2026-07-23T13:30:00-04:00", "o": 57.3, "h": 57.31, "l": 56.275, "c": 57.0, "v": 1567428.0}, {"t": "2026-07-24T09:30:00-04:00", "o": 57.255, "h": 57.46, "l": 53.85, "c": 54.69, "v": 2420097.0}, {"t": "2026-07-24T13:30:00-04:00", "o": 54.675, "h": 54.79, "l": 54.02, "c": 54.05, "v": 1485515.0}, {"t": "2026-07-27T09:30:00-04:00", "o": 54.84, "h": 57.07, "l": 54.39, "c": 55.6399, "v": 2826922.0}, {"t": "2026-07-27T13:30:00-04:00", "o": 55.57, "h": 55.955, "l": 55.2491, "c": 55.61, "v": 1474861.0}, {"t": "2026-07-28T09:30:00-04:00", "o": 54.831, "h": 55.55, "l": 53.345, "c": 55.42, "v": 2597263.0}, {"t": "2026-07-28T13:30:00-04:00", "o": 55.42, "h": 55.85, "l": 54.98, "c": 55.81, "v": 2428565.0}, {"t": "2026-07-29T09:30:00-04:00", "o": 55.04, "h": 56.23, "l": 54.1601, "c": 54.745, "v": 2337776.0}, {"t": "2026-07-29T13:30:00-04:00", "o": 54.74, "h": 56.08, "l": 54.34, "c": 54.49, "v": 1396956.0}, {"t": "2026-07-30T09:30:00-04:00", "o": 55.88, "h": 56.96, "l": 54.52, "c": 56.655, "v": 2093957.0}, {"t": "2026-07-30T13:30:00-04:00", "o": 56.68, "h": 58.08, "l": 56.5, "c": 57.88, "v": 1707013.0}, {"t": "2026-07-31T09:30:00-04:00", "o": 57.85, "h": 59.49, "l": 55.25, "c": 56.06, "v": 4809949.0}, {"t": "2026-07-31T13:30:00-04:00", "o": 56.06, "h": 56.5873, "l": 54.71, "c": 54.71, "v": 2206791.0}, {"t": "2026-08-03T09:30:00-04:00", "o": 54.925, "h": 58.0, "l": 52.6601, "c": 55.925, "v": 2903691.0}, {"t": "2026-08-03T13:30:00-04:00", "o": 55.95, "h": 56.24, "l": 55.11, "c": 55.11, "v": 1482069.0}, {"t": "2026-08-04T09:30:00-04:00", "o": 56.715, "h": 58.34, "l": 55.875, "c": 57.62, "v": 2037114.0}, {"t": "2026-08-04T13:30:00-04:00", "o": 57.6, "h": 57.6899, "l": 56.93, "c": 57.0, "v": 1253907.0}, {"t": "2026-08-05T09:30:00-04:00", "o": 58.09, "h": 59.4496, "l": 56.58, "c": 56.61, "v": 2641980.0}, {"t": "2026-08-05T13:30:00-04:00", "o": 56.6014, "h": 56.88, "l": 55.58, "c": 56.25, "v": 1582205.0}, {"t": "2026-08-06T09:30:00-04:00", "o": 57.54, "h": 58.99, "l": 54.15, "c": 54.16, "v": 3312859.0}, {"t": "2026-08-06T13:30:00-04:00", "o": 54.16, "h": 54.5, "l": 53.71, "c": 53.85, "v": 1615795.0}, {"t": "2026-08-07T09:30:00-04:00", "o": 55.46, "h": 57.93, "l": 54.63, "c": 57.74, "v": 2932152.0}, {"t": "2026-08-07T13:30:00-04:00", "o": 57.78, "h": 59.415, "l": 57.7301, "c": 59.17, "v": 3108241.0}, {"t": "2026-08-10T09:30:00-04:00", "o": 59.93, "h": 60.77, "l": 58.41, "c": 59.525, "v": 3892398.0}, {"t": "2026-08-10T13:30:00-04:00", "o": 59.52, "h": 59.84, "l": 59.0801, "c": 59.82, "v": 1585929.0}, {"t": "2026-08-11T09:30:00-04:00", "o": 60.22, "h": 61.4, "l": 58.6, "c": 59.065, "v": 3191098.0}, {"t": "2026-08-11T13:30:00-04:00", "o": 59.09, "h": 61.02, "l": 59.0, "c": 60.55, "v": 2165966.0}, {"t": "2026-08-12T09:30:00-04:00", "o": 60.575, "h": 64.11, "l": 59.29, "c": 63.85, "v": 3073332.0}, {"t": "2026-08-12T13:30:00-04:00", "o": 63.82, "h": 64.255, "l": 63.42, "c": 63.68, "v": 1931799.0}, {"t": "2026-08-13T09:30:00-04:00", "o": 63.8, "h": 65.33, "l": 62.33, "c": 63.7906, "v": 3236485.0}, {"t": "2026-08-13T13:30:00-04:00", "o": 63.8, "h": 63.9045, "l": 62.59, "c": 63.65, "v": 2123316.0}, {"t": "2026-08-14T09:30:00-04:00", "o": 62.6, "h": 63.7822, "l": 60.82, "c": 63.43, "v": 2423257.0}, {"t": "2026-08-14T13:30:00-04:00", "o": 63.42, "h": 63.77, "l": 62.8, "c": 63.29, "v": 1740649.0}, {"t": "2026-08-17T09:30:00-04:00", "o": 64.25, "h": 65.525, "l": 62.91, "c": 64.715, "v": 2190390.0}, {"t": "2026-08-17T13:30:00-04:00", "o": 64.725, "h": 65.35, "l": 64.39, "c": 64.46, "v": 1137323.0}, {"t": "2026-08-18T09:30:00-04:00", "o": 63.043, "h": 64.37, "l": 62.1293, "c": 63.61, "v": 1874947.0}, {"t": "2026-08-18T13:30:00-04:00", "o": 63.6178, "h": 64.015, "l": 62.75, "c": 62.95, "v": 1390324.0}, {"t": "2026-08-19T09:30:00-04:00", "o": 116.245, "h": 163.47, "l": 114.46, "c": 156.6968, "v": 136164511.0}, {"t": "2026-08-19T13:30:00-04:00", "o": 156.73, "h": 176.6599, "l": 147.5, "c": 174.165, "v": 46590654.0}, {"t": "2026-08-20T09:30:00-04:00", "o": 150.1125, "h": 155.0, "l": 128.61, "c": 129.525, "v": 70096387.0}, {"t": "2026-08-20T13:30:00-04:00", "o": 129.58, "h": 136.7542, "l": 129.11, "c": 133.34, "v": 24753107.0}, {"t": "2026-08-21T09:30:00-04:00", "o": 132.5, "h": 159.47, "l": 132.43, "c": 148.06, "v": 61830578.0}, {"t": "2026-08-21T13:30:00-04:00", "o": 148.175, "h": 149.19, "l": 139.0, "c": 145.04, "v": 23718292.0}, {"t": "2026-08-24T09:30:00-04:00", "o": 142.7, "h": 145.49, "l": 130.0, "c": 138.948, "v": 23800330.0}, {"t": "2026-08-24T13:30:00-04:00", "o": 138.985, "h": 140.95, "l": 137.8732, "c": 138.89, "v": 7105896.0}, {"t": "2026-08-25T09:30:00-04:00", "o": 143.415, "h": 159.83, "l": 141.21, "c": 157.62, "v": 33946185.0}, {"t": "2026-08-25T13:30:00-04:00", "o": 157.64, "h": 161.37, "l": 138.89, "c": 158.87, "v": 12788938.0}, {"t": "2026-08-26T09:30:00-04:00", "o": 154.52, "h": 156.13, "l": 145.85, "c": 147.7901, "v": 15602975.0}, {"t": "2026-08-26T13:30:00-04:00", "o": 147.79, "h": 150.57, "l": 145.11, "c": 149.65, "v": 5401856.0}, {"t": "2026-08-27T09:30:00-04:00", "o": 144.2, "h": 148.588, "l": 138.5401, "c": 142.9799, "v": 15483364.0}, {"t": "2026-08-27T13:30:00-04:00", "o": 142.97, "h": 144.21, "l": 138.9, "c": 142.75, "v": 7604309.0}, {"t": "2026-08-28T09:30:00-04:00", "o": 137.057, "h": 138.8, "l": 133.33, "c": 137.8, "v": 19731937.0}, {"t": "2026-08-28T13:30:00-04:00", "o": 137.75, "h": 138.4599, "l": 136.28, "c": 137.9473, "v": 5133400.0}, {"t": "2026-08-31T09:30:00-04:00", "o": 134.1, "h": 144.2, "l": 133.855, "c": 142.93, "v": 10302939.0}, {"t": "2026-08-31T13:30:00-04:00", "o": 142.91, "h": 142.96, "l": 135.8, "c": 140.41, "v": 6427352.0}, {"t": "2026-09-01T09:30:00-04:00", "o": 139.96, "h": 150.6095, "l": 138.09, "c": 149.43, "v": 15175350.0}, {"t": "2026-09-01T13:30:00-04:00", "o": 149.43, "h": 154.7, "l": 148.16, "c": 154.28, "v": 9146694.0}, {"t": "2026-09-02T09:30:00-04:00", "o": 151.48, "h": 156.4151, "l": 146.54, "c": 148.7374, "v": 10637501.0}, {"t": "2026-09-02T13:30:00-04:00", "o": 148.7, "h": 153.6577, "l": 148.2877, "c": 150.81, "v": 4854624.0}, {"t": "2026-09-03T09:30:00-04:00", "o": 146.04, "h": 150.2, "l": 142.78, "c": 144.03, "v": 7685274.0}, {"t": "2026-09-03T13:30:00-04:00", "o": 143.95, "h": 149.35, "l": 143.5, "c": 148.86, "v": 4690066.0}, {"t": "2026-09-04T09:30:00-04:00", "o": 153.0, "h": 154.035, "l": 141.52, "c": 144.73, "v": 10511767.0}, {"t": "2026-09-04T13:30:00-04:00", "o": 144.71, "h": 146.84, "l": 144.55, "c": 145.54, "v": 3620281.0}, {"t": "2026-09-08T09:30:00-04:00", "o": 145.715, "h": 147.4999, "l": 140.5, "c": 143.73, "v": 6176376.0}, {"t": "2026-09-08T13:30:00-04:00", "o": 143.7145, "h": 143.97, "l": 139.7, "c": 140.34, "v": 3122508.0}, {"t": "2026-09-09T09:30:00-04:00", "o": 140.54, "h": 143.94, "l": 136.7, "c": 137.725, "v": 4766523.0}, {"t": "2026-09-09T13:30:00-04:00", "o": 137.74, "h": 138.5549, "l": 135.54, "c": 135.6, "v": 3018833.0}, {"t": "2026-09-10T09:30:00-04:00", "o": 134.604, "h": 135.5894, "l": 130.38, "c": 135.415, "v": 4936841.0}, {"t": "2026-09-10T13:30:00-04:00", "o": 135.44, "h": 137.13, "l": 134.72, "c": 136.62, "v": 2222782.0}, {"t": "2026-09-11T09:30:00-04:00", "o": 138.093, "h": 149.71, "l": 135.0101, "c": 147.93, "v": 10669456.0}, {"t": "2026-09-11T13:30:00-04:00", "o": 147.88, "h": 148.8199, "l": 143.85, "c": 143.94, "v": 3774138.0}, {"t": "2026-09-14T09:30:00-04:00", "o": 145.0, "h": 147.3399, "l": 139.03, "c": 146.555, "v": 5870857.0}, {"t": "2026-09-14T13:30:00-04:00", "o": 146.54, "h": 146.982, "l": 145.28, "c": 146.77, "v": 3352685.0}, {"t": "2026-09-15T09:30:00-04:00", "o": 146.0, "h": 148.6999, "l": 141.16, "c": 144.51, "v": 4218193.0}, {"t": "2026-09-15T13:30:00-04:00", "o": 144.59, "h": 145.64, "l": 141.3001, "c": 143.77, "v": 2538623.0}, {"t": "2026-09-16T09:30:00-04:00", "o": 145.41, "h": 148.9, "l": 142.67, "c": 148.73, "v": 4276756.0}, {"t": "2026-09-16T13:30:00-04:00", "o": 148.72, "h": 148.93, "l": 142.3001, "c": 145.65, "v": 2888547.0}, {"t": "2026-09-17T09:30:00-04:00", "o": 152.5, "h": 161.9599, "l": 149.5, "c": 155.4, "v": 12970629.0}, {"t": "2026-09-17T13:30:00-04:00", "o": 155.4, "h": 159.585, "l": 155.12, "c": 158.01, "v": 4147946.0}, {"t": "2026-09-18T09:30:00-04:00", "o": 158.355, "h": 159.79, "l": 153.8, "c": 155.2505, "v": 6229445.0}, {"t": "2026-09-18T13:30:00-04:00", "o": 155.33, "h": 156.33, "l": 150.26, "c": 154.01, "v": 2967125.0}, {"t": "2026-09-21T09:30:00-04:00", "o": 161.05, "h": 170.15, "l": 159.06, "c": 169.75, "v": 11049590.0}, {"t": "2026-09-21T13:30:00-04:00", "o": 169.69, "h": 176.86, "l": 169.54, "c": 172.93, "v": 7967369.0}], "ema": {"ema8": [61.6494, 62.9028, 64.1, 65.3378, 66.6883, 67.4264, 68.8217, 69.6368, 71.5598, 73.3909, 75.4463, 76.8493, 77.4872, 77.9945, 77.3057, 76.5222, 76.2262, 76.3004, 74.4425, 73.0697, 71.9009, 70.8118, 70.0759, 69.4901, 68.9556, 68.8055, 67.752, 66.7282, 65.8853, 64.9819, 64.1859, 63.1446, 62.3791, 61.7815, 61.0712, 60.4065, 59.7228, 59.1178, 58.1338, 57.2263, 56.8738, 56.5929, 56.3323, 56.2162, 55.8893, 55.5783, 55.8176, 56.2759, 56.2279, 55.8906, 55.8982, 55.7231, 56.1446, 56.3347, 56.3959, 56.3635, 55.8738, 55.4241, 55.9387, 56.6568, 57.2942, 57.8555, 58.1242, 58.6633, 59.8159, 60.6746, 61.367, 61.8744, 62.2201, 62.4578, 62.9594, 63.2929, 63.3634, 63.2715, 84.0327, 104.0621, 109.7205, 114.9693, 122.3228, 127.371, 129.9437, 131.9318, 137.6403, 142.358, 143.5651, 144.9173, 144.4868, 144.1008, 142.7006, 141.6443, 141.93, 141.5923, 143.334, 145.7664, 146.4266, 147.4007, 146.6517, 147.1424, 146.6063, 146.3694, 145.7828, 144.5733, 143.0515, 141.3956, 140.0666, 139.3007, 141.2183, 141.8231, 142.8746, 143.7403, 143.9113, 143.8799, 144.9577, 145.1116, 147.3979, 149.7561, 150.9771, 151.6511, 155.6731, 159.5079], "ema13": [60.3035, 61.3016, 62.2999, 63.3528, 64.5045, 65.291, 66.493, 67.3497, 68.9126, 70.468, 72.2068, 73.5716, 74.4499, 75.2099, 75.1649, 74.9671, 74.9989, 75.2219, 74.1817, 73.3364, 72.5469, 71.7545, 71.1467, 70.6172, 70.1126, 69.8508, 69.0242, 68.1843, 67.4344, 66.6324, 65.8849, 64.9727, 64.2195, 63.5724, 62.8599, 62.1771, 61.4846, 60.844, 59.9648, 59.1199, 58.6227, 58.1923, 57.7963, 57.5125, 57.1172, 56.7419, 56.7295, 56.8938, 56.7747, 56.4797, 56.4005, 56.2161, 56.4167, 56.5, 56.5157, 56.4778, 56.1467, 55.8186, 56.0931, 56.5326, 56.9601, 57.3687, 57.611, 58.0309, 58.8622, 59.5504, 60.1562, 60.6553, 61.0517, 61.3714, 61.8491, 62.2221, 62.4203, 62.496, 75.9533, 89.9835, 95.6323, 101.0191, 107.7392, 113.0679, 116.7651, 119.9258, 125.3107, 130.1049, 132.6313, 135.0626, 136.1936, 137.1302, 137.2259, 137.329, 138.1291, 138.455, 140.0228, 142.0596, 143.0135, 144.1273, 144.1134, 144.7915, 144.7827, 144.8909, 144.7251, 144.0986, 143.1881, 142.1041, 141.1485, 140.5016, 141.5628, 141.9024, 142.567, 143.1675, 143.3593, 143.4179, 144.1768, 144.3873, 145.9605, 147.6819, 148.7631, 149.5127, 152.4037, 155.336], "ema21": [58.2681, 59.0883, 59.9248, 60.8107, 61.7747, 62.5234, 63.5399, 64.3536, 65.6205, 66.9095, 68.3396, 69.5596, 70.4833, 71.3275, 71.6518, 71.8453, 72.1494, 72.5503, 72.1312, 71.7797, 71.4189, 71.0171, 70.6974, 70.4013, 70.0998, 69.9344, 69.4007, 68.832, 68.2959, 67.7072, 67.1338, 66.4399, 65.8271, 65.2692, 64.6616, 64.0632, 63.4511, 62.8647, 62.1215, 61.3877, 60.8652, 60.3875, 59.9359, 59.5608, 59.123, 58.7018, 58.5157, 58.4579, 58.2399, 57.919, 57.7378, 57.4989, 57.5099, 57.4635, 57.3859, 57.2827, 56.9988, 56.7125, 56.8059, 57.0209, 57.2485, 57.4823, 57.6262, 57.892, 58.4336, 58.9106, 59.3542, 59.7447, 60.0797, 60.3716, 60.7664, 61.1022, 61.3302, 61.4775, 70.1338, 79.5911, 84.1306, 88.6042, 94.0092, 98.6484, 102.312, 105.6373, 110.363, 114.7727, 117.7743, 120.6721, 122.7001, 124.5228, 125.7298, 126.8405, 128.3032, 129.4038, 131.2244, 133.3203, 134.7219, 136.1844, 136.8977, 137.9851, 138.5983, 139.2294, 139.6385, 139.7023, 139.5225, 139.1659, 138.825, 138.6245, 139.4705, 139.8768, 140.4839, 141.0554, 141.3694, 141.5876, 142.237, 142.5472, 143.7157, 145.0151, 145.9456, 146.6788, 148.7761, 150.9719]}}, "fibs": [{"label": "主升回撤 Fib（日线）", "anchors": {"direction": "up", "timeframe": "1d", "low": {"ts": "2026-06-02T00:00:00-04:00", "price": 43.9}, "high": {"ts": "2026-08-19T00:00:00-04:00", "price": 176.66}, "span": 132.76, "confirmed_at": "2026-08-24T00:00:00-04:00"}, "levels": [{"ratio": 0.236, "price": 145.3286, "kind": "primary_retracement"}, {"ratio": 0.382, "price": 125.9457, "kind": "primary_retracement"}, {"ratio": 0.5, "price": 110.28, "kind": "primary_retracement"}, {"ratio": 0.618, "price": 94.6143, "kind": "primary_retracement"}, {"ratio": 0.786, "price": 72.3106, "kind": "primary_retracement"}]}, {"label": "主跌反弹 Fib（日线）", "anchors": {"direction": "down", "timeframe": "1d", "low": {"ts": "2026-09-10T00:00:00-04:00", "price": 130.38}, "high": {"ts": "2026-08-19T00:00:00-04:00", "price": 176.66}, "span": 46.28, "confirmed_at": "2026-09-15T00:00:00-04:00"}, "levels": [{"ratio": 0.236, "price": 141.3021, "kind": "primary_rebound"}, {"ratio": 0.382, "price": 148.059, "kind": "primary_rebound"}, {"ratio": 0.5, "price": 153.52, "kind": "primary_rebound"}, {"ratio": 0.618, "price": 158.981, "kind": "primary_rebound"}, {"ratio": 0.786, "price": 166.7561, "kind": "primary_rebound"}]}, {"label": "局部导航 Fib（4H）", "anchors": {"direction": "down", "timeframe": "4h", "low": {"ts": "2026-09-18T13:30:00-04:00", "price": 150.26}, "high": {"ts": "2026-09-17T09:30:00-04:00", "price": 161.9599}, "span": 11.6999, "confirmed_at": "2026-09-21T13:30:00-04:00"}, "levels": [{"ratio": 0.0, "price": 150.26, "kind": "local_navigation"}, {"ratio": 0.236, "price": 153.0212, "kind": "local_navigation"}, {"ratio": 0.382, "price": 154.7294, "kind": "local_navigation"}, {"ratio": 0.5, "price": 156.1099, "kind": "local_navigation"}, {"ratio": 0.618, "price": 157.4905, "kind": "local_navigation"}, {"ratio": 0.786, "price": 159.4561, "kind": "local_navigation"}, {"ratio": 1.0, "price": 161.9599, "kind": "local_navigation"}]}]}}</script>
+<script>
+const DATA = JSON.parse(document.getElementById("payload").textContent);
+const A = DATA.analysis, C = DATA.chart;
+const fmt = (v, d = 2) => v == null || !isFinite(v) ? "—" :
+  Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const el = (tag, attrs = {}, kids = []) => {
+  const n = document.createElementNS(
+    tag === "svg" || SVG_TAGS.has(tag) ? "http://www.w3.org/2000/svg" : "http://www.w3.org/1999/xhtml", tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === "text") n.textContent = v; else n.setAttribute(k, v);
+  }
+  for (const k of [].concat(kids)) if (k) n.appendChild(k);
+  return n;
+};
+const SVG_TAGS = new Set(["g","path","rect","line","circle","text","polyline","polygon","defs","marker","clipPath"]);
+const h = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+
+const PHASE = { downtrend:"下跌趋势", stabilizing:"止跌阶段", reversal_candidate:"反转候选",
+  trend_improving:"趋势改善", range_or_mixed:"震荡/结构混合" };
+const ZONE = { at_support:"贴近支撑", at_resistance:"贴近压力", between:"中间区 · 默认不交易" };
+const VEGAS = { above_vegas:"Vegas 隧道上方", below_vegas:"Vegas 隧道下方", inside_vegas:"Vegas 隧道内", unknown:"数据不足" };
+const STACK = { bull:"多头排列", bear:"空头排列", mixed:"交错", unknown:"—" };
+const STRUCT = { higher_highs_higher_lows:"高点低点抬升", lower_highs_lower_lows:"高点低点下移", mixed:"混合", unknown:"—" };
+const EV = { primary_fib:"主Fib", extension_fib:"扩展Fib", horizontal:"水平枢轴", trendline:"趋势线",
+  ema_cluster:"EMA/Vegas", price_action:"价格行为", td9:"TD9", index:"指数", pivot:"枢轴", fib:"Fib",
+  extension:"扩展", gap:"缺口", prev_session:"前日高低收", round_number:"整数关口", ema:"EMA",
+  vegas:"Vegas", channel:"通道" };
+
+/* ---------- 顶栏与图签 ---------- */
+document.getElementById("m-symbol").textContent = A.symbol;
+document.getElementById("m-price").textContent = fmt(A.current_price);
+let pricemeta = `ATR ${fmt(A.data.atr_daily)} · 展示粒度 ${A.data.display_step}`;
+if (A.benchmark) {
+  const bc = A.benchmark.change_pct;
+  const bcTxt = bc == null ? "" : ` ${bc >= 0 ? "+" : ""}${bc}%`;
+  pricemeta += ` · 基准 ${A.benchmark.symbol}${bcTxt}`;
+}
+document.getElementById("m-pricemeta").textContent = pricemeta;
+document.getElementById("m-phase").textContent = PHASE[A.market_state.phase] || A.market_state.phase;
+document.getElementById("m-zone").textContent = ZONE[A.position_zone] || A.position_zone;
+if (A.price_is_live) {
+  const c = document.getElementById("m-live");
+  c.hidden = false;
+  c.textContent = `盘中 · 结构截至 ${A.structure_as_of.slice(0, 10)} 收盘`;
+}
+// 数据可能以两种方式变旧，必须分别检测：
+//   stale   —— 抓取失败、回退到了缓存
+//   too_old —— 抓取成功了，但返回的最后一根 bar 本身就很旧
+// 只查前者会漏掉数据源故障返回旧响应、以及标的停牌的情形。
+(function () {
+  const h = A.data_health || {};
+  const msgs = [];
+  if (h.stale)
+    msgs.push(`抓取失败，本页使用 ${A.data.daily.fetched_at.replace("T", " ").slice(0, 16)} UTC 的缓存`);
+  if (h.too_old)
+    msgs.push(`最后一根 bar 距今 ${h.age_sessions} 个交易日（阈值 ${h.max_age_sessions}），可能是数据源旧响应或标的停牌`);
+  if (!msgs.length) return;
+  const bar = document.createElement("div");
+  bar.style.cssText =
+    "background:var(--resist);color:var(--ground);padding:9px 24px;font-size:13.5px;font-weight:600;";
+  const inner = document.createElement("div");
+  inner.style.cssText = "max-width:1180px;margin:0 auto";
+  inner.textContent = "⚠ 数据不可信：" + msgs.join("；") + "。请确认网络后重新运行 jta chart。";
+  bar.appendChild(inner);
+  document.querySelector("header.masthead").after(bar);
+})();
+document.getElementById("foot-gen").textContent =
+  `数据抓取于 ${A.data.daily.fetched_at.replace("T", " ").slice(0, 19)} UTC · schema ${A.schema_version}`;
+document.getElementById("disclaimer").innerHTML =
+  "<strong>关于这张图能回答什么。</strong>" + A.validation_disclaimer;
+</script>
+<script>
+/* ---------- 日线图 ---------- */
+const D = C.daily, bars = D.bars;
+// 右侧留出独立的关键位标签栏（LEVEL_COL_W）+ 坐标轴数字栏（AXIS_COL_W），
+// 二者都在蜡烛图绘制区之外，标签不会再跟最近几十根 K 线的影线叠在一起
+const LEVEL_COL_W = 128, AXIS_COL_W = 46, COL_GAP = 8;
+const W = 1120, H = 560, PAD = { l: 14, r: 6 + LEVEL_COL_W + COL_GAP + AXIS_COL_W + 6, t: 18, b: 100 };
+const PRICE_H = 384, VOL_TOP = 416, VOL_H = 70;
+const plotW = W - PAD.l - PAD.r;
+const bw = plotW / bars.length;
+
+let lo = Math.min(...bars.map(b => b.l)), hi = Math.max(...bars.map(b => b.h));
+const padY = (hi - lo) * 0.06; lo -= padY; hi += padY;
+const y = p => PAD.t + (hi - p) / (hi - lo) * PRICE_H;
+const x = i => PAD.l + i * bw + bw / 2;
+const maxVol = Math.max(...bars.map(b => b.v));
+const vy = v => VOL_TOP + VOL_H - (v / maxVol) * VOL_H;
+const inRange = p => p >= lo && p <= hi;
+
+const svg = document.getElementById("chart-daily");
+const layerOrder = ["grid","fib","ema","vegas","trend","candles","vol","swing","levels","td","plan","now","axis"];
+const L = {};
+svg.appendChild(el("defs", {}, [
+  el("clipPath", { id: "clip-price" }, [
+    el("rect", { x: PAD.l, y: PAD.t, width: plotW, height: PRICE_H })])
+]));
+layerOrder.forEach(k => { L[k] = el("g", { "data-layer": k }); svg.appendChild(L[k]); });
+["fib","ema","vegas","trend","levels","plan"].forEach(k => L[k].setAttribute("clip-path", "url(#clip-price)"));
+
+/* 网格与坐标：坐标轴数字栏在关键位标签栏right侧，二者互不重叠 */
+const axisX = W - PAD.r + LEVEL_COL_W + COL_GAP + 6;
+const ticks = 6;
+for (let i = 0; i <= ticks; i++) {
+  const p = lo + (hi - lo) * i / ticks, yy = y(p);
+  L.grid.appendChild(el("line", { x1: PAD.l, x2: W - PAD.r, y1: yy, y2: yy, class: "s-grid", "stroke-width": 1 }));
+  L.axis.appendChild(el("text", { x: axisX, y: yy + 4, class: "s-tx-muted",
+    "font-size": 11, "font-family": "var(--font-num)", text: fmt(p, 0) }));
+}
+L.axis.appendChild(el("text", { x: axisX, y: VOL_TOP + 10, class: "s-tx-muted",
+  "font-size": 10, "font-family": "var(--font-num)", text: "VOL" }));
+const step = Math.ceil(bars.length / 9);
+bars.forEach((b, i) => {
+  if (i % step) return;
+  L.grid.appendChild(el("line", { x1: x(i), x2: x(i), y1: PAD.t, y2: PAD.t + PRICE_H, class: "s-grid", "stroke-width": 1 }));
+  L.axis.appendChild(el("text", { x: x(i), y: VOL_TOP + VOL_H + 22, class: "s-tx-muted",
+    "font-size": 10.5, "font-family": "var(--font-num)", "text-anchor": "middle", text: b.t.slice(2, 10) }));
+});
+
+/* K 线与成交量 */
+bars.forEach((b, i) => {
+  const cls = b.c >= b.o ? "s-up" : "s-dn";
+  L.candles.appendChild(el("line", { x1: x(i), x2: x(i), y1: y(b.h), y2: y(b.l), class: cls, "stroke-width": 1 }));
+  const top = y(Math.max(b.o, b.c)), bot = y(Math.min(b.o, b.c));
+  L.candles.appendChild(el("rect", { x: x(i) - Math.max(bw * .32, .6), y: top,
+    width: Math.max(bw * .64, 1.2), height: Math.max(bot - top, .8), class: cls }));
+  L.vol.appendChild(el("rect", { x: x(i) - Math.max(bw * .32, .6), y: vy(b.v),
+    width: Math.max(bw * .64, 1.2), height: VOL_TOP + VOL_H - vy(b.v), class: cls, opacity: .32 }));
+});
+
+/* EMA / Vegas */
+const emaStyle = { ema8: ["s-ln-accent", 1.4], ema13: ["s-ln-muted", 1.2], ema21: ["s-ln-soft", 1.2] };
+const drawLine = (vals, cls, sw, dash, layer) => {
+  const pts = [];
+  vals.forEach((v, i) => { if (v != null && inRange(v)) pts.push(`${x(i).toFixed(1)},${y(v).toFixed(1)}`); });
+  if (pts.length > 1) layer.appendChild(el("polyline", { points: pts.join(" "),
+    class: `${cls} s-fill-none`, "stroke-width": sw, "stroke-dasharray": dash }));
+};
+Object.entries(emaStyle).forEach(([k, [c, w]]) => drawLine(D.ema[k], c, w, null, L.ema));
+["ema144", "ema169"].forEach(k => drawLine(D.ema[k], "s-ln-warn", 1.3, "5 3", L.vegas));
+
+/* Fib 图层：参考线全画，但文字标签只留离现价最近的一批。
+   最多 3 组 Fib × 7 个比例 ≈ 21 条，价格挨得近的话文字会直接叠死——
+   与其把 21 条硬挤开变成一列几乎贴在一起的小字，不如只标最相关的几条，
+   其余的线仍然画出来，读者看得到路径，只是不是每一条都标数字。 */
+const FIB_MAX_LABELS = 8, FIB_GAP = 24, FIB_BOX_W = 100, FIB_BOX_H = 16;
+const fibLabels = [];
+C.fibs.forEach((f, fi) => {
+  const dash = fi === 2 ? "2 4" : (fi === 1 ? "6 4" : null);
+  const lc = fi === 2 ? "s-ln-muted" : "s-ln-accent";
+  const tc = fi === 2 ? "s-tx-muted" : "s-tx-accent";
+  f.levels.forEach(lv => {
+    if (!inRange(lv.price)) return;
+    L.fib.appendChild(el("line", { x1: PAD.l, x2: W - PAD.r, y1: y(lv.price), y2: y(lv.price),
+      class: lc, "stroke-width": .9, "stroke-dasharray": dash, opacity: .5 }));
+    fibLabels.push({ y: y(lv.price), tc, dist: Math.abs(lv.price - A.current_price),
+      text: `${lv.ratio.toFixed(3)} · ${fmt(lv.price, 0)}` });
+  });
+});
+const shownFib = fibLabels.sort((a, b) => a.dist - b.dist).slice(0, FIB_MAX_LABELS)
+  .sort((a, b) => a.y - b.y);
+shownFib.forEach((l, i) => {
+  l.ly = l.y;
+  if (i > 0) l.ly = Math.max(l.ly, shownFib[i - 1].ly + FIB_GAP);
+});
+const fibOverflow = shownFib.length ? shownFib[shownFib.length - 1].ly - (PAD.t + PRICE_H) : 0;
+if (fibOverflow > 0) shownFib.forEach(l => { l.ly -= fibOverflow; });
+const fibBoxX = PAD.l + 4;
+shownFib.forEach(l => {
+  const g = el("g", {});
+  if (Math.abs(l.ly - l.y) > 1)
+    g.appendChild(el("line", { x1: fibBoxX - 2, y1: l.y, x2: fibBoxX - 2, y2: l.ly,
+      class: l.tc, "stroke-width": 1, opacity: .4 }));
+  g.appendChild(el("rect", { x: fibBoxX - 4, y: l.ly - FIB_BOX_H / 2, width: FIB_BOX_W, height: FIB_BOX_H,
+    class: "s-fill-accent", opacity: .16, rx: 2 }));
+  g.appendChild(el("text", { x: fibBoxX, y: l.ly + 4, class: l.tc,
+    "font-size": 10, "font-family": "var(--font-num)", text: l.text }));
+  L.fib.appendChild(g);
+});
+if (fibLabels.length > shownFib.length)
+  L.fib.appendChild(el("text", { x: fibBoxX, y: PAD.t + PRICE_H + 12, class: "s-tx-muted",
+    "font-size": 9.5, "font-family": "var(--font-num)",
+    text: `仅标最近 ${shownFib.length}/${fibLabels.length} 条，其余参考线仍画在图上` }));
+
+/* 趋势线：按锚点与斜率外推到右缘 */
+const barIndexByTs = new Map(bars.map((b, i) => [b.t.slice(0, 10), i]));
+const trendLabels = [];
+D.trendlines.forEach(t => {
+  const i0 = barIndexByTs.get(t.from.t.slice(0, 10));
+  if (i0 === undefined) return;
+  const i1 = bars.length - 1;
+  const p1 = t.from.price + t.slope_per_bar * (i1 - i0);
+  L.trend.appendChild(el("line", { x1: x(i0), y1: y(t.from.price), x2: x(i1), y2: y(p1),
+    class: t.kind === "up" ? "s-ln-sup" : "s-ln-res", "stroke-width": 1.2,
+    "stroke-dasharray": t.broken_at ? "3 3" : null, opacity: .8 }));
+  // 标签放线的中段而不是右端：右端是关键位标签区，两套标签会互相压死
+  const im = i0 + (i1 - i0) * 0.72, pm = t.from.price + t.slope_per_bar * (im - i0);
+  if (inRange(pm)) trendLabels.push({ x: x(im), y: y(pm), sup: t.kind === "up",
+    text: `趋势线 约 ${fmt(t.current, 0)}` });
+});
+// 通常只有 1-2 条，横向挨得近才需要互相避让
+trendLabels.sort((a, b) => a.y - b.y).forEach((l, i) => {
+  l.ly = l.y;
+  if (i > 0 && Math.abs(l.x - trendLabels[i - 1].x) < 90) l.ly = Math.max(l.ly, trendLabels[i - 1].ly + 22);
+});
+trendLabels.forEach(l => {
+  const w = 96;
+  L.trend.appendChild(el("rect", { x: l.x - w / 2, y: l.ly - 17, width: w, height: 15,
+    class: l.sup ? "s-fill-sup" : "s-fill-res", opacity: .18, rx: 2 }));
+  L.trend.appendChild(el("text", { x: l.x, y: l.ly - 6, "text-anchor": "middle",
+    class: l.sup ? "s-tx-sup" : "s-tx-res", "font-size": 10,
+    "font-family": "var(--font-num)", text: l.text }));
+});
+
+/* 摆动点 */
+D.swings.forEach(s => {
+  const i = barIndexByTs.get(s.t.slice(0, 10));
+  if (i === undefined || !inRange(s.price)) return;
+  L.swing.appendChild(el("circle", { cx: x(i), cy: y(s.price), r: s.base ? 3 : 2,
+    class: `s-ln-accent ${s.base ? "s-fill-accent" : "s-fill-none"}`, "stroke-width": 1, opacity: .75 }));
+});
+
+/* TD9 */
+D.td.forEach(m => {
+  const i = barIndexByTs.get(m.t.slice(0, 10));
+  if (i === undefined) return;
+  const b = bars[i], up = m.kind === "sell";
+  L.td.appendChild(el("text", { x: x(i), y: up ? y(b.h) - 8 : y(b.l) + 15, "text-anchor": "middle",
+    class: up ? "s-tx-res" : "s-tx-sup", "font-size": 11, "font-weight": 600,
+    "font-family": "var(--font-num)", text: m.perfected ? "9✓" : "9" }));
+});
+
+/* 关键位与现价：右侧标签统一避让，否则挤在一起会互相盖死 */
+const levelNodes = new Map();
+const allLevels = [...A.supports.map(l => ({ ...l, side: "support" })),
+                   ...A.resistances.map(l => ({ ...l, side: "resistance" }))];
+
+const labels = [];
+allLevels.forEach(lv => {
+  const p = lv.display ?? lv.raw_price;
+  if (!inRange(p)) return;
+  // display_text 是后端算好的展示串（含"约"前缀、含区间"217–217.5"这种格式）；
+  // 前端不再自己用 fmt() 重新拼一遍，不然区间信息传不到图上
+  labels.push({ price: p, y: y(p), kind: lv.side, lv, text: `${lv.label} ${lv.display_text}` });
+});
+if (inRange(A.current_price))
+  labels.push({ price: A.current_price, y: y(A.current_price), kind: "now", text: fmt(A.current_price, 0) });
+
+// 自上而下推开：相邻标签留够 GAP，且必须明显大于标签背景框高度（18px），
+// 否则相邻两个框只隔 1px，视觉上会连成一整条、看不清是几个数字粘在一起
+labels.sort((a, b) => a.y - b.y);
+const GAP = 27;
+const BOX_W = 128, BOX_H = 18;
+labels.forEach((l, i) => {
+  l.ly = l.y;
+  if (i > 0) l.ly = Math.max(l.ly, labels[i - 1].ly + GAP);
+});
+const overflow = labels.length ? labels[labels.length - 1].ly - (PAD.t + PRICE_H) : 0;
+if (overflow > 0) labels.forEach(l => { l.ly -= overflow; });
+
+// 标签栏整体挪到蜡烛图绘制区右侧的独立留白里（W - PAD.r 之外），
+// 不再跟最近的 K 线影线叠在一起挡字；现价也并进同一栏、同一套避让逻辑，
+// 不再用旧的窄小徽章挤在坐标轴数字缝里
+const boxX = W - PAD.r + 6;
+labels.forEach(l => {
+  const now = l.kind === "now";
+  const sup = l.kind === "support";
+  const cls = now ? "ink" : (sup ? "sup" : "res");
+  const g = el("g", {});
+  g.appendChild(el("line", { x1: PAD.l, x2: boxX, y1: l.y, y2: l.y,
+    class: `s-ln-${cls}`, "stroke-width": now ? 1 : 1.6, "stroke-dasharray": now ? "4 3" : null,
+    opacity: now ? .55 : .9 }));
+  // 引线：标签被推开时，把它连回真实价格位置
+  g.appendChild(el("line", { x1: boxX, y1: l.y, x2: boxX + 4, y2: l.ly,
+    class: `s-ln-${cls}`, "stroke-width": 1, opacity: .55 }));
+  g.appendChild(el("rect", { x: boxX + 4, y: l.ly - BOX_H / 2, width: BOX_W, height: BOX_H,
+    class: now ? "s-fill-ink" : (sup ? "s-fill-sup" : "s-fill-res"), opacity: now ? 1 : .16, rx: 2 }));
+  g.appendChild(el("text", { x: boxX + 4 + BOX_W - 8, y: l.ly + 4, "text-anchor": "end",
+    class: now ? "s-tx-ground" : (sup ? "s-tx-sup" : "s-tx-res"),
+    "font-size": 11.5, "font-weight": 600, "font-family": "var(--font-num)", text: l.text }));
+  (now ? L.now : L.levels).appendChild(g);
+  if (!now) levelNodes.set(l.lv.label, g);
+});
+</script>
+<script>
+/* ---------- 图层开关 ---------- */
+const LAYERS = [
+  ["fib", "斐波那契", "var(--accent)"],
+  ["ema", "EMA 8/13/21", "var(--accent)"],
+  ["vegas", "Vegas 144/169", "var(--warn)"],
+  ["trend", "趋势线", "var(--support)"],
+  ["levels", "关键位", "var(--resist)"],
+  ["swing", "摆动点", "var(--accent)"],
+  ["td", "TD 九转", "var(--ink-soft)"],
+  ["vol", "成交量", "var(--muted)"],
+];
+// Fib 三套共 34 条线，默认全开会盖掉 K 线本身；摆动点同理。
+// 裸 K 优先是这套方法的第一条工具排序，默认视图应该体现这一点。
+const OFF = new Set(["swing", "fib"]);
+const layerBar = document.getElementById("layers");
+LAYERS.forEach(([key, label, colour]) => {
+  const on = !OFF.has(key);
+  L[key].style.display = on ? "" : "none";
+  const b = h("button", null);
+  b.setAttribute("aria-pressed", String(on));
+  b.appendChild(el("span", { class: "swatch", style: `background:${colour}` }));
+  b.appendChild(document.createTextNode(label));
+  b.onclick = () => {
+    const next = b.getAttribute("aria-pressed") !== "true";
+    b.setAttribute("aria-pressed", String(next));
+    L[key].style.display = next ? "" : "none";
+  };
+  layerBar.appendChild(b);
+});
+
+/* ---------- 读数 ---------- */
+const readout = document.getElementById("readout");
+svg.addEventListener("mousemove", ev => {
+  const r = svg.getBoundingClientRect();
+  const i = Math.round(((ev.clientX - r.left) / r.width * W - PAD.l - bw / 2) / bw);
+  if (i < 0 || i >= bars.length) { readout.classList.remove("on"); return; }
+  const b = bars[i];
+  readout.textContent = "";
+  [["", b.t.slice(0, 10)], ["O", fmt(b.o)], ["H", fmt(b.h)], ["L", fmt(b.l)], ["C", fmt(b.c)],
+   ["V", (b.v / 1e6).toFixed(1) + "M"]].forEach(([k, v]) => {
+    const s = h("span", null, k ? `${k} ${v}` : v);
+    readout.appendChild(s);
+  });
+  readout.classList.add("on");
+});
+svg.addEventListener("mouseleave", () => readout.classList.remove("on"));
+
+/* ---------- 4H 执行图 ---------- */
+(function () {
+  const bars2 = C.intraday.bars, s = document.getElementById("chart-intraday");
+  const W2 = 560, H2 = 300, P2 = { l: 8, r: 52, t: 12, b: 26 };
+  const pw = W2 - P2.l - P2.r, ph = H2 - P2.t - P2.b, bw2 = pw / bars2.length;
+  let lo2 = Math.min(...bars2.map(b => b.l)), hi2 = Math.max(...bars2.map(b => b.h));
+  const pad2 = (hi2 - lo2) * .06; lo2 -= pad2; hi2 += pad2;
+  const y2 = p => P2.t + (hi2 - p) / (hi2 - lo2) * ph;
+  const x2 = i => P2.l + i * bw2 + bw2 / 2;
+  for (let i = 0; i <= 4; i++) {
+    const p = lo2 + (hi2 - lo2) * i / 4;
+    s.appendChild(el("line", { x1: P2.l, x2: W2 - P2.r, y1: y2(p), y2: y2(p), class: "s-grid" }));
+    s.appendChild(el("text", { x: W2 - P2.r + 6, y: y2(p) + 4, class: "s-tx-muted",
+      "font-size": 10, "font-family": "var(--font-num)", text: fmt(p, 0) }));
+  }
+  bars2.forEach((b, i) => {
+    const cls2 = b.c >= b.o ? "s-up" : "s-dn";
+    s.appendChild(el("line", { x1: x2(i), x2: x2(i), y1: y2(b.h), y2: y2(b.l), class: cls2, "stroke-width": .9 }));
+    const t = y2(Math.max(b.o, b.c)), bo = y2(Math.min(b.o, b.c));
+    s.appendChild(el("rect", { x: x2(i) - Math.max(bw2 * .3, .5), y: t,
+      width: Math.max(bw2 * .6, 1), height: Math.max(bo - t, .8), class: cls2 }));
+  });
+  Object.entries({ ema8: "s-ln-accent", ema13: "s-ln-muted", ema21: "s-ln-soft" }).forEach(([k, c]) => {
+    const pts = [];
+    (C.intraday.ema[k] || []).forEach((v, i) => {
+      if (v != null && v >= lo2 && v <= hi2) pts.push(`${x2(i).toFixed(1)},${y2(v).toFixed(1)}`);
+    });
+    if (pts.length > 1) s.appendChild(el("polyline", { points: pts.join(" "),
+      class: `${c} s-fill-none`, "stroke-width": 1.1 }));
+  });
+  allLevels.forEach(lv => {
+    const p = lv.display ?? lv.raw_price;
+    if (p < lo2 || p > hi2) return;
+    const sup2 = lv.side === "support";
+    s.appendChild(el("line", { x1: P2.l, x2: W2 - P2.r, y1: y2(p), y2: y2(p),
+      class: sup2 ? "s-ln-sup" : "s-ln-res", "stroke-width": 1.2, opacity: .8 }));
+    s.appendChild(el("text", { x: P2.l + 3, y: y2(p) - 3, class: sup2 ? "s-tx-sup" : "s-tx-res", "font-size": 9.5,
+      "font-weight": 600, "font-family": "var(--font-num)", text: lv.label }));
+  });
+  s.appendChild(el("text", { x: P2.l, y: H2 - 6, class: "s-tx-muted", "font-size": 10,
+    "font-family": "var(--font-num)", text: `${bars2.length} 根 4H bar · ${bars2[0].t.slice(2, 10)} 起` }));
+})();
+
+/* ---------- 当前位置：关键位 + 现价 一条横向刻度 ---------- */
+(() => {
+  const ladder = document.getElementById("ladder");
+  if (!ladder) return;
+  // 从深到浅排到最左，现价插在最近支撑与最近压力之间，最右是最浅的压力
+  const items = [
+    ...[...A.supports].reverse().map(lv => ({ label: lv.label, text: lv.display_text, kind: "s" })),
+    { label: "现价", text: fmt(A.current_price), kind: "now" },
+    ...A.resistances.map(lv => ({ label: lv.label, text: lv.display_text, kind: "r" })),
+  ];
+  items.forEach(it => {
+    const cell = h("div", `ladder-cell ladder-${it.kind}`);
+    cell.appendChild(h("span", "ladder-dot"));
+    cell.appendChild(h("span", "ladder-label", it.label));
+    cell.appendChild(h("span", "ladder-value", it.text));
+    ladder.appendChild(cell);
+  });
+})();
+
+/* ---------- 关键位表 ---------- */
+const tbody = document.getElementById("levels-body");
+[...A.resistances].reverse().concat(A.supports).forEach(lv => {
+  const isSup = lv.label.startsWith("S");
+  const tr = h("tr");
+  tr.appendChild(h("td", null)).appendChild(h("span", `tag ${isSup ? "tag-s" : "tag-r"}`, lv.label));
+  const c2 = h("td");
+  c2.appendChild(h("div", "lvl", lv.display_text));
+  if (Math.abs((lv.display ?? 0) - lv.raw_price) > 1e-9)
+    c2.appendChild(h("div", "raw", `原值 ${fmt(lv.raw_price)}`));
+  c2.appendChild(h("div", "raw", `距现价 ${lv.distance_atr} ATR`));
+  tr.appendChild(c2);
+  const c3 = h("td");
+  c3.appendChild(h("div", "role", lv.role_label));
+  c3.appendChild(h("div", "raw", `${lv.scoring.hits}/8 类证据`));
+  const ev = h("div", "ev");
+  lv.evidence_families.forEach(f => ev.appendChild(h("span", null, EV[f] || f)));
+  c3.appendChild(ev);
+  tr.appendChild(c3);
+  const c4 = h("td");
+  const cf = h("div", "rule-line"); cf.appendChild(h("b", null, "确认 ")); cf.appendChild(document.createTextNode(lv.confirmation));
+  const iv = h("div", "rule-line"); iv.appendChild(h("b", null, "失效 ")); iv.appendChild(document.createTextNode(lv.invalidation));
+  c4.appendChild(cf); c4.appendChild(iv);
+  if (lv.dynamic) c4.appendChild(h("div", "raw", "动态位 · 每根 bar 数值变化"));
+  tr.appendChild(c4);
+  tr.onmouseenter = () => { tr.classList.add("hot"); const g = levelNodes.get(lv.label); if (g) g.setAttribute("opacity", ".35"); };
+  tr.onmouseleave = () => { tr.classList.remove("hot"); const g = levelNodes.get(lv.label); if (g) g.removeAttribute("opacity"); };
+  tbody.appendChild(tr);
+});
+const sel = A.selection;
+document.getElementById("selection-note").textContent =
+  [sel.support.gap_note, sel.resistance.gap_note].filter(Boolean).join(" ") ||
+  `内部计算了 ${sel.support.candidates_considered + sel.resistance.candidates_considered} 个候选位，` +
+  `每侧按证据强度与最小间距筛出至多 3 档；未入选的候选不在图上画线。`;
+
+/* ---------- 市场状态 ---------- */
+const st = A.market_state, kv = document.getElementById("state-kv");
+[["阶段", PHASE[st.phase] || st.phase],
+ ["长期位置", VEGAS[st.long_term_vs_vegas]],
+ ["日线 EMA", STACK[st.daily_ema_stack]],
+ ["4H EMA", STACK[st.intraday_ema_stack]],
+ ["日线结构", STRUCT[st.daily_structure]],
+ ["4H 结构", STRUCT[st.intraday_structure]],
+ ["TD 信号", A.td_signal ? `${A.td_signal.kind} @ ${A.td_signal.ts.slice(0, 10)}` : "近 3 根内无"],
+].forEach(([k, v]) => {
+  const row = h("div", "kv"); row.appendChild(h("span", null, k)); row.appendChild(h("span", null, v)); kv.appendChild(row);
+});
+</script>
+<script>
+/* ---------- 三套计划 ---------- */
+const planBox = document.getElementById("plans");
+let activePlan = null;
+const planLayer = L.plan;
+
+function drawPlan(p) {
+  planLayer.textContent = "";
+  if (!p) return;
+  const marks = [["入场", p.entry, "accent", "6 0"], ["止损", p.stop, "res", "5 3"],
+                 ["T1", p.t1, "sup", "5 3"], ["T2", p.t2, "sup", "2 4"]];
+  marks.forEach(([label, price, tone, dash]) => {
+    if (price == null || !inRange(price)) return;
+    planLayer.appendChild(el("line", { x1: PAD.l, x2: W - PAD.r, y1: y(price), y2: y(price),
+      class: `s-ln-${tone}`, "stroke-width": 1.4, "stroke-dasharray": dash === "6 0" ? null : dash, opacity: .95 }));
+    planLayer.appendChild(el("rect", { x: PAD.l + 2, y: y(price) - 9, width: 74, height: 18,
+      class: `s-fill-${tone}`, rx: 2 }));
+    planLayer.appendChild(el("text", { x: PAD.l + 6, y: y(price) + 4, class: "s-tx-ground",
+      "font-size": 11, "font-weight": 600, "font-family": "var(--font-num)",
+      text: `${label} ${fmt(price, 0)}` }));
+  });
+  // 条件情景箭头：入场 → T1，明确标注为情景而非预测
+  if (p.entry != null && p.t1 != null && inRange(p.entry) && inRange(p.t1)) {
+    // 放图中部：右侧 90px 是关键位标签带，箭头画过去会盖住档位数字
+    const xs = PAD.l + plotW * 0.50, xe = PAD.l + plotW * 0.68;
+    planLayer.appendChild(el("path", {
+      d: `M ${xs} ${y(p.entry)} Q ${(xs + xe) / 2} ${(y(p.entry) + y(p.t1)) / 2 - 18} ${xe} ${y(p.t1)}`,
+      class: "s-ln-sup s-fill-none", "stroke-width": 1.3, "stroke-dasharray": "4 3", opacity: .8 }));
+    planLayer.appendChild(el("text", { x: (xs + xe) / 2, y: (y(p.entry) + y(p.t1)) / 2 - 24,
+      "text-anchor": "middle", class: "s-tx-sup", "font-size": 10, text: "条件情景 · 非预测" }));
+  }
+}
+
+A.plans.forEach(p => {
+  const card = h("button", "plan");
+  card.setAttribute("aria-pressed", "false");
+  const head = h("div", "plan-head");
+  head.appendChild(h("div", "plan-title", p.title));
+  head.appendChild(h("span", `verdict ${p.executable ? "ok" : "no"}`, p.executable ? "可执行" : "不可执行"));
+  card.appendChild(head);
+
+  const legs = h("div", "legs");
+  [["入场", p.entry], ["止损", p.stop], ["T1", p.t1], ["T2", p.t2]].forEach(([k, v]) => {
+    const d = h("div", "leg");
+    d.appendChild(h("dt", null, k));
+    d.appendChild(h("dd", null, v == null ? "—" : fmt(v, 0)));
+    legs.appendChild(d);
+  });
+  card.appendChild(legs);
+
+  const rr = h("div", "plan-note");
+  rr.textContent = `收益风险比 ${p.rr ?? "—"} · ${p.tranche_text}` +
+    (p.sizing ? ` · ${p.sizing.quantity} 股（占账户 ${p.sizing.pct_of_account}%）` : "");
+  card.appendChild(rr);
+  if (p.entry_level) card.appendChild(h("div", "plan-note", `入场档位：${p.entry_level}`));
+  card.appendChild(h("div", "plan-note", `触发：${p.trigger}`));
+  card.appendChild(h("div", "plan-note", `止损依据：${p.stop_basis}`));
+  if (p.entry_note) {
+    const n = h("div", "plan-note");
+    n.style.color = "var(--muted)";
+    n.textContent = p.entry_note;
+    card.appendChild(n);
+  }
+  (p.cautions || []).forEach(c => {
+    const n = h("div", "plan-note");
+    n.style.color = "var(--warn)";
+    n.textContent = "⚠ " + c;
+    card.appendChild(n);
+  });
+  if (p.sizing && p.sizing.warning) {
+    const n = h("div", "plan-note");
+    n.style.color = "var(--resist)";
+    n.textContent = "⚠ " + p.sizing.warning;
+    card.appendChild(n);
+  }
+
+  if (!p.executable) {
+    const b = h("div", "blockers");
+    p.blocked_by.forEach(x => b.appendChild(h("div", null, `· ${x}`)));
+    card.appendChild(b);
+  }
+  const cancel = h("div", "cancel");
+  cancel.appendChild(h("div", null, "取消条件"));
+  p.cancel_if.forEach(x => cancel.appendChild(h("div", null, `· ${x}`)));
+  card.appendChild(cancel);
+
+  card.onclick = () => {
+    const on = card.getAttribute("aria-pressed") !== "true";
+    planBox.querySelectorAll(".plan").forEach(n => n.setAttribute("aria-pressed", "false"));
+    card.setAttribute("aria-pressed", String(on));
+    activePlan = on ? p : null;
+    drawPlan(activePlan);
+  };
+  planBox.appendChild(card);
+});
+
+/* ---------- 持仓与仓位 ---------- */
+const hb = document.getElementById("holder"), hp = A.holder_playbook;
+function card(title, build) {
+  const c = h("div", "card");
+  c.appendChild(h("h3", null, title));
+  build(c);
+  hb.appendChild(c);
+}
+card("分批止盈", c => hp.take_profit.forEach(t => {
+  if (t.at == null) return;
+  const r = h("div", "kv");
+  r.appendChild(h("span", null, `${t.label} ${t.action}`));
+  r.appendChild(h("span", null, fmt(t.at, 0)));
+  c.appendChild(r);
+}));
+card("保护位与破位处理", c => {
+  const r = h("div", "kv");
+  r.appendChild(h("span", null, "当前保护位"));
+  r.appendChild(h("span", null, hp.protective_stop.at == null ? "—" : fmt(hp.protective_stop.at, 0)));
+  c.appendChild(r);
+  c.appendChild(h("div", "rule-line", hp.protective_stop.rule));
+  const ul = h("ul", "list");
+  hp.on_break.forEach(b => { if (b.level != null) ul.appendChild(h("li", null, b.action)); });
+  c.appendChild(ul);
+});
+card("仓位反推", c => {
+  const ps = A.position_sizing;
+  c.appendChild(h("div", "rule-line", ps.formula));
+  if (ps.account) {
+    const r = h("div", "kv");
+    r.appendChild(h("span", null, "账户 / 单笔风险"));
+    r.appendChild(h("span", null, `${fmt(ps.account, 0)} / ${(ps.risk_pct * 100).toFixed(2)}%`));
+    c.appendChild(r);
+  }
+  c.appendChild(h("div", "rule-line", ps.note));
+  if (hp.position) {
+    const p = hp.position, r = h("div", "kv");
+    r.appendChild(h("span", null, `持仓成本 ${fmt(p.cost, 0)} × ${p.shares}`));
+    r.appendChild(h("span", null, `${p.unrealised_pct > 0 ? "+" : ""}${p.unrealised_pct}%`));
+    c.appendChild(r);
+    c.appendChild(h("div", "rule-line", p.breakeven_vs_s1));
+  }
+});
+
+/* ---------- 事件与缺口 ---------- */
+const eb = document.getElementById("events"), E = A.events;
+function ecard(title, build) { const c = h("div", "card"); c.appendChild(h("h3", null, title)); build(c); eb.appendChild(c); }
+ecard(E.event_mode ? "事件模式 · 已降级" : "事件日程", c => {
+  if (!E.available) { c.appendChild(h("div", "rule-line", E.reason)); return; }
+  if (E.next_earnings) {
+    const r = h("div", "kv");
+    r.appendChild(h("span", null, `下次财报 · ${E.next_earnings.sessions_away} 个交易日后`));
+    r.appendChild(h("span", null, E.next_earnings.date));
+    c.appendChild(r);
+  }
+  if (E.ex_dividend) {
+    const r = h("div", "kv");
+    r.appendChild(h("span", null, "除息日")); r.appendChild(h("span", null, E.ex_dividend));
+    c.appendChild(r);
+  }
+  if (E.note) c.appendChild(h("div", "rule-line", E.note));
+  const m = E.historical_earnings_moves || [];
+  if (m.length) {
+    c.appendChild(h("div", "rule-line", "历史财报后次日跳空："));
+    const ul = h("ul", "list");
+    m.slice(0, 4).forEach(x => {
+      const eps = x.eps_actual != null
+        ? `EPS ${x.eps_actual}（预期 ${x.eps_estimate ?? "—"}` +
+          (x.surprise_pct != null ? `，${x.surprise_pct >= 0 ? "+" : ""}${x.surprise_pct}%` : "") + `） · `
+        : "";
+      ul.appendChild(h("li", null,
+        `${x.earnings_date} → ${eps}次日 ${x.move_pct > 0 ? "+" : ""}${x.move_pct}%（${x.move_atr ?? "—"} ATR）`));
+    });
+    c.appendChild(ul);
+  }
+});
+ecard("数据缺口与未实现部分", c => {
+  const ul = h("ul", "list");
+  A.known_gaps.forEach(g => ul.appendChild(h("li", null, g)));
+  c.appendChild(ul);
+});
+if (E.news && E.news.length) ecard("外部新闻标题", c => {
+  c.appendChild(h("div", "rule-line", E.news_note));
+  const box = h("div", "news");
+  E.news.slice(0, 5).forEach(n => {
+    const wrap = h("div");
+    const a = h("a", null, n.title || "(无标题)");
+    if (n.link) { a.href = n.link; a.target = "_blank"; a.rel = "noopener noreferrer"; }
+    wrap.appendChild(a);
+    wrap.appendChild(h("time", null, [n.publisher, (n.published || "").toString().slice(0, 10)].filter(Boolean).join(" · ")));
+    box.appendChild(wrap);
+  });
+  c.appendChild(box);
+});
+</script>
+</body>
+</html>
