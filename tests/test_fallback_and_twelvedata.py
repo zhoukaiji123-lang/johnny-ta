@@ -15,6 +15,17 @@ from jta.data.twelvedata_provider import TwelveDataAuthError, TwelveDataProvider
 TZ = "America/New_York"
 
 
+@pytest.fixture(autouse=True)
+def _reset_throttle_state():
+    """节流用的请求时间戳是进程级全局状态，测试之间必须隔离，
+    否则跑够 8 次真实 _request 调用后，某个无关测试会莫名其妙卡 60 秒。"""
+    import jta.data.twelvedata_provider as m
+
+    m._request_times.clear()
+    yield
+    m._request_times.clear()
+
+
 def _series(
     interval: str = "1d", *, too_old: bool = False, age_sessions: int | None = None,
     last_bar=None, source="fake",
@@ -243,3 +254,38 @@ def test_twelvedata_4h_resamples_from_1h(tmp_path, monkeypatch):
     got = p.fetch("X", "4h", as_of=datetime(2026, 8, 25, 20, 0, tzinfo=timezone.utc))
     assert got.meta.bar_alignment is not None
     assert len(got.df) == 2  # 09:30-13:30 / 13:30-16:00
+
+
+# ------------------------------------------------------------------ 限速节流
+
+
+def test_throttle_lets_requests_under_the_limit_through_immediately(monkeypatch):
+    """免费计划 8 次/分钟；批量看板顺序拉几十个标的很容易打穿，429 会被
+    FallbackProvider 当成"备用源也不可用"吞掉，表现成莫名其妙的"数据滞后"
+    （真实复现：连续拉 18 个标的，第 9 个起全部 429）。"""
+    from jta.data.twelvedata_provider import _throttle
+
+    slept = []
+    fake_now = [100.0]
+    monkeypatch.setattr("jta.data.twelvedata_provider.time.sleep", slept.append)
+    monkeypatch.setattr("jta.data.twelvedata_provider.time.monotonic", lambda: fake_now[0])
+
+    for _ in range(8):
+        _throttle()
+    assert slept == []  # 限额内不该等待
+
+
+def test_throttle_sleeps_once_the_per_minute_limit_is_hit(monkeypatch):
+    from jta.data.twelvedata_provider import _throttle
+
+    slept = []
+    fake_now = [100.0]
+    monkeypatch.setattr("jta.data.twelvedata_provider.time.sleep", slept.append)
+    monkeypatch.setattr("jta.data.twelvedata_provider.time.monotonic", lambda: fake_now[0])
+
+    for _ in range(8):
+        _throttle()
+    fake_now[0] = 105.0  # 5 秒后第 9 次请求：还在同一个 60 秒窗口内，必须等待
+    _throttle()
+    assert len(slept) == 1
+    assert slept[0] == pytest.approx(60 - 5 + 0.1, abs=1e-6)

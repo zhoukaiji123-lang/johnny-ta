@@ -66,3 +66,17 @@ def test_allow_stale_opts_out_of_the_gate(tmp_path):
     )
     assert len(payload["rows"]) == 2
     assert payload["any_too_old"] is False  # too_old 阈值没触发，只是 age_sessions>0
+
+
+def test_build_watchlist_deduplicates_repeated_fetches(tmp_path):
+    """一个标的的 collect_row + build_payload（详情页）内部各自独立调用
+    analyze()，对同一个 (symbol, interval) 会发起好几次请求；配合 twelvedata
+    限速，不去重会把一次批跑拖出天际。同一批次内必须只真正打一次。"""
+    provider = StaleAwareProvider()
+    build_watchlist([("MU", "QQQ")], out_dir=tmp_path, provider=provider)
+    counts: dict[tuple[str, str], int] = {}
+    for symbol, interval in provider.calls:
+        counts[(symbol, interval)] = counts.get((symbol, interval), 0) + 1
+    assert counts, "没有任何请求发生，测试没测到东西"
+    assert {"MU", "QQQ"} <= {s for s, _ in counts}
+    assert all(n == 1 for n in counts.values()), counts

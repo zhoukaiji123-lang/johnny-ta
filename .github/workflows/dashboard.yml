@@ -42,24 +42,18 @@ jobs:
         id: build
         env:
           TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
-        # 无人值守时网络抖动是常态，重试三次；仍失败则让步骤失败并保留上次产物
         # --source auto：yfinance 优先，滞后或失败时切到 twelvedata（未设置 key 时静默退化为纯 yfinance）
+        #
+        # 不在这一步里重试：twelvedata 免费版限速 8 次/分钟，一次批跑几十个标的
+        # 本身就要跑好几分钟（TwelveDataProvider 内建节流），同一个 job 里再重试
+        # 三次很容易顶到 20 分钟的 job 超时。失败了就失败，交给上面三个间隔
+        # 1 小时的定时点重试——那才是数据源批处理没跑完时真正有用的等待方式。
         run: |
-          for attempt in 1 2 3; do
-            echo "第 $attempt 次尝试"
-            if python -m jta.cli dashboard \
-                MU:SOXX SNDK:SOXX SKHY:SOXX AVGO:SOXX AMD:SOXX INTC:SOXX \
-                LITE:SOXX COHR:SOXX DELL:QQQ AMZN:QQQ GOOGL:QQQ NOW:QQQ NET:QQQ \
-                TSLA:QQQ SPCX:QQQ SOXX:QQQ QQQ:SPY DRAM:SOXX MRNA \
-                --out-dir docs; then
-              echo "ok=true" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-            echo "失败，等待后重试"
-            sleep 60
-          done
-          echo "三次均失败" >&2
-          exit 1
+          python -m jta.cli dashboard \
+              MU:SOXX SNDK:SOXX SKHY:SOXX AVGO:SOXX AMD:SOXX INTC:SOXX \
+              LITE:SOXX COHR:SOXX DELL:QQQ AMZN:QQQ GOOGL:QQQ NOW:QQQ NET:QQQ \
+              TSLA:QQQ SPCX:QQQ SOXX:QQQ QQQ:SPY DRAM:SOXX MRNA \
+              --out-dir docs && echo "ok=true" >> "$GITHUB_OUTPUT"
 
       - name: 提交产物
         if: always() && steps.build.outputs.ok == 'true'

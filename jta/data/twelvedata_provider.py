@@ -17,6 +17,8 @@ key 从环境变量 TWELVEDATA_API_KEY 读取，不接受硬编码或参数明�
 from __future__ import annotations
 
 import os
+import threading
+import time
 from datetime import datetime
 from typing import Any
 
@@ -52,6 +54,26 @@ _INTERVAL_MAP = {
 }
 
 _ADJUST_MAP = {"back": "all", "raw": "none"}
+
+#: 免费计划限速 8 次/分钟。一个看板批次几十个标的顺序调用很容易打穿，
+#: 429 会被上层 FallbackProvider 当成"备用源也不可用"直接吞掉，表现成
+#: 莫名其妙的"数据滞后"。进程内全局节流，跨 provider 实例共享。
+_RATE_LIMIT_PER_MINUTE = 8
+_rate_lock = threading.Lock()
+_request_times: list[float] = []
+
+
+def _throttle() -> None:
+    with _rate_lock:
+        now = time.monotonic()
+        while _request_times and now - _request_times[0] >= 60:
+            _request_times.pop(0)
+        if len(_request_times) >= _RATE_LIMIT_PER_MINUTE:
+            time.sleep(max(0.0, 60 - (now - _request_times[0]) + 0.1))
+            now = time.monotonic()
+            while _request_times and now - _request_times[0] >= 60:
+                _request_times.pop(0)
+        _request_times.append(time.monotonic())
 
 
 class TwelveDataAuthError(RuntimeError):
@@ -92,6 +114,7 @@ class TwelveDataProvider:
             "adjust": adjust_param,
             "apikey": self.api_key,
         }
+        _throttle()
         resp = requests.get(API_URL, params=params, timeout=self.timeout)
         resp.raise_for_status()
         payload = resp.json()

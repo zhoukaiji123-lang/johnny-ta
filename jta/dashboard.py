@@ -21,7 +21,7 @@ from typing import Any
 from .analyze import analyze
 from .chart import _json_safe, build_payload, render_html
 from .data.fallback_provider import build_provider
-from .data.provider import MAX_DATA_AGE_SESSIONS, DataNotCurrent, DataUnavailable
+from .data.provider import MAX_DATA_AGE_SESSIONS, OHLCV, DataNotCurrent, DataUnavailable
 
 TEMPLATE = Path(__file__).with_name("templates") / "dashboard.html"
 
@@ -100,6 +100,29 @@ class Row:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+class _MemoProvider:
+    """按 (symbol, interval, adjust, as_of) 去重一次批跑内的重复请求。
+
+    一个标的的 analyze()（collect_row 里）、prev_close 查询、详情页的
+    build_payload()（内部又调一次 analyze()）加起来对同一个 (symbol,
+    interval) 能发起小 10 次请求，benchmark 更是被几十个标的共享。配合
+    twelvedata 免费版 8 次/分钟的限速，不去重会把一次批跑硬生生拖到
+    CI 20 分钟超时。同一批次内数据不会变，去重不损失新鲜度——force_refresh
+    的"真的去网络拿一次"语义在批次的第一次请求时已经兑现过了。
+    """
+
+    def __init__(self, inner: Any) -> None:
+        self.inner = inner
+        self.name = getattr(inner, "name", "memo")
+        self._cache: dict[tuple[Any, ...], OHLCV] = {}
+
+    def fetch(self, symbol, interval, **kwargs):
+        key = (symbol, interval, kwargs.get("adjust", "back"), kwargs.get("as_of"))
+        if key not in self._cache:
+            self._cache[key] = self.inner.fetch(symbol, interval, **kwargs)
+        return self._cache[key]
 
 
 def _slug(symbol: str) -> str:
@@ -223,6 +246,7 @@ def build_watchlist(
     不是"今天数据到位了没有"的口径，周一早上看到上周五收盘不算不新鲜。
     """
     provider = provider or build_provider("auto", force_refresh=refresh)
+    provider = _MemoProvider(provider)
     rows: list[Row] = []
     pending_details: list[tuple[str, str | None, Row]] = []
     for symbol, bm in pairs:
