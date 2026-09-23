@@ -96,6 +96,7 @@ def build_payload(
     intraday_bars: int = INTRADAY_BARS,
     provider: Any | None = None,
     include_events: bool = True,
+    include_market_cap: bool = True,
 ) -> dict[str, Any]:
     provider = provider or build_provider("auto")
     result = analyze(
@@ -106,6 +107,7 @@ def build_payload(
         risk_pct=risk_pct,
         holding=holding,
         include_events=include_events,
+        include_market_cap=include_market_cap,
     )
 
     daily = _prepare(provider.fetch(symbol, "1d"), DAILY_LOOKBACK, None)

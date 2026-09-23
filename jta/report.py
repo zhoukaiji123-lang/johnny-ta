@@ -120,6 +120,13 @@ def render_text(r: dict[str, Any], account: float | None = None, risk_pct: float
                     f"      重合：Fib 原值 {s['raw_price']:,.2f} 与枢轴 "
                     f"{s['confluent_pivot']:,.2f} 相距 {s['distance_atr']} ATR"
                 )
+            if lv.get("market_cap_note"):
+                mc = lv["market_cap_note"]
+                lines.append(
+                    f"      市值路径：{mc['anchor_label']}"
+                    f"（等价价 {mc['equivalent_price']:,.2f}，{mc['weekly_state']}）"
+                    f" 相距 {mc['distance_atr']} ATR，仅作辅助参考"
+                )
             if lv.get("dynamic"):
                 lines.append("      动态位：数值随每根 bar 变化，须按数据时间复核")
             lines.append(f"      确认：{lv['confirmation']}")
@@ -186,6 +193,23 @@ def render_text(r: dict[str, Any], account: float | None = None, risk_pct: float
                 for m in moves[:4]
             )
             lines.append(f"  历史财报后次日：{txt}")
+
+    mc = r.get("market_cap") or {}
+    lines.append("")
+    lines.append("—— 市值路径（辅助，不单独触发交易）——")
+    if not mc.get("available"):
+        lines.append(f"  {mc.get('reason', '无市值数据')}")
+    else:
+        lines.append(
+            f"  流通股 {mc['shares_outstanding']:,} 股（{mc['shares_source_note']}）"
+            f" · 当前市值 {mc['current_market_cap']:,.0f} {mc['currency']}"
+        )
+        for a in mc["anchors"]:
+            w = a["weekly"]
+            lines.append(
+                f"  {a['label']}：市值 {a['market_cap']:,.0f} → 等价价 "
+                f"{a['equivalent_price']:,.2f}  {w['state']}（{w['note']}）"
+            )
 
     lines.append("")
     lines.append("—— 已知缺口 ——")

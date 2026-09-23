@@ -118,7 +118,7 @@ def replay(
         try:
             r = analyze(
                 symbol, as_of=as_of, benchmark=benchmark,
-                provider=provider, include_events=False,
+                provider=provider, include_events=False, include_market_cap=False,
             )
         except Exception:
             continue

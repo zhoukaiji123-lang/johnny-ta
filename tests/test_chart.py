@@ -42,7 +42,7 @@ def test_moderate_growth_lands_inside_the_ratio_budget():
 
 def test_payload_flags_a_compressed_chart():
     """保底窗口下跨度仍然超标时，必须在图上说明，而不是画一张失真的图。"""
-    p = build_payload("TEST", provider=FakeProvider(), include_events=False)
+    p = build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False)
     w = p["chart"]["window"]
     assert w["daily_bars"] > 0 and w["price_span_ratio"] > 0
     assert ("compressed" in w) and (w["note"] is None or "压缩" in w["note"])
@@ -58,7 +58,7 @@ def test_adaptive_window_never_exceeds_available_bars():
 
 
 def test_payload_carries_every_layer():
-    p = build_payload("TEST", provider=FakeProvider(), include_events=False)
+    p = build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False)
     c = p["chart"]
     assert c["daily"]["bars"] and c["intraday"]["bars"]
     assert set(c["daily"]["ema"]) == {"ema8", "ema13", "ema21", "ema144", "ema169"}
@@ -69,19 +69,19 @@ def test_payload_carries_every_layer():
 
 
 def test_payload_fib_layers_disclose_their_anchors():
-    p = build_payload("TEST", provider=FakeProvider(), include_events=False)
+    p = build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False)
     for layer in p["chart"]["fibs"]:
         assert layer["anchors"]["low"]["ts"] and layer["anchors"]["high"]["ts"]
         assert layer["levels"] and all("ratio" in lv for lv in layer["levels"])
 
 
 def test_payload_is_json_serialisable():
-    p = build_payload("TEST", provider=FakeProvider(), include_events=False)
+    p = build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False)
     json.dumps(p, default=str)
 
 
 def test_render_replaces_placeholder_and_escapes_script_close():
-    p = build_payload("TEST", provider=FakeProvider(), include_events=False)
+    p = build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False)
     p["analysis"]["symbol"] = "</script><script>alert(1)</script>"
     html = render_html(p)
     assert "__PAYLOAD__" not in html
@@ -95,7 +95,7 @@ def test_render_replaces_placeholder_and_escapes_script_close():
 
 def test_render_declares_charset_and_no_document_wrapper():
     """Artifact 会补 <html>/<head>/<body>，模板不能自带；charset 必须自己声明。"""
-    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False))
+    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False))
     assert html.lstrip().startswith('<meta charset="utf-8">')
     for tag in ("<!doctype", "<html", "<head>", "<body"):
         assert tag not in html.lower()
@@ -103,7 +103,7 @@ def test_render_declares_charset_and_no_document_wrapper():
 
 def test_render_loads_no_resources_beyond_google_fonts():
     """CSP 只放行 Google Fonts；其余资源必须内联。"""
-    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False))
+    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False))
     import re
 
     resources = re.findall(r'<(?:link|script|img|iframe)\b[^>]*\b(?:href|src)="([^"]+)"', html)
@@ -114,14 +114,14 @@ def test_render_loads_no_resources_beyond_google_fonts():
 
 def test_svg_colours_never_hardcoded():
     """SVG presentation attribute 不解析 var()，写死字面色会让图卡在一个主题上。"""
-    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False))
+    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False))
     script = html[html.index("const D = C.daily"):]
     assert 'stroke: css(' not in script and 'fill: css(' not in script
 
 
 def test_title_names_the_symbol():
     """多张图并列时，通用标题让人分不出哪张是哪只票。"""
-    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False))
+    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False))
     assert "<title>TEST 技术交易地图</title>" in html
     assert "__TITLE__" not in html
 
@@ -131,7 +131,7 @@ def test_standalone_is_a_complete_document_without_external_fonts():
     import re
 
     html = render_html(
-        build_payload("TEST", provider=FakeProvider(), include_events=False), standalone=True
+        build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False), standalone=True
     )
     assert html.startswith("<!doctype html>")
     for tag in ("<html", "<head>", "<body", "</html>"):
@@ -148,7 +148,7 @@ def test_standalone_is_a_complete_document_without_external_fonts():
 
 def test_standalone_keeps_the_payload_and_title():
     html = render_html(
-        build_payload("TEST", provider=FakeProvider(), include_events=False), standalone=True
+        build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False), standalone=True
     )
     assert "<title>TEST 技术交易地图</title>" in html
     assert "__PAYLOAD__" not in html and "__TITLE__" not in html
@@ -156,7 +156,7 @@ def test_standalone_keeps_the_payload_and_title():
 
 def test_default_render_stays_a_fragment_for_the_artifact_host():
     """Artifact 平台会自己补文档骨架，非 standalone 输出不能自带。"""
-    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False))
+    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False))
     assert not html.lstrip().startswith("<!doctype")
     assert "fonts.googleapis.com" in html
 
@@ -169,7 +169,7 @@ def test_both_staleness_modes_are_surfaced_on_the_page():
 
     只查前者会漏掉后者，而后者更隐蔽：它一路都是"成功"的。
     """
-    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False))
+    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False))
     assert "数据不可信" in html
     assert "h.stale" in html and "h.too_old" in html
     assert "抓取失败" in html and "个交易日" in html
@@ -186,7 +186,7 @@ def test_refresh_flag_reaches_every_fetch():
 
 def test_attribution_is_present_on_every_generated_page():
     """方法不是本项目原创，生成的每个页面都要指回上游。"""
-    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False))
+    html = render_html(build_payload("TEST", provider=FakeProvider(), include_events=False, include_market_cap=False))
     assert "m4yOvO/johnny-finance-skill" in html
     assert "Johnny0725" in html
     assert "未经其背书" in html

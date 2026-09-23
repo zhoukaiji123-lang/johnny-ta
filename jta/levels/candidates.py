@@ -56,6 +56,7 @@ class Candidate:
     range_high: float | None = None
     role: str | None = None
     snap: dict[str, Any] | None = None
+    market_cap_note: dict[str, Any] | None = None
     resonance: dict[str, Any] = field(default_factory=dict)
     distance_atr: float = 0.0
 
@@ -257,6 +258,39 @@ def note_pivot_confluence(
             "confluent_pivot": round(target.price, 4),
             "distance_atr": round(abs(target.price - c.price) / atr_value, 3),
             "reason": "Fib 原值与有真实触碰记录的水平枢轴重合；展示价仍取自身计算值",
+        }
+
+
+def note_market_cap_confluence(
+    candidates: Sequence[Candidate],
+    atr_value: float,
+    market_cap_context: dict[str, Any] | None,
+    *,
+    radius_atr: float = RESONANCE_ATR,
+) -> None:
+    """市值换算价挨着已有关键位时，留一条备注——不新增候选，不算新证据。
+
+    市值本身只是股价的线性换算，Johnny 上游方法原文明确写了"市值 Fib 与
+    价格 Fib 若映射到同一点，不得视为两份独立证据，也不增加新的共振评分项"。
+    这里只做标注：换算价没有挨着任何已有候选，就只在 market_cap 区块里
+    如实报出来，不伪造这里的共振。
+    """
+    if not market_cap_context or not market_cap_context.get("available"):
+        return
+    tol = radius_atr * atr_value
+    for anchor in market_cap_context.get("anchors", []):
+        equiv = anchor["equivalent_price"]
+        near = [c for c in candidates if abs(c.price - equiv) <= tol]
+        if not near:
+            continue
+        target = min(near, key=lambda c: abs(c.price - equiv))
+        target.market_cap_note = {
+            "anchor_label": anchor["label"],
+            "market_cap": anchor["market_cap"],
+            "equivalent_price": equiv,
+            "distance_atr": round(abs(target.price - equiv) / atr_value, 3),
+            "weekly_state": anchor["weekly"]["state"],
+            "note": "市值换算价与该关键位重合，仅作辅助参考，不单独构成证据",
         }
 
 

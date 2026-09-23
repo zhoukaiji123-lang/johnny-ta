@@ -31,9 +31,11 @@ from .levels.candidates import (
     assign_roles,
     build_candidates,
     make_source,
+    note_market_cap_confluence,
     note_pivot_confluence,
 )
 from .levels.pivots import gaps, horizontal_pivots, prior_session_levels, round_numbers
+from .marketcap import fetch_market_cap_context
 from .plans import build_plans, holder_playbook, size_position
 from .levels.trendline import fit_trendlines, parallel_channel
 from .scoring import evaluate, index_alignment
@@ -363,6 +365,7 @@ def analyze(
     benchmark: str | None = None,
     provider: Any | None = None,
     include_events: bool = True,
+    include_market_cap: bool = True,
     holding: dict[str, Any] | None = None,
     account: float | None = None,
     risk_pct: float = 0.01,
@@ -387,6 +390,12 @@ def analyze(
     candidates = build_candidates(raw, price, daily.atr)
     annotate_resonance(candidates, daily.atr)
     note_pivot_confluence(candidates, daily.atr)
+
+    market_cap: dict[str, Any] = {"available": False, "reason": "未请求"}
+    if include_market_cap:
+        market_cap = fetch_market_cap_context(symbol, daily.df, as_of=as_of)
+    note_market_cap_confluence(candidates, daily.atr, market_cap)
+
     assign_roles(candidates, price)
 
     index_summary = None
@@ -539,6 +548,7 @@ def analyze(
         "benchmark": index_summary,
         "td_signal": td_sig,
         "events": events,
+        "market_cap": market_cap,
         "supports": support_rows,
         "resistances": resistance_rows,
         "selection": {"support": sup_meta, "resistance": res_meta},
@@ -565,8 +575,12 @@ def analyze(
             ),
             "TD Countdown 13 未实现，只有 Setup 9",
             "基本面否决层未实现，需人工检查盈利周期与资本开支",
-            "市值里程碑模块按要求未移植",
             *([events["reason"]] if not events.get("available") and events.get("reason") else []),
+            *(
+                [market_cap["reason"]]
+                if not market_cap.get("available") and market_cap.get("reason")
+                else []
+            ),
             *daily_series.meta.warnings,
             *intraday_series.meta.warnings,
         ],

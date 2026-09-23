@@ -295,7 +295,13 @@ def test_analyze_returns_complete_schema():
 def test_analyze_declares_unimplemented_parts():
     r = analyze("TEST", provider=FakeProvider())
     gaps = " ".join(r["known_gaps"])
-    assert "Countdown" in gaps and "基本面" in gaps and "市值" in gaps
+    assert "Countdown" in gaps and "基本面" in gaps
+
+
+def test_analyze_reports_market_cap_context():
+    r = analyze("TEST", provider=FakeProvider())
+    assert "market_cap" in r
+    assert "available" in r["market_cap"]
 
 
 def test_analyze_respects_as_of_everywhere():
@@ -526,7 +532,10 @@ def test_unknown_index_leaves_sizing_untouched():
 
 
 def test_sizing_warns_when_notional_exceeds_the_account():
-    r = analyze("TEST", provider=FakeProvider(), account=1000.0, include_events=False)
+    r = analyze(
+        "TEST", provider=FakeProvider(), account=1000.0,
+        include_events=False, include_market_cap=False,
+    )
     for p in r["plans"]:
         sz = p.get("sizing")
         if sz and sz.get("notional", 0) > 1000.0:
