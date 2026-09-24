@@ -37,6 +37,7 @@ from .levels.candidates import (
 from .levels.pivots import gaps, horizontal_pivots, prior_session_levels, round_numbers
 from .marketcap import fetch_market_cap_context
 from .plans import build_plans, holder_playbook, size_position
+from .regime import benchmark_regime
 from .levels.trendline import fit_trendlines, parallel_channel
 from .scoring import evaluate, index_alignment
 
@@ -421,6 +422,7 @@ def analyze(
             "too_old": bool(b.meta.too_old),
             "age_sessions": b.meta.age_sessions,
             "fetched_at": b.meta.fetched_at.isoformat(),
+            "regime": benchmark_regime(bdf),
         }
 
     td_sig = latest_td_signal(daily.td, within=3)
@@ -483,6 +485,7 @@ def analyze(
         event_reason=events.get("event_mode_reason"),
         index_bullish=index_bullish,
         index_symbol=(index_summary or {}).get("symbol"),
+        regime=(index_summary or {}).get("regime") or benchmark_regime(None),
     )
     if account:
         for p in plans:
@@ -502,7 +505,7 @@ def analyze(
                 p["sizing"] = sizing
 
     return {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "symbol": symbol,
         "current_price": round(price, 4),
         "price_is_live": live is not None,

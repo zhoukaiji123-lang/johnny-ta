@@ -81,6 +81,7 @@ class Row:
     daily_stack: str = ""
     intraday_stack: str = ""
     benchmark_stack: str = ""
+    regime: dict[str, Any] | None = None
     supports: list[dict[str, Any]] = field(default_factory=list)
     resistances: list[dict[str, Any]] = field(default_factory=list)
     plans: list[dict[str, Any]] = field(default_factory=list)
@@ -192,6 +193,7 @@ def collect_row(
     row.daily_stack = m["daily_ema_stack"]
     row.intraday_stack = m["intraday_ema_stack"]
     row.benchmark_stack = (r.get("benchmark") or {}).get("ema_stack", "")
+    row.regime = (r.get("benchmark") or {}).get("regime")
     row.supports = [_brief(l) for l in r["supports"]]
     row.resistances = [_brief(l) for l in r["resistances"]]
     row.plans = [_plan_brief(p) for p in r["plans"]]
@@ -287,6 +289,8 @@ def build_watchlist(
     rows.sort(key=lambda r: (order.get(r.group, 9), -(r.best_rr or 0), r.symbol))
 
     dates = {r.structure_as_of[:10] for r in rows if r.structure_as_of}
+    # 同一个基准被多个标的共享，横幅按基准去重展示一次
+    regimes = {r.benchmark: r.regime for r in rows if r.benchmark and r.regime}
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "data_dates": sorted(dates),
@@ -297,6 +301,7 @@ def build_watchlist(
         "account": account,
         "risk_pct": risk_pct,
         "counts": {g: sum(1 for r in rows if r.group == g) for g in GROUP_ORDER},
+        "regimes": dict(sorted(regimes.items())),
         "rows": [r.to_dict() for r in rows],
         "labels": {
             "group": GROUP_LABELS, "phase": PHASE_LABELS,

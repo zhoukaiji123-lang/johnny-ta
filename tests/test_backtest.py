@@ -165,3 +165,15 @@ def test_summary_handles_no_trades():
                         "outcome": "not_triggered", "r_multiple": None, "gapped": False}])
     s = summarise_trades(df)
     assert s["overall"]["triggered"] == 0 and s["overall"]["expectancy_r"] is None
+
+
+def test_summary_splits_by_regime():
+    df = pd.DataFrame([
+        {"executable": True, "plan_key": "aggressive", "index_bullish": True,
+         "outcome": o, "r_multiple": v, "gapped": False, "regime": g}
+        for o, v, g in [("target", 2.0, "up"), ("stopped", -1.0, "up"),
+                        ("stopped", -1.0, "range"), ("stopped", -1.0, "range")]
+    ])
+    s = summarise_trades(df)["by_regime"]
+    assert s["up"]["expectancy_r"] == pytest.approx(0.5)
+    assert s["range"]["expectancy_r"] == pytest.approx(-1.0)

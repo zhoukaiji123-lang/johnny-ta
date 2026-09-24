@@ -494,21 +494,61 @@ def test_plan_blocked_when_every_level_is_filtered_out():
     assert any("ATR 的可用档位" in b for b in plans[0]["blocked_by"])
 
 
-def test_adverse_index_warns_without_cutting_size_by_default():
-    """回测里指数非多头的期望反而更高（+0.871R vs +0.388R），不该减半。"""
+def test_adverse_index_no_longer_scales_or_warns_by_default():
+    """EMA 排列在两段样本里都没有区分度，方向判断已交给 REGIME_GATE。"""
     from jta.plans import ADVERSE_INDEX_SCALE, build_plans
 
     assert ADVERSE_INDEX_SCALE == 1.0
     sups = [level("S1", 92.0, 0.8), level("S2", 85.0, 1.5)]
     ress = [level("R1", 112.0, 1.2, "resistance"), level("R2", 125.0, 2.5, "resistance")]
-    good = build_plans(sups, ress, atr=10.0, zone="at_support", index_bullish=True)
     bad = build_plans(sups, ress, atr=10.0, zone="at_support",
                       index_bullish=False, index_symbol="SOXX")
-    assert good[0]["position_scale"] == 1.0 and not good[0]["cautions"]
-    assert bad[0]["position_scale"] == 1.0            # 提示但不缩减
-    assert "SOXX" in bad[0]["cautions"][0]
-    assert "不缩减仓位" in bad[0]["cautions"][0]
+    assert bad[0]["position_scale"] == 1.0
+    assert not bad[0]["cautions"]
     assert "缩减" not in bad[0]["tranche_text"]
+
+
+def _regime(state):
+    from jta.regime import STATE_LABELS
+
+    return {"state": state, "label": STATE_LABELS[state], "reason": f"{state} 测试"}
+
+
+@pytest.mark.parametrize("state", ["range", "down"])
+def test_regime_gate_blocks_all_plans_outside_up(state):
+    from jta.plans import REGIME_GATE, build_plans
+
+    assert REGIME_GATE is True
+    sups = [level("S1", 92.0, 0.8), level("S2", 85.0, 1.5)]
+    ress = [level("R1", 112.0, 1.2, "resistance"), level("R2", 125.0, 2.5, "resistance")]
+    plans = build_plans(sups, ress, atr=10.0, zone="at_support",
+                        index_symbol="SOXX", regime=_regime(state))
+    for p in plans:
+        assert not p["executable"]
+        assert any("大盘状态" in b and "SOXX" in b for b in p["blocked_by"])
+
+
+def test_regime_gate_passes_up_and_can_be_disabled():
+    from jta.plans import build_plans
+
+    sups = [level("S1", 92.0, 0.8), level("S2", 85.0, 1.5)]
+    ress = [level("R1", 112.0, 1.2, "resistance"), level("R2", 125.0, 2.5, "resistance")]
+    up = build_plans(sups, ress, atr=10.0, zone="at_support", regime=_regime("up"))
+    off = build_plans(sups, ress, atr=10.0, zone="at_support",
+                      regime=_regime("range"), regime_gate=False)
+    for plans in (up, off):
+        assert not any("大盘状态" in b for p in plans for b in p["blocked_by"])
+    assert up[0]["executable"]
+
+
+def test_regime_unknown_warns_but_does_not_block():
+    from jta.plans import build_plans
+
+    sups = [level("S1", 92.0, 0.8), level("S2", 85.0, 1.5)]
+    ress = [level("R1", 112.0, 1.2, "resistance"), level("R2", 125.0, 2.5, "resistance")]
+    plans = build_plans(sups, ress, atr=10.0, zone="at_support", regime=_regime("unknown"))
+    assert plans[0]["executable"]
+    assert "大盘状态无法判定" in plans[0]["cautions"][0]
 
 
 def test_index_scaling_still_works_when_explicitly_enabled():

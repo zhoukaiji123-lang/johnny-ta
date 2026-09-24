@@ -208,3 +208,71 @@ def test_base_flag_requires_rally_and_volume():
     quiet["volume"] = 1000.0
     pts = detect_swings(quiet, k=2, min_atr_mult=0)
     assert not any(p.is_base for p in pts)
+
+
+# ------------------------------------------------------------------ ADX / 大盘状态
+
+
+def _ohlc(close, spread=1.0):
+    close = np.asarray(close, dtype=float)
+    idx = pd.date_range("2024-01-01", periods=len(close), freq="B", tz="America/New_York")
+    return pd.DataFrame(
+        {"open": close, "high": close + spread, "low": close - spread, "close": close,
+         "volume": 1.0},
+        index=idx,
+    )
+
+
+def _adx_reference(df, n=14):
+    """教科书式 Wilder：平滑用"前值 - 前值/n + 当前值"的累计和形式，与 RMA 等价。"""
+    h, l, c = (df[k].to_numpy(float) for k in ("high", "low", "close"))
+    tr, pdm, mdm = [], [], []
+    for i in range(1, len(df)):
+        up, dn = h[i] - h[i - 1], l[i - 1] - l[i]
+        pdm.append(up if up > dn and up > 0 else 0.0)
+        mdm.append(dn if dn > up and dn > 0 else 0.0)
+        tr.append(max(h[i] - l[i], abs(h[i] - c[i - 1]), abs(l[i] - c[i - 1])))
+    s_tr, s_p, s_m = sum(tr[:n]), sum(pdm[:n]), sum(mdm[:n])
+    dxs = []
+    for i in range(n - 1, len(tr)):
+        if i >= n:
+            s_tr, s_p, s_m = (s_tr - s_tr / n + tr[i], s_p - s_p / n + pdm[i],
+                              s_m - s_m / n + mdm[i])
+        pdi, mdi = 100 * s_p / s_tr, 100 * s_m / s_tr
+        dxs.append(100 * abs(pdi - mdi) / (pdi + mdi))
+    a = sum(dxs[:n]) / n
+    for d in dxs[n:]:
+        a = (a * (n - 1) + d) / n
+    return a
+
+
+def test_adx_matches_textbook_wilder():
+    from jta.indicators.adx import adx
+
+    rng = np.random.RandomState(1)
+    df = _ohlc(100 + np.cumsum(rng.normal(0.2, 1.5, 120)), spread=1.2)
+    assert adx(df).iloc[-1] == pytest.approx(_adx_reference(df), rel=1e-9)
+
+
+def test_adx_warmup_and_extremes():
+    from jta.indicators.adx import adx
+
+    trend = adx(_ohlc(np.arange(100, 160)))
+    assert trend.iloc[:27].isna().all() and np.isfinite(trend.iloc[27])
+    assert trend.iloc[-1] == pytest.approx(100.0)          # 单边上涨：-DM 恒为 0
+    chop = adx(_ohlc(100 + np.tile([0.0, 1.0], 40)))
+    assert chop.iloc[-1] < 20
+
+
+def test_benchmark_regime_states():
+    from jta.regime import benchmark_regime
+
+    up = benchmark_regime(_ohlc(np.linspace(100, 300, 260)))
+    down = benchmark_regime(_ohlc(np.linspace(300, 100, 260)))
+    # 均线向上但最后 60 根来回震荡：ADX 掉到 20 以下，按规则算震荡而不是向上
+    chop = benchmark_regime(_ohlc(np.r_[np.linspace(100, 200, 200), 200 + np.tile([0.0, 1.0], 30)]))
+    assert up["state"] == "up" and up["adx"] >= 20
+    assert down["state"] == "down"
+    assert chop["state"] == "range" and "ADX" in chop["reason"]
+    assert benchmark_regime(_ohlc(np.linspace(100, 120, 150)))["state"] == "unknown"
+    assert benchmark_regime(None)["state"] == "unknown"
