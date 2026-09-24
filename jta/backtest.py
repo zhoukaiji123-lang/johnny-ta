@@ -68,6 +68,7 @@ class TradeResult:
     mae_r: float | None = None
     mfe_r: float | None = None
     gapped: bool = False
+    regime: str | None = None
     note: str = ""
 
     def to_dict(self) -> dict[str, Any]:
@@ -96,6 +97,7 @@ def simulate(
     index_bullish: bool | None,
     rules: TradeRules,
     signals: pd.DataFrame | None = None,
+    regime: str | None = None,
 ) -> TradeResult:
     """模拟一套计划从等待到离场的完整过程。"""
     entry, stop = plan.get("entry"), plan.get("stop")
@@ -103,7 +105,7 @@ def simulate(
         symbol=symbol, plan_key=plan["key"], plan_date=plan_ts.isoformat(),
         executable=bool(plan.get("executable")), index_bullish=index_bullish,
         entry_plan=entry, stop_plan=stop, t1=plan.get("t1"), t2=plan.get("t2"),
-        rr_plan=plan.get("rr"),
+        rr_plan=plan.get("rr"), regime=regime,
     )
     if entry is None or stop is None:
         res.note = "计划缺少入场或止损"
@@ -322,6 +324,7 @@ def collect_plans(
             None if r.get("benchmark") is None
             else r["benchmark"]["ema_stack"] == "bull"
         )
+        regime = ((r.get("benchmark") or {}).get("regime") or {}).get("state", "unknown")
         seen = [s for s in seen if (day - s[2]).days <= 60]
         for plan in r["plans"]:
             if plan.get("entry") is None:
@@ -330,7 +333,8 @@ def collect_plans(
             if any(k == key and abs(e - entry) <= dedup_atr * atr for k, e, _ in seen):
                 continue
             seen.append((key, entry, day))
-            out.append({"ts": day, "plan": plan, "index_bullish": idx_bull, "atr": atr})
+            out.append({"ts": day, "plan": plan, "index_bullish": idx_bull, "atr": atr,
+                        "regime": regime})
     return out
 
 
@@ -356,6 +360,7 @@ def run_backtest(
             res = simulate(
                 plan, intraday, daily, item["ts"], symbol=symbol,
                 index_bullish=item["index_bullish"], rules=rules, signals=sig,
+                regime=item["regime"],
             )
             rows.append(res.to_dict())
     return pd.DataFrame(rows)
@@ -401,6 +406,10 @@ def summarise_trades(df: pd.DataFrame) -> dict[str, Any]:
             ("bullish" if k else "not_bullish"): _stats(g)
             for k, g in df.dropna(subset=["index_bullish"]).groupby("index_bullish")
         },
+        # 回测默认模拟全部计划（含被大盘状态拦截的），这里看开关的效果
+        "by_regime": (
+            {k: _stats(g) for k, g in df.groupby("regime")} if "regime" in df else {}
+        ),
         "caveats": [
             "期望值以 R 倍数计，未计滑点、佣金与融资成本",
             "同一根 4H 内同时触及止损与目标时按规则取一侧，双向都跑一遍才知道区间",

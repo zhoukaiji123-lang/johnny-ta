@@ -39,8 +39,21 @@ MIN_ENTRY_DISTANCE_ATR = 0.0
 #: 据此曾设为 0.5。但计划级回测的方向相反：指数非多头时期望 +0.871R（n=93），
 #: 多头时 +0.388R（n=314），差 +0.483R、z=1.48——不显著，
 #: 但没有任何证据支持"非多头就该减半"，甚至暗示相反。
-#: 因此保留方向提示，不再缩减仓位。
+#: 因此不再缩减仓位。方向判断已由下面的 REGIME_GATE 接管。
 ADVERSE_INDEX_SCALE = 1.0
+
+#: 大盘状态开关：基准不在 up 状态时，三套计划一律不开新仓。**当前默认开启。**
+#:
+#: 状态定义见 regime.py（ADX>=20 且 close>SMA200 且 SMA50>SMA200 才算 up），
+#: 规则在看回测结果之前定死。25 标的 / 2025-09 至 2026-09 / 830 笔成交：
+#: 只在 up 时开仓期望 +0.44R（n=411），被剔除的交易 +0.00R（n=419），
+#: 差 +0.44R、z=2.97；牛市段与回调段分别 +0.52R / +0.16R，两段方向一致。
+#: 回调段不过滤 -0.11R、过滤后 +0.16R。
+#:
+#: 与上面 index EMA 排列的区别：EMA 排列在两段样本里都没有区分度，
+#: ADX 把"均线向上但走得犹豫"的震荡期也挡掉了，亏损主要出在那里。
+#: 基准缺失（unknown）时不拦截，只提示。只影响开新仓，不影响 holder_playbook。
+REGIME_GATE = True
 
 PLAN_TITLES = {
     "aggressive": "A 第一支撑激进试仓",
@@ -128,6 +141,8 @@ def build_plans(
     index_symbol: str | None = None,
     min_entry_distance_atr: float | None = None,
     adverse_index_scale: float | None = None,
+    regime: dict[str, Any] | None = None,
+    regime_gate: bool | None = None,
 ) -> list[dict[str, Any]]:
     min_dist = (
         MIN_ENTRY_DISTANCE_ATR if min_entry_distance_atr is None else min_entry_distance_atr
@@ -135,6 +150,9 @@ def build_plans(
     scale_adverse = (
         ADVERSE_INDEX_SCALE if adverse_index_scale is None else adverse_index_scale
     )
+    gate = REGIME_GATE if regime_gate is None else regime_gate
+    regime_state = (regime or {}).get("state")
+    where = f" {index_symbol}" if index_symbol else ""
     sup_tradable, sup_skipped = _split_by_distance(supports, min_dist)
     res_tradable, res_skipped = _split_by_distance(resistances, min_dist)
 
@@ -262,25 +280,26 @@ def build_plans(
             blocked.append("现价位于支撑与压力中间，按纪律不交易")
         if event_mode:
             blocked.append(f"事件模式：{event_reason or '窗口内有未定价事件'}")
+        if gate and regime_state in ("range", "down"):
+            blocked.append(
+                f"大盘状态：基准{where} {regime['label']}（{regime['reason']}），"
+                "只在向上时开新仓"
+            )
         p.blocked_by = blocked
         p.executable = not blocked
 
-        if adverse_index:
-            p.position_scale = scale_adverse
-            note = (
-                f"基准{f' {index_symbol} ' if index_symbol else ''}未呈多头排列。"
-                "关键位守住率在该状态下偏低（46.6% vs 同向 57.9%），"
-                "但计划级回测未发现期望值劣势"
+        p.cautions = []
+        if gate and regime_state == "unknown":
+            p.cautions.append(
+                f"大盘状态无法判定（{regime.get('reason')}），未按大盘状态拦截，需人工确认"
             )
-            p.cautions = [
-                note + (
-                    f"，计划仓按 {scale_adverse:.0%} 缩减"
-                    if scale_adverse < 1 else "，因此仅作方向提示，不缩减仓位"
-                )
-            ]
+        if adverse_index and scale_adverse < 1:
+            p.position_scale = scale_adverse
+            p.cautions.append(
+                f"基准{where}未呈多头排列，计划仓按 {scale_adverse:.0%} 缩减"
+            )
         else:
             p.position_scale = 1.0
-            p.cautions = []
 
     return [p.to_dict() for p in plans]
 

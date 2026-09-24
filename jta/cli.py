@@ -206,6 +206,14 @@ def cmd_backtest(args: argparse.Namespace) -> int:
             continue
         print(f"{k:<12}{v['triggered']:>6}{v['win_rate']:>8.1%}"
               f"{v['expectancy_r']:>9.3f}{v['stderr_r'] or 0:>8.3f}")
+    if summary.get("by_regime"):
+        print()
+        print(f"{'大盘状态':<12}{'触发':>6}{'胜率':>8}{'期望R':>9}{'标准误':>8}")
+        for k, v in summary["by_regime"].items():
+            if not v["triggered"]:
+                continue
+            print(f"{k:<12}{v['triggered']:>6}{v['win_rate']:>8.1%}"
+                  f"{v['expectancy_r']:>9.3f}{v['stderr_r'] or 0:>8.3f}")
     print()
     for c in summary["caveats"]:
         print(f"· {c}")

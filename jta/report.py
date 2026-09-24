@@ -95,6 +95,9 @@ def render_text(r: dict[str, Any], account: float | None = None, risk_pct: float
     if r.get("benchmark"):
         b = r["benchmark"]
         lines.append(f"基准 {b['symbol']}：EMA 排列 {b['ema_stack']}（{b['as_of_bar'][:10]}）")
+        if b.get("regime"):
+            g = b["regime"]
+            lines.append(f"大盘状态：{g['label']}（{g['reason']}）")
     if r.get("td_signal"):
         t = r["td_signal"]
         lines.append(f"TD：{t['kind']} @ {t['ts'][:10]} 完美={t['perfected']} — {t['meaning']}")
