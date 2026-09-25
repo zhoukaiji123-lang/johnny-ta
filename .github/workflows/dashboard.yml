@@ -51,7 +51,7 @@ jobs:
         run: |
           python -m jta.cli dashboard \
               MU:SOXX SNDK:SOXX SKHY:SOXX AVGO:SOXX AMD:SOXX INTC:SOXX \
-              LITE:SOXX COHR:SOXX DELL:QQQ AMZN:QQQ GOOGL:QQQ NOW:QQQ NET:QQQ \
+              LITE:SOXX COHR:SOXX DELL:QQQ AMZN:QQQ GOOGL:QQQ NOW:QQQ NET:QQQ NBIS:QQQ \
               TSLA:QQQ SPCX:QQQ SOXX:QQQ QQQ:SPY DRAM:SOXX MRNA \
               --out-dir docs && echo "ok=true" >> "$GITHUB_OUTPUT"
 
