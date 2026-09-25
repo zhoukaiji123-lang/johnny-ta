@@ -370,6 +370,7 @@ def analyze(
     holding: dict[str, Any] | None = None,
     account: float | None = None,
     risk_pct: float = 0.01,
+    use_live: bool = False,
 ) -> dict[str, Any]:
     provider = provider or build_provider("auto")
     daily_series = provider.fetch(symbol, "1d", as_of=as_of)
@@ -378,9 +379,11 @@ def analyze(
     daily = _prepare(daily_series, DAILY_LOOKBACK, as_of)
     intraday = _prepare(intraday_series, INTRADAY_LOOKBACK, as_of)
 
-    # 现价用未完成 bar 的最新成交价（如果盘中），但结构计算一律只用已收盘的 bar：
-    # 位置判断问的是"现在在哪"，突破/失守问的是"收在哪"，两者口径必须分开
-    live = daily_series.meta.live_bar
+    # 默认用最近一个已收盘交易日的收盘价定当天的点位：同一天不管几点跑，
+    # 关键位、距离、位置与计划都一样，计划是开盘前定死的，不随盘中价漂移。
+    # use_live=True 时现价改用未完成 bar 的最新成交价（盘中看"现在在哪"），
+    # 但结构计算仍只用已收盘的 bar——突破/失守问的是"收在哪"
+    live = daily_series.meta.live_bar if use_live else None
     price = float(live["close"]) if live else float(daily.df["close"].iloc[-1])
 
     raw: list[tuple[float, dict]] = []

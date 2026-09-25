@@ -37,6 +37,8 @@ jta analyze <SYMBOL> --benchmark <指数> --json
 任何结论之前，先说明：`data.daily.last_bar`（数据截止）、`adjust`（复权口径）、
 `fetched_at`（抓取时间）、`stale` 是否为真。数据陈旧或 stale=true 时必须显著提示。
 4H 分析要说明 `bar_alignment`（每交易日 09:30–13:30 / 13:30–16:00 两根）。
+`current_price` 默认是前一交易日收盘价，当天点位由它决定，要说成"按 X 日收盘价"；
+只有 `price_is_live` 为 true（用户要求 `--live`）时才是盘中价，必须注明未收盘。
 
 ### 3. 状态判定
 

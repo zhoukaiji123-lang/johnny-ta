@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 from datetime import datetime, timezone
 
 import numpy as np
@@ -269,13 +270,37 @@ class FakeProvider:
         )
 
 
-def test_live_price_and_structure_use_different_vintages():
-    """盘中现价来自未完成 bar，但结构必须只用已收盘的 bar。"""
-    r = analyze("TEST", provider=FakeProvider())
-    assert "price_is_live" in r and "structure_as_of" in r
-    if r["price_is_live"]:
-        assert r["current_price"] == pytest.approx(r["live_bar"]["close"])
-        assert pd.Timestamp(r["structure_as_of"]) < pd.Timestamp(r["live_bar"]["ts"])
+class LiveFakeProvider(FakeProvider):
+    """日线带一根未完成的盘中 bar，现价比前一日收盘高出 5%。"""
+
+    def fetch(self, symbol, interval, *, as_of=None, **kw) -> OHLCV:
+        out = super().fetch(symbol, interval, as_of=as_of, **kw)
+        if interval == "1d":
+            live = {
+                "ts": (out.df.index[-1] + pd.Timedelta(days=1)).isoformat(),
+                "close": float(out.df["close"].iloc[-1]) * 1.05,
+            }
+            out = OHLCV(df=out.df, meta=dataclasses.replace(out.meta, live_bar=live))
+        return out
+
+
+def test_default_uses_previous_close_even_when_live_bar_exists():
+    """当天点位由前一交易日收盘价决定，同一天不管几点跑结果都一样。"""
+    p = LiveFakeProvider()
+    r = analyze("TEST", provider=p)
+    prev_close = float(p.fetch("TEST", "1d").df["close"].iloc[-1])
+    assert r["price_is_live"] is False and r["live_bar"] is None
+    assert r["current_price"] == pytest.approx(prev_close, abs=1e-4)
+    closed = analyze("TEST", provider=FakeProvider())
+    for key in ("supports", "resistances", "position_zone", "plans"):
+        assert r[key] == closed[key]
+
+
+def test_use_live_takes_live_price_but_structure_stays_on_closed_bars():
+    r = analyze("TEST", provider=LiveFakeProvider(), use_live=True)
+    assert r["price_is_live"] is True
+    assert r["current_price"] == pytest.approx(r["live_bar"]["close"])
+    assert pd.Timestamp(r["structure_as_of"]) < pd.Timestamp(r["live_bar"]["ts"])
 
 
 def test_analyze_returns_complete_schema():

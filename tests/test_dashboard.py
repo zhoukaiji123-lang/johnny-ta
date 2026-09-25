@@ -80,3 +80,15 @@ def test_build_watchlist_deduplicates_repeated_fetches(tmp_path):
     assert counts, "没有任何请求发生，测试没测到东西"
     assert {"MU", "QQQ"} <= {s for s, _ in counts}
     assert all(n == 1 for n in counts.values()), counts
+
+
+def test_dashboard_row_uses_previous_close_during_market_hours():
+    """看板是当天计划：即便盘中运行，现价与点位也按前一交易日收盘价计算。"""
+    from jta.dashboard import collect_row
+    from tests.test_pipeline import LiveFakeProvider
+
+    p = LiveFakeProvider()
+    row = collect_row("TEST", None, provider=p, account=None, risk_pct=0.01)
+    prev_close = float(p.fetch("TEST", "1d").df["close"].iloc[-1])
+    assert row.price_is_live is False
+    assert row.price == pytest.approx(prev_close, abs=1e-4)

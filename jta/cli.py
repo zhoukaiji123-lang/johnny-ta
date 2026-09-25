@@ -16,6 +16,11 @@ from .report import render_text
 
 INTERVALS = ["1wk", "1d", "4h", "60m", "30m", "15m"]
 
+LIVE_HELP = (
+    "盘中用最新成交价作现价（默认用前一交易日收盘价定当天点位，"
+    "与看板一致；结构计算始终只用已收盘的 bar）"
+)
+
 
 def _parse_as_of(value: str | None) -> datetime | None:
     if not value:
@@ -77,6 +82,7 @@ def cmd_analyze(args: argparse.Namespace) -> int:
             as_of=_parse_as_of(args.as_of),
             benchmark=args.benchmark,
             provider=build_provider(args.source, force_refresh=args.refresh),
+            use_live=args.live,
         )
     except DataUnavailable as exc:
         print(f"错误: {exc}", file=sys.stderr)
@@ -100,6 +106,7 @@ def cmd_chart(args: argparse.Namespace) -> int:
             args.symbol, benchmark=args.benchmark, account=args.account,
             risk_pct=args.risk, holding=holding,
             provider=build_provider(args.source, force_refresh=args.refresh),
+            use_live=args.live,
         )
     except DataUnavailable as exc:
         print(f"错误: {exc}", file=sys.stderr)
@@ -303,6 +310,7 @@ def main(argv: list[str] | None = None) -> int:
         help="数据源，默认 auto（yfinance 优先，滞后/失败时切到 twelvedata）",
     )
     a.add_argument("--json", action="store_true")
+    a.add_argument("--live", action="store_true", help=LIVE_HELP)
     a.set_defaults(func=cmd_analyze)
 
     ch = sub.add_parser("chart", help="生成自包含的交互技术地图 HTML")
@@ -315,6 +323,7 @@ def main(argv: list[str] | None = None) -> int:
     ch.add_argument("--out", default=None)
     ch.add_argument("--refresh", action="store_true", help="忽略缓存强制重抓")
     ch.add_argument("--source", default="auto", choices=SOURCES)
+    ch.add_argument("--live", action="store_true", help=LIVE_HELP)
     ch.add_argument(
         "--standalone", action="store_true",
         help="产出完整 HTML 文档并去掉 Google Fonts 外链，适合转发或离线打开",

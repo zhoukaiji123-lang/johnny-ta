@@ -97,6 +97,7 @@ def build_payload(
     provider: Any | None = None,
     include_events: bool = True,
     include_market_cap: bool = True,
+    use_live: bool = False,
 ) -> dict[str, Any]:
     provider = provider or build_provider("auto")
     result = analyze(
@@ -108,6 +109,7 @@ def build_payload(
         holding=holding,
         include_events=include_events,
         include_market_cap=include_market_cap,
+        use_live=use_live,
     )
 
     daily = _prepare(provider.fetch(symbol, "1d"), DAILY_LOOKBACK, None)

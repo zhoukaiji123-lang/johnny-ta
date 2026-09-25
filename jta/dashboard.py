@@ -174,9 +174,10 @@ def collect_row(
         display=DISPLAY_NAME.get(symbol.upper(), symbol),
     )
     try:
+        # 看板是当天的交易计划，一律按前一交易日收盘价定点位，不受运行时刻影响
         r = analyze(
             symbol, benchmark=benchmark, provider=provider,
-            account=account, risk_pct=risk_pct,
+            account=account, risk_pct=risk_pct, use_live=False,
         )
     except (DataUnavailable, Exception) as exc:  # noqa: BLE001
         row.group = "failed"
@@ -277,7 +278,7 @@ def build_watchlist(
             page = f"{_slug(symbol)}.html"
             payload = build_payload(
                 symbol, benchmark=bm, account=account,
-                risk_pct=risk_pct, provider=provider,
+                risk_pct=risk_pct, provider=provider, use_live=False,
             )
             (out_dir / page).write_text(
                 render_html(payload, standalone=True), encoding="utf-8"

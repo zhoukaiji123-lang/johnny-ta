@@ -54,8 +54,13 @@ uv pip install -e ".[dev]"
 jta analyze MU --benchmark SOXX --account 100000     # 人读
 jta analyze MU --benchmark SOXX --json               # 给 skill 叙事层消费
 jta analyze MU --as-of 2026-06-01                    # 前向测试：只用该时点前的数据
+jta analyze MU --benchmark SOXX --live               # 盘中：现价改用最新成交价
 jta fetch MU -i 4h --tail 6                          # 检视行情
 ```
+
+现价默认取**前一交易日收盘价**：当天的关键位、位置与计划在开盘前就定死，
+同一天不管几点运行结果都一样，看板也按这个口径发布。`--live` 只把现价换成
+盘中最新成交价，结构计算始终只用已收盘的 bar。
 
 ## 架构
 
