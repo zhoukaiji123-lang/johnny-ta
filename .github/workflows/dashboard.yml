@@ -2,17 +2,20 @@ name: 每日看板
 
 on:
   schedule:
-    # 01:07 UTC ≈ 北京时间早上 9 点（收盘后 5 小时缓冲），周一至周五
+    # 主触发是外部准点 cron（cron-job.org）调 workflow_dispatch：23:07 / 00:07 UTC
+    # （北京 07:07 / 08:07）。GitHub 自带 schedule 在这个仓库上稳定延迟 4.5–5.5 小时，
+    # 靠它赶不上北京早上 9 点，只留作外部触发挂掉时的兜底。
+    #
+    # 22:07 UTC：美股收盘后 1–2 小时（EDT 20:00 / EST 21:00 收盘），周一至周五
+    # 00:07 UTC：已跨过 UTC 零点，对应美东周一至周五收盘，所以星期写 2-6
     # 错开整点几分钟：GitHub 官方文档提示整点是 Actions 调度高峰，容易被限流/跳过
     #
-    # 三个定时点间隔 1 小时：`jta dashboard` 只要有一个标的没拿到最新已收盘
-    # 交易日的数据就直接失败、不发布（见 jta/dashboard.py 的 require_fresh），
-    # 这不是网络抖动能靠立即重试解决的，是数据源那边批处理没跑完，所以用
-    # "隔一小时再整个跑一遍"而不是在同一个 job 里死等几小时。三次都不新鲜，
-    # 会让最后一次 run 失败，仓库 owner 会收到 GitHub 的失败通知去人工看一眼。
-    - cron: "7 1 * * 1-5"
-    - cron: "7 2 * * 1-5"
-    - cron: "7 3 * * 1-5"
+    # 多次触发不会重复跑：下面"检查是否已发布"一步发现 docs 已经是最新一个已收盘
+    # 交易日的数据就直接跳过。`jta dashboard` 只要有一个标的没拿到最新数据就失败、
+    # 不发布（见 jta/dashboard.py 的 require_fresh），数据源批处理没跑完时靠后面
+    # 的触发点隔一段时间整个重跑；都不新鲜会让 run 失败，owner 收到 GitHub 失败通知。
+    - cron: "7 22 * * 1-5"
+    - cron: "7 0 * * 2-6"
   workflow_dispatch:          # 也可手动触发
 
 permissions:
@@ -38,8 +41,32 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .
 
+      - name: 检查是否已发布
+        id: check
+        # 复用 data_age_sessions 的口径：docs/index.html 里所有标的的数据日期
+        # 都已是最新一个已收盘交易日，就说明本轮已经发布过，后续触发直接跳过
+        run: |
+          python - <<'PY'
+          import json, os, re, pathlib
+          import pandas as pd
+          from jta.data.provider import data_age_sessions
+          skip = False
+          p = pathlib.Path("docs/index.html")
+          if p.exists():
+              m = re.search(r'"data_dates":\s*(\[[^\]]*\])', p.read_text(encoding="utf-8"))
+              dates = json.loads(m.group(1)) if m else []
+              if dates:
+                  last = pd.Timestamp(min(dates), tz="America/New_York")
+                  skip = data_age_sessions(last) == 0
+                  print(f"已发布数据日期 {dates}，age_sessions={data_age_sessions(last)}")
+          print("已是最新，跳过" if skip else "需要生成")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"skip={'true' if skip else 'false'}\n")
+          PY
+
       - name: 生成看板
         id: build
+        if: steps.check.outputs.skip != 'true'
         env:
           TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
         # --source auto：yfinance 优先，滞后或失败时切到 twelvedata（未设置 key 时静默退化为纯 yfinance）
