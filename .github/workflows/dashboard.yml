@@ -17,6 +17,11 @@ on:
     - cron: "7 22 * * 1-5"
     - cron: "7 0 * * 2-6"
   workflow_dispatch:          # 也可手动触发
+    inputs:
+      force:
+        description: "无视「已发布」检查强制重跑（如改了关注列表）"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -66,7 +71,7 @@ jobs:
 
       - name: 生成看板
         id: build
-        if: steps.check.outputs.skip != 'true'
+        if: steps.check.outputs.skip != 'true' || inputs.force
         env:
           TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
         # --source auto：yfinance 优先，滞后或失败时切到 twelvedata（未设置 key 时静默退化为纯 yfinance）
