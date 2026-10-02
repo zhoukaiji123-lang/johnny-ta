@@ -77,7 +77,7 @@ jobs:
         # 1 小时的定时点重试——那才是数据源批处理没跑完时真正有用的等待方式。
         run: |
           python -m jta.cli dashboard \
-              MU:SOXX SNDK:SOXX SKHY:SOXX AVGO:SOXX AMD:SOXX INTC:SOXX \
+              MU:SOXX SNDK:SOXX SKHY:SOXX WDC:SOXX AVGO:SOXX AMD:SOXX INTC:SOXX \
               LITE:SOXX COHR:SOXX DELL:QQQ AMZN:QQQ GOOGL:QQQ NOW:QQQ NET:QQQ NBIS:QQQ \
               TSLA:QQQ SPCX:QQQ SOXX:QQQ QQQ:SPY DRAM:SOXX MRNA \
               --out-dir docs && echo "ok=true" >> "$GITHUB_OUTPUT"

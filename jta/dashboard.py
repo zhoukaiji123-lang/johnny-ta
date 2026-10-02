@@ -47,7 +47,7 @@ SECTOR_ORDER = [
     "生物医药", "其他",
 ]
 SECTOR_MAP = {
-    "MU": "存储", "SNDK": "存储", "SKHY": "存储",
+    "MU": "存储", "SNDK": "存储", "SKHY": "存储", "WDC": "存储",
     "LITE": "光模块", "COHR": "光模块",
     "AVGO": "半导体设计", "AMD": "半导体设计", "INTC": "半导体设计",
     "DELL": "硬件",
