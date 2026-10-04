@@ -22,6 +22,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+import re
+
 import numpy as np
 import pandas as pd
 
@@ -107,6 +109,93 @@ STATE_LABELS = {
 }
 AI_LABELS = {1: "Always In Long", -1: "Always In Short", 0: "Always In 不明"}
 AI_SHORT = {1: "AIL", -1: "AIS", 0: "不明"}
+
+#: 英文术语 → 中文释义。所有对外文字最后统一过一遍 _zh()，每个术语在每句里
+#: 第一次出现时补注释；新增文案不用手写注释。长词排前面，避免 "BO" 先吃掉 "BO Mode"
+GLOSSARY: list[tuple[str, str]] = [
+    ("Always In Long", "始终做多方向"),
+    ("Always In Short", "始终做空方向"),
+    ("Always In", "始终持仓方向"),
+    ("Buy The Close", "按收盘价买入"),
+    ("Final Flag", "最终旗形"),
+    ("BO Mode", "突破模式，多空各半"),
+    ("强 BO", "强势突破"),
+    ("BLSHS", "低买高卖"),
+    ("TBTL", "至少 10 根 K 线、两段的调整"),
+    ("TTR", "紧密交易区间"),
+    ("MTR", "主要趋势反转"),
+    ("AIL", "多方主导"),
+    ("AIS", "空方主导"),
+    ("EMA", "指数移动平均线"),
+    ("H/L", "回调/反弹推数"),
+    ("BO", "突破"),
+    ("FT", "跟进 K 线"),
+    ("TR", "交易区间"),
+    ("MM", "测量移动目标"),
+    ("PB", "回调"),
+    ("HL", "更高低点"),
+    ("LL", "更低低点"),
+    ("HH", "更高高点"),
+    ("LH", "更低高点"),
+    ("DB", "双底"),
+    ("DT", "双顶"),
+    ("MA", "均线"),
+    ("setup", "交易形态"),
+    ("tick", "最小报价单位"),
+]
+_TERM_RE = re.compile(
+    "(" + "|".join(
+        rf"(?<![A-Za-z]){re.escape(t)}(?![A-Za-z0-9])" if t[0].isascii()
+        else rf"{re.escape(t)}(?![A-Za-z0-9])"
+        for t, _ in GLOSSARY
+    )
+    + r"|(?<![A-Za-z])[HL][1-9](?![A-Za-z0-9])"
+    # 第 2 组：术语后的半角空格（补了全角括号注释就不再需要）或术语后本来就有的左括号
+    + ")(（| ?)"
+)
+_TERM_ZH = dict(GLOSSARY)
+
+
+def _zh(text: str) -> str:
+    """每个术语在这句里第一次出现时补中文注释；已带注释的不重复加（幂等）。"""
+    seen: set[str] = set()
+
+    def sub(m: re.Match) -> str:
+        t = m.group(1)
+        if t in _TERM_ZH:
+            zh = _TERM_ZH[t]
+        else:  # H1–H9 / L1–L9
+            zh = f"第 {t[1]} 次{'回调买点' if t[0] == 'H' else '反弹卖点'}"
+        rest = m.end(1)
+        if text.startswith(f"（{zh}）", rest) or text.startswith(f"（{zh}，", rest):
+            seen.add(t)     # 已经带了这条注释
+            return m.group(0)
+        if t in seen:
+            return m.group(0)
+        seen.add(t)
+        if m.group(2) == "（":
+            # 术语后本来就有括号（如"20 EMA（171.57）"）：注释并进去，不叠两层括号
+            return f"{t}（{zh}，"
+        return f"{t}（{zh}）"
+
+    return _TERM_RE.sub(sub, text)
+
+
+#: 这些字段是代码、时间戳或图上标签，不加注释
+_ZH_SKIP = {"key", "setup_code", "direction", "short", "state", "prefix", "side",
+            "status", "signal_quality", "t", "t_end", "from", "label_raw", "marks"}
+
+
+def _zh_all(obj, key: str | None = None):
+    if key in _ZH_SKIP:
+        return obj
+    if isinstance(obj, str):
+        return _zh(obj)
+    if isinstance(obj, dict):
+        return {k: _zh_all(v, k) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_zh_all(v, key) for v in obj]
+    return obj
 
 
 # ------------------------------------------------------------------ 基础
@@ -409,7 +498,7 @@ def _equation(p: float, entry: float, stop: float, target: float | None) -> dict
         "p": p, "risk": _round(risk), "reward": _round(reward), "rr": round(rr, 2),
         "ev_r": round(ev, 2), "min_rr": MIN_RR[p], "ok": bool(ok),
         "text": (f"{p:.0%} × {rr:.2f}R − {1 - p:.0%} × 1R = {ev:+.2f}R"
-                 f"（{p:.0%} 概率要求回报 >= {MIN_RR[p]:g} 倍风险）"),
+                 f"（R = 1 倍风险；{p:.0%} 概率要求回报 >= {MIN_RR[p]:g} 倍风险）"),
     }
 
 
@@ -650,7 +739,7 @@ def brooks_analysis(
                 stop, basis = st.leg_low - TICK, "最后一段强势腿起点下方（拿不准就用更远的，ch43）"
                 p, t1, t1b = 0.6, None, "1 倍实际风险（紧密通道 PB 约 60%，ch43）"
             else:
-                stop, basis = st.current.low - TICK, "本次回调低点（将成为主要 HL）下方（ch45）"
+                stop, basis = st.current.low - TICK, "本次回调低点下方，该低点将成为主要 HL（ch45）"
                 r = st.current.retrace
                 p = 0.6 if r <= 0.5 else (0.5 if r <= 2 / 3 else 0.4)
                 t1, t1b = st.extreme, f"测试前高（回撤 {r:.0%}，{p:.0%}，ch30/ch45/ch12）"
@@ -809,7 +898,7 @@ def brooks_analysis(
     if state == "broad_channel":
         (bear if orient > 0 else bull).append("宽幅通道本质是倾斜的 TR，75% 最终演变成 TR（ch16）")
     if count and count["pending"] and count["next"] == 2:
-        (bull if orient > 0 else bear).append("回调第二推结束在即（H2/L2），逆势方会在这里离场（ch09）")
+        (bull if orient > 0 else bear).append("回调第二推结束在即，即 H2/L2，逆势方会在这里离场（ch09）")
     if climax:
         (bear if orient > 0 else bull).append("趋势 20 根以上后刚出现最大趋势 K 线，更像高潮/衰竭（ch29/ch42）")
     if wedge:
@@ -883,7 +972,7 @@ def brooks_analysis(
                                 "price": round(float(df["low"].iloc[i] if orient > 0 else df["high"].iloc[i]), 2),
                                 "side": "below" if orient > 0 else "above"})
 
-    return {
+    return _zh_all({
         "available": True,
         "always_in": {"direction": ai, "label": AI_LABELS[ai], "short": AI_SHORT[ai], "note": ai_note},
         "state": state,
@@ -921,4 +1010,4 @@ def brooks_analysis(
             "概率是课程给的经验值，不是本仓库回测结果。课程例子以日内图为主，用在个股日线上属于推演。"
             "D 只做多，不受大盘状态开关约束，也不改变看板分组。"
         ),
-    }
+    })

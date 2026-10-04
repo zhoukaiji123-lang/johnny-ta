@@ -972,16 +972,20 @@ A.plans.forEach(p => planBox.appendChild(planCard(p)));
   if (J.wait.length) box.appendChild(sec("失效 / 等待条件", J.wait));
   if (B.mtr) {
     const d = h("div");
-    d.appendChild(h("div", "bk-label", "MTR 清单（做多反转）"));
+    d.appendChild(h("div", "bk-label", "MTR（主要趋势反转）清单 · 做多方向"));
     const ul = h("ul", "mtr");
     B.mtr.items.forEach(it => ul.appendChild(h("li", it.ok === true ? "y" : (it.ok === false ? "n" : "u"), it.text)));
     d.appendChild(ul);
     box.appendChild(d);
   }
-  const mm = B.measured_moves, mmTxt = [["前一腿", mm.leg], ["BO 高度", mm.breakout], ["区间高度", mm.range]]
+  const mm = B.measured_moves, mmTxt = [["前一腿", mm.leg], ["BO（突破）高度", mm.breakout], ["区间高度", mm.range]]
     .filter(([, v]) => v != null).map(([k, v]) => `${k} ${fmt(v)}`).join(" · ");
   box.appendChild(h("div", "rule-line",
-    `20 EMA ${fmt(B.ema20)} · 平均 K 线 ${fmt(B.avg_bar_range)}` + (mmTxt ? ` · MM 目标：${mmTxt}` : "")));
+    `20 EMA（20 日指数移动平均线）${fmt(B.ema20)} · 平均 K 线（含缺口真实波幅）${fmt(B.avg_bar_range)}` +
+    (mmTxt ? ` · MM（测量移动）目标：${mmTxt}` : "")));
+  box.appendChild(h("div", "rule-line",
+    "图上 Brooks 标记：BO = 突破区段；BO 待FT = 等跟进 K 线确认；BO 无FT = 10 根内没有跟进，" +
+    "转为突破模式（多空各半）；H1–H4 = 第 1–4 次回调买点（空头为 L1–L4，第 n 次反弹卖点）；虚线框 TR = 交易区间"));
 
   document.getElementById("brooks-plan").appendChild(planCard(B.plan));
   document.getElementById("brooks-disclaimer").textContent = B.disclaimer;

@@ -307,7 +307,7 @@ function planBlock(p, kind) {
   t.appendChild(h("span", "legs",
     `入 ${fmt(p.entry, 2)} / 损 ${fmt(p.stop, 2)} / T1 ${fmt(p.t1, 2)}` +
     (p.entry_level ? `  (${p.entry_level})` : "")));
-  t.appendChild(h("span", "rr", `R:R ${p.rr}`));
+  t.appendChild(h("span", "rr", `R:R（盈亏比）${p.rr}`));
   if (p.quantity != null)
     t.appendChild(h("span", "size", `${p.quantity} 股 · 名义 ${fmt(p.notional, 0)}`));
   b.appendChild(t);

@@ -12,6 +12,7 @@ import pandas as pd
 
 from jta.analyze import analyze
 from jta.brooks import (
+    _zh,
     _avg_range,
     _breakouts,
     _equation,
@@ -205,3 +206,24 @@ def test_brooks_respects_as_of():
     marks = r["brooks"]["marks"]
     for m in marks["breakouts"] + marks["counts"]:
         assert pd.Timestamp(m["t"]) <= as_of
+
+
+# ------------------------------------------------------------------ 术语注释
+
+
+def test_terms_get_chinese_notes_once_per_sentence():
+    assert _zh("强 BO 后，BO 失败") == "强 BO（强势突破）后，BO（突破）失败"
+    assert _zh("等 H2") == "等 H2（第 2 次回调买点）"
+    assert _zh("TTR 不是 TR") == "TTR（紧密交易区间）不是 TR（交易区间）"   # TTR 里的 TR 不单独匹配
+
+
+def test_term_notes_merge_into_existing_parens_and_are_idempotent():
+    s = _zh("收盘在 20 EMA（171.57）上方")
+    assert s == "收盘在 20 EMA（指数移动平均线，171.57）上方"
+    assert _zh(s) == s
+
+
+def test_brooks_output_is_annotated():
+    b = run(uptrend_rows())
+    assert "（" in b["always_in"]["label"] and "AIL（多方主导）" in b["judgment"]["summary"]
+    assert b["plan"]["setup_code"] == "A5"          # 代码字段不加注释
