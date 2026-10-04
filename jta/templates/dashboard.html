@@ -112,6 +112,7 @@ h2::after{content:"";flex:1;height:1px;background:var(--rule-faint)}
       flex-direction:column;gap:5px}
 .plan-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
 .plan-name{font-size:13.5px;font-weight:600}
+.plan.brooks{border-left:2px solid var(--warn)}
 .legs{font-family:var(--font-num);font-size:13px;color:var(--ink-soft)}
 .rr{font-family:var(--font-num);font-size:13px;font-weight:600;color:var(--good)}
 .size{font-family:var(--font-num);font-size:12.5px;color:var(--muted)}
@@ -249,7 +250,8 @@ function card(r, key) {
       `${L.phase[r.phase] || r.phase} · ${L.zone[r.zone] || r.zone}` +
       ` · 日线 ${L.stack[r.daily_stack] || "—"}/4H ${L.stack[r.intraday_stack] || "—"}` +
       (r.benchmark ? ` · 基准 ${r.benchmark} ${L.stack[r.benchmark_stack] || "—"}` +
-        (r.regime ? ` · 大盘${r.regime.label}` : "") : "")));
+        (r.regime ? ` · 大盘${r.regime.label}` : "") : "") +
+      (r.brooks ? ` · Brooks ${r.brooks.summary}` : "")));
   }
   if (r.price_is_live) top.appendChild(h("span", "chip warn", "盘中"));
   if (r.stale) top.appendChild(h("span", "chip bad", "回退缓存"));
@@ -279,6 +281,10 @@ function card(r, key) {
   if (key === "actionable")
     (r.plans || []).filter(p => p.executable).forEach(p => c.appendChild(planBlock(p)));
 
+  // Brooks 计划单独展示，不影响分组：在回测验证之前它只是参考
+  if (key !== "failed" && r.brooks && r.brooks.plan.executable)
+    c.appendChild(planBlock(r.brooks.plan, "brooks"));
+
   if (key !== "actionable") {
     const best = r.best_rr != null ? `最佳收益风险比 ${r.best_rr}` : "无可计算的计划";
     c.appendChild(h("div", "quiet-line", best +
@@ -294,8 +300,8 @@ function card(r, key) {
   return c;
 }
 
-function planBlock(p) {
-  const b = h("div", "plan");
+function planBlock(p, kind) {
+  const b = h("div", kind === "brooks" ? "plan brooks" : "plan");
   const t = h("div", "plan-top");
   t.appendChild(h("span", "plan-name", p.title));
   t.appendChild(h("span", "legs",
@@ -306,6 +312,7 @@ function planBlock(p) {
     t.appendChild(h("span", "size", `${p.quantity} 股 · 名义 ${fmt(p.notional, 0)}`));
   b.appendChild(t);
   if (p.trigger) b.appendChild(h("div", "trigger", `触发：${p.trigger}`));
+  if (p.equation) b.appendChild(h("div", "trigger", `交易者方程式：${p.equation}`));
   if (p.sizing_warning) b.appendChild(h("div", "warnline", `⚠ ${p.sizing_warning}`));
   return b;
 }
@@ -314,6 +321,7 @@ document.getElementById("foot-note").textContent =
   `关注 ${D.rows.length} 个标的` +
   (D.account ? ` · 仓位按账户 ${fmt(D.account, 0)}、单笔风险 ${(D.risk_pct * 100).toFixed(2)}% 反推` : "") +
   ` · 有计划 ${D.counts.actionable} · 事件 ${D.counts.event} · 无计划 ${D.counts.quiet}` +
+  ` · Brooks 可执行 ${D.brooks_executable || 0}` +
   (D.counts.failed ? ` · 失败 ${D.counts.failed}` : "");
 </script>
 </body>

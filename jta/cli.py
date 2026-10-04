@@ -162,6 +162,10 @@ def cmd_dashboard(args: argparse.Namespace) -> int:
             print(f"  ⚠ {row['symbol']:<6}{row['price']:>10.2f}  {row['event_reason']}")
         elif row["group"] == "failed":
             print(f"  ✗ {row['symbol']:<6}{'':>10}  {row['error']}")
+        bk = (row.get("brooks") or {}).get("plan") or {}
+        if bk.get("executable"):
+            print(f"  ◇ {row['symbol']:<6}{row['price']:>10.2f}  Brooks {bk['setup']} "
+                  f"入{bk['entry']:g} 损{bk['stop']:g} R:R {bk['rr']}")
     if payload["any_stale"]:
         print("  [警告] 部分标的抓取失败并回退了缓存，不是最新收盘")
     if payload["any_too_old"]:

@@ -86,6 +86,7 @@ class Row:
     supports: list[dict[str, Any]] = field(default_factory=list)
     resistances: list[dict[str, Any]] = field(default_factory=list)
     plans: list[dict[str, Any]] = field(default_factory=list)
+    brooks: dict[str, Any] | None = None
     best_rr: float | None = None
     event_mode: bool = False
     event_reason: str | None = None
@@ -199,6 +200,19 @@ def collect_row(
     row.supports = [_brief(l) for l in r["supports"]]
     row.resistances = [_brief(l) for l in r["resistances"]]
     row.plans = [_plan_brief(p) for p in r["plans"]]
+    bk = r.get("brooks") or {}
+    if bk.get("available"):
+        # Brooks 层单独展示：不进 best_rr，也不改变分组（回测验证之前只作参考）
+        row.brooks = {
+            "summary": bk["judgment"]["summary"],
+            "always_in": bk["always_in"]["short"],
+            "state": bk["state"],
+            "state_label": bk["state_label"],
+            "lean": bk["judgment"]["lean"],
+            "plan": {**_plan_brief(bk["plan"]), "setup": bk["plan"]["setup"],
+                     "setup_code": bk["plan"]["setup_code"],
+                     "equation": (bk["plan"].get("equation") or {}).get("text")},
+        }
     health = r.get("data_health") or {}
     row.stale = bool(health.get("stale"))
     row.too_old = bool(health.get("too_old"))
@@ -303,6 +317,9 @@ def build_watchlist(
         "account": account,
         "risk_pct": risk_pct,
         "counts": {g: sum(1 for r in rows if r.group == g) for g in GROUP_ORDER},
+        "brooks_executable": sum(
+            1 for r in rows if r.brooks and r.brooks["plan"]["executable"]
+        ),
         "regimes": dict(sorted(regimes.items())),
         "rows": [r.to_dict() for r in rows],
         "labels": {

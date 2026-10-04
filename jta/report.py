@@ -177,6 +177,40 @@ def render_text(r: dict[str, Any], account: float | None = None, risk_pct: float
         for b in p["blocked_by"]:
             lines.append(f"      [阻断] {b}")
 
+    bk = r.get("brooks") or {}
+    lines.append("")
+    lines.append("—— Brooks 价格行为（独立参考，不受大盘状态开关约束）——")
+    if not bk.get("available"):
+        lines.append(f"  {bk.get('reason', '未计算')}")
+    else:
+        j = bk["judgment"]
+        lines.append(f"  {j['summary']}")
+        for x in j["background"]:
+            lines.append(f"  【背景】{x}")
+        for x in j["bull"]:
+            lines.append(f"  【多方】{x}")
+        for x in j["bear"]:
+            lines.append(f"  【空方】{x}")
+        lines.append(f"  【倾向】{j['lean']['text']}")
+        for x in j["wait"]:
+            lines.append(f"  【失效/等待】{x}")
+        p = bk["plan"]
+        mark = "✓ 可执行" if p["executable"] else "✗ 不可执行"
+        lines.append(f"  {p['title']}（{p['setup_code']}）   {mark}")
+        lines.append(f"      入场 {p['entry']} / 止损 {p['stop']} / T1 {p['t1']} / T2 {p['t2']}")
+        lines.append(f"      触发：{p['trigger']}")
+        lines.append(f"      止损依据：{p['stop_basis']} · T1 依据：{p['t1_basis']}")
+        if p.get("equation"):
+            lines.append(f"      交易者方程式：{p['equation']['text']}")
+        for c in p.get("cautions", []):
+            lines.append(f"      [提示] {c}")
+        sz = p.get("sizing")
+        if sz and "quantity" in sz:
+            lines.append(f"      仓位 {sz['quantity']} 股 · 名义 {sz['notional']:,.0f} · 风险 {sz['risk_amount']:,.0f}")
+        for b in p["blocked_by"]:
+            lines.append(f"      [阻断] {b}")
+        lines.append(f"  {bk['disclaimer']}")
+
     ev = r.get("events") or {}
     lines.append("")
     lines.append("—— 事件 ——")

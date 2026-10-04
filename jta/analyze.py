@@ -36,6 +36,8 @@ from .levels.candidates import (
 )
 from .levels.pivots import gaps, horizontal_pivots, prior_session_levels, round_numbers
 from .marketcap import fetch_market_cap_context
+from .brooks import EMA_SPAN as BROOKS_EMA_SPAN, brooks_analysis
+from .indicators.ema import ema as ema_series
 from .plans import build_plans, holder_playbook, size_position
 from .regime import benchmark_regime
 from .levels.trendline import fit_trendlines, parallel_channel
@@ -490,8 +492,18 @@ def analyze(
         index_symbol=(index_summary or {}).get("symbol"),
         regime=(index_summary or {}).get("regime") or benchmark_regime(None),
     )
+    # Brooks 层：EMA20 用完整历史递推后再取尾段，与其他递推指标同一口径
+    brooks = brooks_analysis(
+        daily.df,
+        ema_series(daily_series.df["close"], BROOKS_EMA_SPAN).tail(DAILY_LOOKBACK),
+        atr=daily.atr,
+        event_mode=bool(events.get("event_mode")),
+        event_reason=events.get("event_mode_reason"),
+    )
+    brooks_plan = brooks.get("plan") if brooks.get("available") else None
+
     if account:
-        for p in plans:
+        for p in plans + ([brooks_plan] if brooks_plan else []):
             if p["entry"] is not None and p["stop"] is not None:
                 sizing = size_position(account, risk_pct, p["entry"], p["stop"])
                 scale = p.get("position_scale", 1.0)
@@ -508,7 +520,7 @@ def analyze(
                 p["sizing"] = sizing
 
     return {
-        "schema_version": "1.2",
+        "schema_version": "1.3",
         "symbol": symbol,
         "current_price": round(price, 4),
         "price_is_live": live is not None,
@@ -560,6 +572,7 @@ def analyze(
         "selection": {"support": sup_meta, "resistance": res_meta},
         "position_zone": zone,
         "plans": plans,
+        "brooks": brooks,
         "holder_playbook": holder_playbook(
             support_rows, resistance_rows, holding=holding, current_price=price
         ),
