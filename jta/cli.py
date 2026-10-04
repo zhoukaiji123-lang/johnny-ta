@@ -185,6 +185,8 @@ def cmd_backtest(args: argparse.Namespace) -> int:
         pairs.append((sym.upper(), bm.upper() or None))
     provider = ReplayProvider.prefetch(sorted({s for p in pairs for s in p if s}))
     rules = TradeRules()
+    if args.brooks:
+        return _backtest_brooks(args, pairs, provider, rules)
 
     df = run_backtest(
         pairs, provider, start=args.start, end=args.end,
@@ -227,6 +229,56 @@ def cmd_backtest(args: argparse.Namespace) -> int:
                   f"{v['expectancy_r']:>9.3f}{v['stderr_r'] or 0:>8.3f}")
     print()
     for c in summary["caveats"]:
+        print(f"· {c}")
+    return 0
+
+
+def _backtest_brooks(args, pairs, provider, rules) -> int:
+    from .backtest import run_brooks_backtest, summarise_brooks
+
+    df = run_brooks_backtest(pairs, provider, start=args.start, end=args.end,
+                             rules=rules, jobs=args.jobs)
+    if args.out:
+        df.to_parquet(args.out)
+        print(f"已写入 {args.out}（{len(df)} 行）", file=sys.stderr)
+    s = summarise_brooks(df, start=args.start, end=args.end)
+    if args.json:
+        print(json.dumps(s, ensure_ascii=False, indent=2, default=str))
+        return 0
+    if "error" in s:
+        print(s["error"])
+        return 0
+
+    def line(name, c):
+        r, k = c["real"], c["control"]
+        if not r.get("triggered"):
+            return f"{name:<14}无成交"
+        return (f"{name:<14}D {r['triggered']:>4} 笔 {r['expectancy_r']:+.3f}R ±{r['stderr_r'] or 0:.3f}"
+                f" | 对照 {k.get('triggered', 0):>5} 笔 {(k.get('expectancy_r') or 0):+.3f}R"
+                f" | 差 {(c['diff_r'] or 0):+.3f}R z={c['z_diff']}")
+
+    w = s["window"]
+    print(f"Brooks 计划 D（BO＝突破，TR＝交易区间）· {w['start']} 至 {w['end']}（前后两半分界 {w['split']}）")
+    print(line("可执行 D", s["main"]) + f" · D 对 0 的 z={s['main']['z_real']}")
+    a = s["all_plans"]
+    if a.get("triggered"):
+        print(f"{'含不可执行':<14}D {a['triggered']:>4} 笔 {a['expectancy_r']:+.3f}R")
+    print()
+    for k, v in s["halves"].items():
+        print(line({"first": "前半段", "second": "后半段"}[k], v))
+    print()
+    for k, v in s["by_setup"].items():
+        print(line(f"setup {k}", v))
+    print()
+    for k, v in s["by_regime"].items():
+        print(line(f"大盘 {k}", v))
+    print()
+    for k, v in s["criteria"].items():
+        mark = ("✓" if v["pass"] else "✗") if "pass" in v else ("需要" if v["value"] else "不需要")
+        print(f"[{mark}] {v['rule']}")
+    print(f"结论：{'建议并入「有可执行计划」分组' if s['merge_recommended'] else '不并入，继续只作独立参考'}")
+    print()
+    for c in s["caveats"]:
         print(f"· {c}")
     return 0
 
@@ -367,6 +419,9 @@ def main(argv: list[str] | None = None) -> int:
     bt.add_argument("--executable-only", action="store_true", help="只模拟通过门槛的计划")
     bt.add_argument("--out", default=None, help="把逐笔结果写入 parquet")
     bt.add_argument("--json", action="store_true")
+    bt.add_argument("--brooks", action="store_true",
+                    help="回测 Brooks 计划 D，并与距离匹配的随机入场对照比较")
+    bt.add_argument("--jobs", type=int, default=1, help="并行进程数（按标的拆分）")
     bt.set_defaults(func=cmd_backtest)
 
     fr = sub.add_parser("forward-report", help="从已保存的记录重新汇总")

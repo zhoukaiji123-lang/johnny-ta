@@ -208,8 +208,28 @@ def simulate(
         res.note = "成交价已在止损位之下"
         return res
 
+    return _hold(res, fwd, fill_idx, fill, stop, plan.get("t1"), plan.get("t2"), atr, rules)
+
+
+def _hold(
+    res: TradeResult,
+    fwd: pd.DataFrame,
+    fill_idx: int,
+    fill: float,
+    stop: float,
+    t1: float | None,
+    t2: float | None,
+    atr: float,
+    rules: TradeRules,
+) -> TradeResult:
+    """成交之后的持仓管理。三套计划、Brooks D 与随机对照共用这一段，
+    保证几组之间只有入场不同、离场规则完全一致。"""
+    o = fwd["open"].to_numpy(float)
+    h = fwd["high"].to_numpy(float)
+    l = fwd["low"].to_numpy(float)
+    c = fwd["close"].to_numpy(float)
+    r_unit = _r_unit(fill, stop)
     # ---------------------------------------------------------------- 持仓
-    t1, t2 = plan.get("t1"), plan.get("t2")
     remaining = 1.0
     realised = 0.0
     cur_stop = stop
@@ -287,7 +307,7 @@ def simulate(
 PLAN_DEDUP_ATR = 0.25
 
 
-def collect_plans(
+def replay_plans(
     symbol: str,
     provider: Any,
     *,
@@ -295,8 +315,11 @@ def collect_plans(
     end: str,
     benchmark: str | None = None,
     dedup_atr: float = PLAN_DEDUP_ATR,
-) -> list[dict[str, Any]]:
-    """逐日回放，收集当天生成的三套计划。
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """逐日回放，一次收集当天生成的三套计划与 Brooks 计划 D。
+
+    D 不去重：它的挂单只在下一个交易日有效，每天按当天的分析重新挂，
+    重复计数由"同一标的同时只持有一笔"处理（见 run_brooks_backtest）。
 
     去重按 (计划类型, 入场价) 做：一个支撑位会连续很多天出现在计划里，
     不去重的话同一次机会会被计成几十笔，统计立刻失真。
@@ -307,6 +330,7 @@ def collect_plans(
     days = daily.loc[(daily.index >= start) & (daily.index <= end)].index
 
     out: list[dict[str, Any]] = []
+    brooks: list[dict[str, Any]] = []
     seen: list[tuple[str, float, pd.Timestamp]] = []
     for day in days:
         as_of = day + pd.Timedelta(hours=23)
@@ -325,6 +349,10 @@ def collect_plans(
             else r["benchmark"]["ema_stack"] == "bull"
         )
         regime = ((r.get("benchmark") or {}).get("regime") or {}).get("state", "unknown")
+        bk = r.get("brooks") or {}
+        if bk.get("available") and (bk.get("plan") or {}).get("entry") is not None:
+            brooks.append({"ts": as_of, "plan": bk["plan"], "atr": atr, "regime": regime,
+                           "brooks_state": bk.get("state")})
         seen = [s for s in seen if (day - s[2]).days <= 60]
         for plan in r["plans"]:
             if plan.get("entry") is None:
@@ -335,7 +363,21 @@ def collect_plans(
             seen.append((key, entry, day))
             out.append({"ts": day, "plan": plan, "index_bullish": idx_bull, "atr": atr,
                         "regime": regime})
-    return out
+    return out, brooks
+
+
+def collect_plans(
+    symbol: str,
+    provider: Any,
+    *,
+    start: str,
+    end: str,
+    benchmark: str | None = None,
+    dedup_atr: float = PLAN_DEDUP_ATR,
+) -> list[dict[str, Any]]:
+    """逐日回放，收集当天生成的三套计划（去重）。"""
+    return replay_plans(symbol, provider, start=start, end=end, benchmark=benchmark,
+                        dedup_atr=dedup_atr)[0]
 
 
 def run_backtest(
@@ -417,3 +459,255 @@ def summarise_trades(df: pd.DataFrame) -> dict[str, Any]:
         ],
     }
     return out
+
+
+# ------------------------------------------------------------------ Brooks 计划 D
+
+#: 并入"有可执行计划"分组的判定标准。跑之前写定，看到结果后不改（见 README）
+BROOKS_MIN_TRADES = 100
+BROOKS_MIN_Z = 2.0
+
+#: 距离匹配随机对照：入场价随机挪开 ±0.5–1.0 ATR，止损 / T1 / T2 同步平移，
+#: 订单类型与成交、离场规则全部不变——两组唯一的差别是"在哪里等"
+CONTROL_OFFSET_ATR = (0.5, 1.0)
+CONTROL_SEEDS = (0, 1, 2, 3, 4)
+
+
+def align_to_daily(intraday: pd.DataFrame, daily: pd.DataFrame) -> pd.DataFrame:
+    """把 4H 价格缩放到日线的复权口径。
+
+    yfinance 日线 auto_adjust 会把历史分红折进价格，60m（4H 由它聚合）不做分红调整，
+    缓存又是分批抓的、各批复权基准不同：JNJ 2024 年的 4H 比日线高约 8%，QQQ 约 1.4%。
+    计划价按日线算、成交按 4H 模拟，两套口径一混，止损单会以"高出入场价一截"的开盘价成交，
+    整份统计都被污染。这里以日线为准，按每天"日线收盘 / 当天最后一根 4H 收盘"缩放当天的 4H。
+    """
+    if intraday.empty or daily.empty:
+        return intraday
+    day = intraday.index.normalize()
+    last = intraday["close"].groupby(day).last()
+    dclose = daily["close"].copy()
+    dclose.index = dclose.index.normalize()
+    factor = (dclose.reindex(last.index) / last).replace([np.inf, -np.inf], np.nan).ffill().bfill()
+    f = factor.reindex(day).to_numpy(dtype=float)
+    out = intraday.copy()
+    for col in ("open", "high", "low", "close"):
+        out[col] = out[col].to_numpy(dtype=float) * f
+    return out
+
+
+def simulate_brooks(
+    plan: dict[str, Any],
+    intraday: pd.DataFrame,
+    daily: pd.DataFrame,
+    plan_ts: pd.Timestamp,
+    *,
+    symbol: str,
+    rules: TradeRules,
+    regime: str | None = None,
+) -> TradeResult:
+    """D 的成交：挂单只在计划日之后的下一个交易日有效。
+
+    stop：4H 高点越过入场价成交，跳空高开按开盘价；limit：低点回落到入场价成交，
+    跳空低开按开盘价；market：次日第一根开盘价。成交后与三套计划共用 _hold。
+    plan_ts 必须是计划日收盘之后的时刻——计划用到了当天收盘，当天盘中的 K 线不能参与成交。
+    """
+    entry, stop, t1 = plan.get("entry"), plan.get("stop"), plan.get("t1")
+    res = TradeResult(
+        symbol=symbol, plan_key=plan.get("setup_code") or "brooks",
+        plan_date=plan_ts.isoformat(), executable=bool(plan.get("executable")),
+        index_bullish=None, entry_plan=entry, stop_plan=stop, t1=t1, t2=plan.get("t2"),
+        rr_plan=plan.get("rr"), regime=regime,
+    )
+    kind = plan.get("order_type")
+    if entry is None or stop is None or t1 is None or kind not in ("stop", "limit", "market"):
+        res.note = "计划缺少入场、止损、目标或订单类型"
+        return res
+    fwd = intraday[intraday.index > plan_ts]
+    if fwd.empty:
+        res.note = "计划日之后没有可用 4H 数据"
+        return res
+    fwd = fwd.iloc[: rules.max_holding_bars + 4]
+    day0 = fwd.index[0].date()
+    session = sum(1 for t in fwd.index[:4] if t.date() == day0)
+
+    atr = float(atr_series(daily.loc[:plan_ts]).iloc[-1])
+    if not np.isfinite(atr) or atr <= 0:
+        res.note = "ATR 不可用"
+        return res
+
+    o = fwd["open"].to_numpy(float)
+    h = fwd["high"].to_numpy(float)
+    l = fwd["low"].to_numpy(float)
+    fill_idx = fill = None
+    for i in range(session):
+        if kind == "market":
+            fill_idx, fill = i, float(o[i])
+            break
+        if kind == "stop" and h[i] >= entry:
+            fill_idx, fill = i, float(max(o[i], entry))
+            break
+        if kind == "limit" and l[i] <= entry:
+            fill_idx, fill = i, float(min(o[i], entry))
+            break
+    if fill_idx is None:
+        res.note = "下一个交易日未成交"
+        return res
+    if fill <= stop:
+        res.note = "成交价已在止损位之下，撤单"
+        return res
+    res.entry_date = fwd.index[fill_idx].isoformat()
+    res.entry_fill = round(fill, 4)
+    return _hold(res, fwd, fill_idx, fill, stop, t1, plan.get("t2"), atr, rules)
+
+
+def distance_matched(plan: dict[str, Any], atr: float, rng: np.random.RandomState) -> dict[str, Any]:
+    """距离匹配的随机对照：整组价位平移同一个随机偏移。"""
+    off = float(rng.choice([-1.0, 1.0]) * rng.uniform(*CONTROL_OFFSET_ATR) * atr)
+    q = dict(plan)
+    for k in ("entry", "stop", "t1", "t2"):
+        if q.get(k) is not None:
+            q[k] = round(float(q[k]) + off, 4)
+    q["control_offset"] = round(off, 4)
+    return q
+
+
+def _brooks_symbol(job: tuple) -> list[dict[str, Any]]:
+    """一个标的的 D 回测（进程池任务，必须是模块级函数）。"""
+    import zlib
+
+    symbol, bm, provider, start, end, rules, seeds = job
+    daily = provider.daily(symbol)
+    intraday = align_to_daily(provider.fetch(symbol, "4h").df, daily)
+    _, items = replay_plans(symbol, provider, start=start, end=end, benchmark=bm)
+
+    streams: dict[str, list[tuple[dict, dict]]] = {"real_all": [], "real_exe": []}
+    for it in items:
+        streams["real_all"].append((it, it["plan"]))
+        if it["plan"].get("executable"):
+            streams["real_exe"].append((it, it["plan"]))
+    for seed in seeds:
+        rng = np.random.RandomState(seed * 100_003 + zlib.crc32(symbol.encode()) % 100_000)
+        streams[f"ctrl_{seed}"] = [
+            (it, distance_matched(p, it["atr"], rng)) for it, p in streams["real_exe"]
+        ]
+
+    rows: list[dict[str, Any]] = []
+    for name, plans in streams.items():
+        busy_until = None     # 同一标的同时只持有一笔：持仓期间的新计划不计
+        for it, plan in plans:
+            if busy_until is not None and it["ts"] < busy_until:
+                continue
+            res = simulate_brooks(plan, intraday, daily, it["ts"], symbol=symbol,
+                                  rules=rules, regime=it["regime"])
+            d = res.to_dict()
+            d.update(stream=name, order_type=plan.get("order_type"),
+                     setup_code=plan.get("setup_code"), brooks_state=it.get("brooks_state"))
+            rows.append(d)
+            if res.outcome in TRIGGERED and res.exit_date:
+                busy_until = pd.Timestamp(res.exit_date)
+    return rows
+
+
+def run_brooks_backtest(
+    pairs: list[tuple[str, str | None]],
+    provider: Any,
+    *,
+    start: str,
+    end: str,
+    rules: TradeRules | None = None,
+    seeds: tuple[int, ...] = CONTROL_SEEDS,
+    jobs: int = 1,
+) -> pd.DataFrame:
+    """D 与距离匹配随机对照的逐笔结果。stream：real_exe / real_all / ctrl_<seed>。"""
+    rules = rules or TradeRules()
+    tasks = []
+    for symbol, bm in pairs:
+        keep = {symbol, bm} - {None}
+        sub = type(provider)({k: v for k, v in provider._series.items() if k[0] in keep}) \
+            if hasattr(provider, "_series") else provider
+        tasks.append((symbol, bm, sub, start, end, rules, tuple(seeds)))
+    rows: list[dict[str, Any]] = []
+    if jobs > 1:
+        from concurrent.futures import ProcessPoolExecutor
+
+        with ProcessPoolExecutor(max_workers=jobs) as ex:
+            for part in ex.map(_brooks_symbol, tasks):
+                rows += part
+    else:
+        for t in tasks:
+            rows += _brooks_symbol(t)
+    return pd.DataFrame(rows)
+
+
+def _compare(real: pd.DataFrame, ctrl: pd.DataFrame, n_seeds: int) -> dict[str, Any]:
+    """真实 vs 对照。对照组 n 个种子来自同一批计划、彼此相关，
+    标准误按单个种子的样本量算（保守），不按合并后的笔数。"""
+    rs, cs = _stats(real), _stats(ctrl)
+    out: dict[str, Any] = {"real": rs, "control": cs, "diff_r": None, "z_diff": None, "z_real": None}
+    rt = real[real["outcome"].isin(TRIGGERED)]["r_multiple"].astype(float)
+    ct = ctrl[ctrl["outcome"].isin(TRIGGERED)]["r_multiple"].astype(float)
+    if len(rt) and len(ct):
+        out["diff_r"] = round(float(rt.mean() - ct.mean()), 3)
+    if len(rt) > 1:
+        se_r = rt.std(ddof=1) / np.sqrt(len(rt))
+        out["z_real"] = round(float(rt.mean() / se_r), 2) if se_r > 0 else None
+        if len(ct) > 1:
+            se_c = ct.std(ddof=1) / np.sqrt(max(len(ct) / max(n_seeds, 1), 1))
+            se = np.sqrt(se_r**2 + se_c**2)
+            out["z_diff"] = round(out["diff_r"] / se, 2) if se > 0 else None
+    return out
+
+
+def summarise_brooks(df: pd.DataFrame, *, start: str, end: str) -> dict[str, Any]:
+    if df.empty:
+        return {"error": "无记录"}
+    real = df[df["stream"] == "real_exe"]
+    ctrl = df[df["stream"].str.startswith("ctrl_")]
+    n_seeds = ctrl["stream"].nunique()
+    mid = pd.Timestamp(start) + (pd.Timestamp(end) - pd.Timestamp(start)) / 2
+
+    def first_half(d: pd.DataFrame) -> pd.Series:
+        return pd.to_datetime(d["plan_date"], utc=True).dt.tz_convert(None) < mid
+
+    main = _compare(real, ctrl, n_seeds)
+    halves = {
+        "first": _compare(real[first_half(real)], ctrl[first_half(ctrl)], n_seeds),
+        "second": _compare(real[~first_half(real)], ctrl[~first_half(ctrl)], n_seeds),
+    }
+    by_setup = {k: _compare(g, ctrl[ctrl["setup_code"] == k], n_seeds)
+                for k, g in real.groupby("setup_code")}
+    by_regime = {k: _compare(g, ctrl[ctrl["regime"] == k], n_seeds)
+                 for k, g in real.groupby("regime")}
+
+    n = main["real"].get("triggered", 0)
+    c1 = n >= BROOKS_MIN_TRADES and (main["z_real"] or 0) >= BROOKS_MIN_Z \
+        and (main["real"].get("expectancy_r") or 0) > 0
+    c2 = (main["z_diff"] or 0) >= BROOKS_MIN_Z
+    c3 = all((h["diff_r"] or 0) > 0 for h in halves.values())
+    up = (by_regime.get("up") or {}).get("real", {}).get("expectancy_r")
+    rest = [v["real"].get("expectancy_r") for k, v in by_regime.items() if k != "up"]
+    gate_needed = bool(up is not None and up > 0 and rest and all((x or 0) <= 0 for x in rest))
+    return {
+        "window": {"start": start, "end": end, "split": mid.date().isoformat()},
+        "criteria": {
+            "1_real_positive": {"pass": bool(c1), "rule": f"可执行 D 触发 >= {BROOKS_MIN_TRADES} 笔、期望 > 0、z >= {BROOKS_MIN_Z}"},
+            "2_beats_control": {"pass": bool(c2), "rule": f"D − 距离匹配随机对照 > 0，z >= {BROOKS_MIN_Z}"},
+            "3_both_halves": {"pass": bool(c3), "rule": "前后两半窗口里差值都 > 0"},
+            "4_regime_gate_needed": {"value": gate_needed, "rule": "只在大盘向上时为正 → 并入时须接 REGIME_GATE"},
+        },
+        "merge_recommended": bool(c1 and c2 and c3),
+        "main": main,
+        "all_plans": _stats(df[df["stream"] == "real_all"]),
+        "halves": halves,
+        "by_setup": by_setup,
+        "by_regime": by_regime,
+        "by_order_type": {k: _stats(g) for k, g in real.groupby("order_type")},
+        "caveats": [
+            "期望值以 R 倍数计，未计滑点、佣金与融资成本",
+            "同一根 4H 内同时触及止损与目标按止损算；止损单成交那根若开盘就在止损下方，按开盘价出场（偏保守）",
+            "对照组标准误按单个种子样本量计（保守）",
+            "样本高度相关（同行业标的），有效样本量远小于记录条数",
+            "Brooks 概率是课程经验值，这里检验的是代码化后的规则在个股日线上的表现",
+        ],
+    }
+

@@ -182,7 +182,7 @@ def _zh(text: str) -> str:
 
 
 #: 这些字段是代码、时间戳或图上标签，不加注释
-_ZH_SKIP = {"key", "setup_code", "direction", "short", "state", "prefix", "side",
+_ZH_SKIP = {"key", "setup_code", "direction", "order_type", "short", "state", "prefix", "side",
             "status", "signal_quality", "t", "t_end", "from", "label_raw", "marks"}
 
 
@@ -504,7 +504,7 @@ def _equation(p: float, entry: float, stop: float, target: float | None) -> dict
 
 def _plan(*, setup: str, code: str, trigger: str, entry: float | None, stop: float | None,
           stop_basis: str, t1: float | None, t2: float | None, p: float | None,
-          t1_basis: str, cancel_if: list[str], avg_range: float,
+          t1_basis: str, cancel_if: list[str], avg_range: float, order: str | None = None,
           blocked: list[str] | None = None, cautions: list[str] | None = None) -> dict[str, Any]:
     blocked = list(blocked or [])
     cautions = list(cautions or [])
@@ -549,6 +549,9 @@ def _plan(*, setup: str, code: str, trigger: str, entry: float | None, stop: flo
         "cautions": cautions,
         "entry_level": None,
         "direction": "long",
+        # 订单类型决定回测怎么成交：stop = 越过入场价才买（信号 K 线上方，ch32），
+        # limit = 回落到入场价才买，market = 次日开盘买；只在下一个交易日有效
+        "order_type": order if entry is not None else None,
     }
 
 
@@ -716,7 +719,7 @@ def brooks_analysis(
         if climax:
             blocked.append("趋势 20 根以上后出现最大阳线，更像买入高潮；高潮后 50/50、多数先走 3–10 根 TR（ch29）")
         plan = _plan(
-            setup="强 BO 收盘买入", code="B1",
+            setup="强 BO 收盘买入", code="B1", order="market",
             trigger=f"强 BO + FT 已成立，按收盘价 {close:.2f} 买小仓（Buy The Close，ch12/ch41）",
             entry=entry, stop=stop, stop_basis="BO 起点下方 1 tick（ch33）",
             t1=entry + risk, t2=mm_bo, p=0.6, t1_basis="1 倍实际风险（强 BO 后约 60%，ch43）",
@@ -765,6 +768,7 @@ def brooks_analysis(
             plan = _plan(
                 setup=f"{'紧密' if tight else '宽幅'}通道 H{nxt}" + ("（已触发）" if triggered else ""),
                 code="A5" if tight else ("A2" if nxt == 2 else "A6"),
+                order=("market" if triggered and close > trig else "stop"),
                 trigger=trigger,
                 entry=entry, stop=stop, stop_basis=basis,
                 t1=t1, t2=mm_leg, p=p, t1_basis=t1b,
@@ -779,6 +783,7 @@ def brooks_analysis(
             t1 = st.extreme if not tight else entry + (entry - stop)
             plan = _plan(
                 setup=f"{'紧密' if tight else '宽幅'}通道 · 回调限价买", code="A5" if tight else "A3",
+                order="limit",
                 trigger=(f"刚创新高、尚无回调。等回调到前一腿的 {frac:.0%}（约 {entry:.2f}）挂限价买"
                          f"（{'ch43：紧密通道 33–50% PB' if tight else 'ch45：宽幅通道 50% PB'}）"),
                 entry=entry, stop=stop, stop_basis="前一腿起点下方（ch43/ch45）",
@@ -801,7 +806,7 @@ def brooks_analysis(
             if ai < 0:
                 cs.append("Always In 仍偏空：TR 低买只当刮头皮，不当波段（ch13）")
             plan = _plan(
-                setup="TR 下 1/3 低买", code="C1",
+                setup="TR 下 1/3 低买", code="C1", order="stop",
                 trigger=f"价格在区间下 1/3（{lo:.2f}–{lo + third:.2f}），下一根越过 {hi_last:.2f} 买入（BLSHS，ch47）",
                 entry=entry, stop=stop, stop_basis="区间低点下方（ch47）",
                 t1=mid, t2=hi - TICK, p=0.6, t1_basis="区间中部（上下 1/3 约 60%，ch30/ch47）",
@@ -812,7 +817,7 @@ def brooks_analysis(
             # 挂在下 1/3 的中位：在下 1/3 上沿买，到区间中部只有 0.5 倍风险（推演）
             entry = lo + third / 2
             plan = _plan(
-                setup="TR · 等回到下 1/3", code="C1",
+                setup="TR · 等回到下 1/3", code="C1", order="limit",
                 trigger=(f"价格在区间{'中部' if pos <= 2 / 3 else '上 1/3'}，按 BLSHS 不追买；"
                          f"等回到下 1/3（<= {lo + third:.2f}）出现反转信号再买，参考价取下 1/3 中位"
                          f" {entry:.2f}（ch47）"),
@@ -836,7 +841,7 @@ def brooks_analysis(
             stop = cse["test"] - TICK
             risk = entry - stop
             plan = _plan(
-                setup=f"{cse['kind']} MTR 买入", code="D1",
+                setup=f"{cse['kind']} MTR 买入", code="D1", order="stop",
                 trigger=f"MTR 条件齐备，下一根越过 {hi_last:.2f} 买入；仍处 AIS，属早入场（ch22/ch39）",
                 entry=entry, stop=stop, stop_basis=f"{cse['kind']} 测试低点下方（ch39）",
                 t1=entry + 2 * risk, t2=cse["test"] + (cse["R"] - cse["base"]), p=0.4,
