@@ -227,3 +227,55 @@ def test_brooks_output_is_annotated():
     b = run(uptrend_rows())
     assert "（" in b["always_in"]["label"] and "AIL（多方主导）" in b["judgment"]["summary"]
     assert b["plan"]["setup_code"] == "A5"          # 代码字段不加注释
+
+
+# ------------------------------------------------------------------ 区间框（LITE 2026-10-02 回归）
+
+
+def _lite():
+    from pathlib import Path
+
+    df = pd.read_csv(Path(__file__).with_name("fixtures") / "lite_daily_2026-10-02.csv", index_col=0)
+    df.index = pd.to_datetime(df.index, utc=True).tz_convert(TZ)
+    return df
+
+
+def test_trading_range_box_excludes_the_prior_trend_leg():
+    """LITE 7 月底从 810 跌到 595，8–9 月在约 784–1027 横盘，10-02 收在 1085。
+
+    固定取 60 根会把 595 那段下跌框进区间（595–1092），现价被当成"区间上 1/3"，
+    下 1/3 中位 678 成了入场价——离现价 6 个 ATR、只在下一个交易日有效的挂单。
+    """
+    from jta.indicators.ema import ema
+
+    df = _lite()
+    r = brooks_analysis(df, ema(df["close"], 20), atr=66.23)
+    assert r["state"] == "trading_range"
+    assert 770 < r["range"]["low"] < 800 and 1000 < r["range"]["high"] < 1040
+    assert r["range"]["position"] > 1
+    plan = r["plan"]
+    assert plan["setup_code"] == "C3" and plan["entry"] is None and not plan["executable"]
+    assert "突破" in r["judgment"]["lean"]["text"]
+
+
+def test_trading_range_plan_never_quotes_a_far_away_entry():
+    """不变式：TR 里只有现价在下 1/3 才给入场价；中部、上 1/3、区间外都只给等待条件。"""
+    from jta.indicators.ema import ema
+
+    seen = 0
+    for seed in range(12):
+        rng = np.random.RandomState(seed)
+        c = 100 * np.exp(np.cumsum(rng.normal(0, 0.02, 400)))
+        idx = pd.DatetimeIndex(pd.date_range("2024-01-01", periods=len(c), freq="B", tz=TZ))
+        o = np.r_[c[0], c[:-1]]
+        df = pd.DataFrame({"open": o, "high": np.maximum(o, c) * 1.01, "low": np.minimum(o, c) * 0.99,
+                           "close": c, "volume": 1e6}, index=idx)
+        e = ema(df["close"], 20)
+        for cut in range(200, 400, 20):
+            r = brooks_analysis(df.iloc[:cut], e.iloc[:cut], atr=float(c[cut - 1]) * 0.02)
+            if r.get("state") != "trading_range":
+                continue
+            seen += 1
+            if r["plan"]["entry"] is not None:
+                assert 0 <= r["range"]["position"] <= 1 / 3
+    assert seen > 10

@@ -27,6 +27,8 @@ import re
 import numpy as np
 import pandas as pd
 
+from .indicators.swing import detect_swings
+
 #: 美股最小报价单位。Brooks 的"信号 K 线上方 1 tick"
 TICK = 0.01
 
@@ -555,6 +557,35 @@ def _plan(*, setup: str, code: str, trigger: str, entry: float | None, stop: flo
     }
 
 
+def _swing_range(df: pd.DataFrame, avg: float) -> tuple[int, float, float] | None:
+    """按摆动结构找出最近的横盘段，返回 (起点下标, 上沿, 下沿)。
+
+    TR 是价格在两条边之间来回测试，不是"最近 N 根的最高到最低"。固定窗口会把前面的
+    趋势腿一起框进来：LITE 7 月底从 810 跌到 595、8–9 月在约 784–1027 之间低点抬高地横盘，
+    固定取 60 根得到 595–1092，现价 1085 被当成"区间上 1/3"，下 1/3 中位 678 成了入场价。
+    做法：从最近两个摆动点往回走，较早的摆动点只要落在当前区间一根平均 K 线以内就并进来，
+    遇到明显在区间之外的（前一段趋势的起点）就停。只用已确认的摆动点，现价所在的
+    最新几根不参与定边——收在区间外正是突破尝试，不该把区间撑大。
+    """
+    sw = detect_swings(df, k=3)
+    if len(sw) < 2:
+        return None
+    last2 = sw[-2:]
+    highs = [p.price for p in last2 if p.kind == "high"]
+    lows = [p.price for p in last2 if p.kind == "low"]
+    if not highs or not lows:
+        return None
+    hi, lo, start = max(highs), min(lows), last2[0].bar_index
+    for p in reversed(sw[:-2]):
+        if p.kind == "high" and p.price <= hi + avg:
+            hi, start = max(hi, p.price), p.bar_index
+        elif p.kind == "low" and p.price >= lo - avg:
+            lo, start = min(lo, p.price), p.bar_index
+        else:
+            break
+    return start, hi, lo
+
+
 def _no_plan(setup: str, code: str, reason: str, wait: str, avg_range: float) -> dict[str, Any]:
     return _plan(setup=setup, code=code, trigger=wait, entry=None, stop=None,
                  stop_basis="—", t1=None, t2=None, p=None, t1_basis="—",
@@ -657,15 +688,23 @@ def brooks_analysis(
     if state == "trading_range":
         # 区间要把趋势极值本身包进来：回调已 69 根时只看最近 60 根会漏掉区间上沿。
         # BO 失败时从失败那一根算起——再往前是被反转掉的那段趋势，不是区间
+        swing_box = None
         if fail_index is not None:
             win = n - fail_index
         elif ai != 0 and st is not None and st.current is not None:
             win = st.current.bars + 1
         else:
+            # Always In 不明：区间按摆动结构找，不用固定窗口（见 _swing_range）
+            swing_box = _swing_range(df.tail(AI_LOOKBACK), avg_now)
             win = CHANNEL_WINDOW
-        win = min(AI_LOOKBACK, max(TR_PB_BARS, win))
-        seg = df.tail(win)
-        hi, lo = float(seg["high"].max()), float(seg["low"].min())
+        if swing_box is not None:
+            start_rel, hi, lo = swing_box
+            win = min(AI_LOOKBACK, n) - start_rel
+            seg = df.tail(win)
+        else:
+            win = min(AI_LOOKBACK, max(TR_PB_BARS, win))
+            seg = df.tail(win)
+            hi, lo = float(seg["high"].max()), float(seg["low"].min())
         if hi - lo < TTR_HEIGHT_MULT * avg_now:
             state = "tight_trading_range"
             state_reason += f"；区间高度不到 {TTR_HEIGHT_MULT:g} 倍平均 K 线（TTR，ch17/ch47）"
@@ -797,7 +836,20 @@ def brooks_analysis(
         third = (hi - lo) / 3
         mid = (hi + lo) / 2
         pos = tr_box["position"]
-        if pos <= 1 / 3:
+        if pos > 1:
+            plan = _no_plan(
+                "TR · 向上突破尝试", "C3",
+                f"收盘 {close:.2f} 已在区间上沿 {hi:.2f} 之上：向上突破区间的尝试，"
+                "TR 里多数 BO（突破）会失败，不在突破途中追买（ch15/ch47）",
+                f"等 FT（跟进 K 线）确认突破后按强 BO 处理，或回踩上沿 {hi:.2f} 不破再找买点（ch13/ch47）",
+                avg_now)
+        elif pos < 0:
+            plan = _no_plan(
+                "TR · 向下突破尝试", "C3",
+                f"收盘 {close:.2f} 已跌破区间下沿 {lo:.2f}：向下突破的尝试，不在下破途中接刀（ch15/ch47）",
+                f"等收回区间（BO 失败）出现反转信号，或空头趋势里的 MTR（主要趋势反转）清单齐备再买",
+                avg_now)
+        elif pos <= 1 / 3:
             entry = hi_last + TICK
             stop = lo - TICK
             cs = []
@@ -814,18 +866,14 @@ def brooks_analysis(
                            "被止损后最多再入一次，不做第 3 次（ch47）"],
                 avg_range=avg_now, blocked=list(common_block), cautions=cs)
         else:
-            # 挂在下 1/3 的中位：在下 1/3 上沿买，到区间中部只有 0.5 倍风险（推演）
-            entry = lo + third / 2
-            plan = _plan(
-                setup="TR · 等回到下 1/3", code="C1", order="limit",
-                trigger=(f"价格在区间{'中部' if pos <= 2 / 3 else '上 1/3'}，按 BLSHS 不追买；"
-                         f"等回到下 1/3（<= {lo + third:.2f}）出现反转信号再买，参考价取下 1/3 中位"
-                         f" {entry:.2f}（ch47）"),
-                entry=entry, stop=lo - TICK, stop_basis="区间低点下方（ch47）",
-                t1=mid, t2=hi - TICK, p=0.6, t1_basis="区间中部（ch47）",
-                cancel_if=["强 BO + FT 突破区间：TR 结束，改按突破处理"],
-                avg_range=avg_now,
-                blocked=common_block + [f"现价位于区间{'中部（约 50%，不做）' if pos <= 2 / 3 else '上 1/3（只卖不买）'}（ch30）"])
+            # 区间中部 / 上 1/3 不给挂单价：D 的挂单只在下一个交易日有效，
+            # 下 1/3 往往离现价好几根 K 线，写出一个"入场价"只会被当成可以去挂的单
+            plan = _no_plan(
+                "TR · 等回到下 1/3", "C1",
+                f"现价位于区间{'中部（约 50%，不做）' if pos <= 2 / 3 else '上 1/3（只卖不买）'}（ch30）",
+                f"按 BLSHS（低买高卖）不追买；等回到下 1/3（<= {lo + third:.2f}，区间 {lo:.2f}–{hi:.2f}）"
+                "出现反转信号再按下一根越过信号 K 线买入（ch47）",
+                avg_now)
     elif state == "tight_trading_range":
         plan = _no_plan("TTR · 不交易", "C2", "紧密交易区间：多数 K 线重叠、区间太窄，止损单在里面只会买高卖低（ch17/ch47）",
                         "等强 BO + FT 离开区间后再按方向找 setup", avg_now)
@@ -913,7 +961,13 @@ def brooks_analysis(
     if ai != 0 and st.broken:
         (bear if orient > 0 else bull).append(
             "回调收盘跌破前一腿起点，多头结构转弱" if orient > 0 else "反弹收盘越过前一腿起点，空头结构转弱")
-    if tr_box:
+    if tr_box and tr_box["position"] > 1:
+        bull.append(f"收盘在区间上沿 {tr_box['high']:.2f} 之上，正在尝试向上突破")
+        bear.append(f"TR 内多数 BO 失败（ch15）：没有 FT 的话容易跌回区间，上沿 {tr_box['high']:.2f} 是第一测试位")
+    elif tr_box and tr_box["position"] < 0:
+        bear.append(f"收盘跌破区间下沿 {tr_box['low']:.2f}，正在尝试向下突破")
+        bull.append(f"TR 内多数 BO 失败（ch15）：没有 FT 的话容易收回区间，下沿 {tr_box['low']:.2f} 是第一测试位")
+    elif tr_box:
         bull.append(f"区间下沿 {tr_box['low']:.2f} 附近有买盘（TR 内 80% 的 BO 失败，ch15）")
         bear.append(f"区间上沿 {tr_box['high']:.2f} 附近有卖盘")
     if mtr is not None:
@@ -922,7 +976,12 @@ def brooks_analysis(
 
     if state in ("trading_range", "tight_trading_range"):
         lean_side, lean_p = "neutral", 0.5
-        lean_txt = "多空约 50/50：TR 里两边都有合理理由，低买高卖、不追突破（ch18/ch47）"
+        pos = (tr_box or {}).get("position", 0.5)
+        if 0 <= pos <= 1:
+            lean_txt = "多空约 50/50：TR 里两边都有合理理由，低买高卖、不追突破（ch18/ch47）"
+        else:
+            lean_txt = (f"多空约 50/50：收在区间{'之上' if pos > 1 else '之下'}，突破成败要看下一两根有没有 FT，"
+                        "不在突破途中追单（ch13/ch15）")
     elif ai != 0:
         lean_side = "bull" if ai > 0 else "bear"
         lean_p = 0.6
