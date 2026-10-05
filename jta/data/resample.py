@@ -86,3 +86,34 @@ def audit_4h(df4h: pd.DataFrame) -> list[str]:
     if len(half):
         warnings.append(f"{len(half)} 个交易日只有 1 根 4H bar（半日市或数据缺失）")
     return warnings
+
+
+def align_to_daily(intraday: pd.DataFrame, daily: pd.DataFrame) -> pd.DataFrame:
+    """把 4H 价格缩放到日线的复权口径。
+
+    yfinance 日线 auto_adjust 会把历史分红折进价格，60m（4H 由它聚合）只做拆股调整，
+    缓存又是分批抓的、各批复权基准不同：JNJ 2024 年的 4H 比日线高约 8%，QQQ 约 1.4%。
+    计划价与关键位按日线算、成交与 4H 候选位按 4H 算，两套口径一混，共振打分和成交都被污染。
+    这里以日线为准，按每天"日线收盘 / 当天最后一根 4H 收盘"缩放当天的 4H。
+
+    只有 1 根 4H 的日子（半日市，或 Yahoo 缺了下午的 60m）不参与估计、沿用前一个
+    完整交易日的因子：那根 bar 的收盘不是当天收盘，硬拉到日线收盘会把整根 bar 平移，
+    2026-01-30 缺下午数据时 MU 上午那根会被压低 4.6%，凭空造出一根假下影线。
+    因子只用当天及之前的数据（仅序列开头没有完整交易日时向后借），回放中不引入前视。
+    """
+    if intraday.empty or daily.empty:
+        return intraday
+    day = intraday.index.normalize()
+    grp = intraday["close"].groupby(day)
+    last = grp.last()
+    dclose = daily["close"].copy()
+    dclose.index = dclose.index.normalize()
+    raw = (dclose.reindex(last.index) / last).replace([np.inf, -np.inf], np.nan)
+    complete = grp.size() >= 2
+    factor = raw.where(complete) if complete.any() else raw
+    factor = factor.ffill().bfill().fillna(1.0)
+    f = factor.reindex(day).to_numpy(dtype=float)
+    out = intraday.copy()
+    for col in ("open", "high", "low", "close"):
+        out[col] = out[col].to_numpy(dtype=float) * f
+    return out

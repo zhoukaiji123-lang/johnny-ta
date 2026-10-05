@@ -16,6 +16,7 @@ from typing import Any, Literal
 import numpy as np
 import pandas as pd
 
+from .data.resample import align_to_daily
 from .indicators.atr import atr as atr_series
 from .indicators.price_action import bar_signals
 
@@ -99,7 +100,11 @@ def simulate(
     signals: pd.DataFrame | None = None,
     regime: str | None = None,
 ) -> TradeResult:
-    """模拟一套计划从等待到离场的完整过程。"""
+    """模拟一套计划从等待到离场的完整过程。
+
+    plan_ts 必须是计划日收盘之后的时刻（replay_plans 给的 as_of）：
+    4H 只取其后的 bar；ATR 取到计划日为止；突破类的日线确认从下一个交易日起算。
+    """
     entry, stop = plan.get("entry"), plan.get("stop")
     res = TradeResult(
         symbol=symbol, plan_key=plan["key"], plan_date=plan_ts.isoformat(),
@@ -323,6 +328,9 @@ def replay_plans(
 
     去重按 (计划类型, 入场价) 做：一个支撑位会连续很多天出现在计划里，
     不去重的话同一次机会会被计成几十笔，统计立刻失真。
+
+    两类计划的 ts 都是 as_of（计划日收盘之后）：计划用到了当天收盘，
+    当天 09:30 / 13:30 两根 4H 不能参与触及、确认与成交。
     """
     from .analyze import analyze
 
@@ -361,7 +369,7 @@ def replay_plans(
             if any(k == key and abs(e - entry) <= dedup_atr * atr for k, e, _ in seen):
                 continue
             seen.append((key, entry, day))
-            out.append({"ts": day, "plan": plan, "index_bullish": idx_bull, "atr": atr,
+            out.append({"ts": as_of, "plan": plan, "index_bullish": idx_bull, "atr": atr,
                         "regime": regime})
     return out, brooks
 
@@ -393,7 +401,8 @@ def run_backtest(
     rows: list[dict[str, Any]] = []
     for symbol, bm in pairs:
         daily = provider.daily(symbol)
-        intraday = provider.fetch(symbol, "4h").df
+        # ReplayProvider 已对齐过；这里再对齐一次是幂等的，换别的 provider 也不会混口径
+        intraday = align_to_daily(provider.fetch(symbol, "4h").df, daily)
         sig = bar_signals(intraday)
         for item in collect_plans(symbol, provider, start=start, end=end, benchmark=bm):
             plan = item["plan"]
@@ -471,28 +480,6 @@ BROOKS_MIN_Z = 2.0
 #: 订单类型与成交、离场规则全部不变——两组唯一的差别是"在哪里等"
 CONTROL_OFFSET_ATR = (0.5, 1.0)
 CONTROL_SEEDS = (0, 1, 2, 3, 4)
-
-
-def align_to_daily(intraday: pd.DataFrame, daily: pd.DataFrame) -> pd.DataFrame:
-    """把 4H 价格缩放到日线的复权口径。
-
-    yfinance 日线 auto_adjust 会把历史分红折进价格，60m（4H 由它聚合）不做分红调整，
-    缓存又是分批抓的、各批复权基准不同：JNJ 2024 年的 4H 比日线高约 8%，QQQ 约 1.4%。
-    计划价按日线算、成交按 4H 模拟，两套口径一混，止损单会以"高出入场价一截"的开盘价成交，
-    整份统计都被污染。这里以日线为准，按每天"日线收盘 / 当天最后一根 4H 收盘"缩放当天的 4H。
-    """
-    if intraday.empty or daily.empty:
-        return intraday
-    day = intraday.index.normalize()
-    last = intraday["close"].groupby(day).last()
-    dclose = daily["close"].copy()
-    dclose.index = dclose.index.normalize()
-    factor = (dclose.reindex(last.index) / last).replace([np.inf, -np.inf], np.nan).ffill().bfill()
-    f = factor.reindex(day).to_numpy(dtype=float)
-    out = intraday.copy()
-    for col in ("open", "high", "low", "close"):
-        out[col] = out[col].to_numpy(dtype=float) * f
-    return out
 
 
 def simulate_brooks(

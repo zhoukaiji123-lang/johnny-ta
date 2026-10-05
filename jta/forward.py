@@ -20,6 +20,7 @@ import pandas as pd
 
 from .analyze import analyze
 from .data.provider import OHLCV, SeriesMeta
+from .data.resample import align_to_daily
 from .data.yf_provider import YFinanceProvider
 from .scoring import FACTORS
 
@@ -46,11 +47,22 @@ CONTROL_DISTANCE_RANGE = (0.3, 3.0)
 
 
 class ReplayProvider:
-    """把一次性抓来的全量行情按 as_of 切片，回放期间不再触网。"""
+    """把一次性抓来的全量行情按 as_of 切片，回放期间不再触网。
+
+    构造时把每个标的的 4H 缩放到日线复权口径（见 align_to_daily）：回放里 analyze 的
+    4H 候选位（局部 Fib、4H 摆动、4H EMA、4H 趋势线）要和日线候选位同尺度才能算共振，
+    simulate 的成交也要和按日线算出的计划价同尺度。因子逐日计算，切片后不引入前视。
+    """
 
     name = "replay"
 
-    def __init__(self, series: dict[tuple[str, str], OHLCV]) -> None:
+    def __init__(self, series: dict[tuple[str, str], OHLCV], *, align: bool = True) -> None:
+        if align:
+            series = dict(series)
+            for (sym, iv), s in list(series.items()):
+                d = series.get((sym, "1d"))
+                if iv == "4h" and d is not None:
+                    series[(sym, iv)] = OHLCV(df=align_to_daily(s.df, d.df), meta=s.meta)
         self._series = series
 
     @classmethod
