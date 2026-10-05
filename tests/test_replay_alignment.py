@@ -91,3 +91,16 @@ def test_single_bar_day_keeps_the_previous_factor():
     out = align_to_daily(four, daily)
     assert np.allclose(out["close"].iloc[:4], 100.0)
     assert np.isclose(out["close"].iloc[-1], 105.0 * 100.0 / 110.0)   # 沿用前一天的 100/110
+
+
+def test_breakout_pullback_search_starts_after_the_confirming_close():
+    """日线收盘站上后，确认日当天的 4H 不能算回踩成交——收盘确认要到 16:00 才成立。"""
+    d = daily_frame()
+    confirm_day = pd.Timestamp("2026-01-05", tz=TZ)
+    d.loc[confirm_day] = {"open": 100.0, "high": 113.0, "low": 99.0, "close": 112.0, "volume": 1000.0}
+    rows = [(111, 112, 103, 111.5), (111.5, 112, 110.5, 112)] + [(120, 121, 119, 120)] * 20
+    four = sessions(rows, start="2026-01-05")
+    p = plan(key="breakout", entry=110.0, stop=105.0, t1=130.0, t2=None)
+    r = simulate(p, four, d, pd.Timestamp("2026-01-02 23:00", tz=TZ), symbol="T",
+                 index_bullish=True, rules=TradeRules())
+    assert r.entry_fill is None and "未触及" in r.note

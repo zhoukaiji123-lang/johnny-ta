@@ -272,15 +272,18 @@ def evaluate(
             w_end = min(t + horizon, len(idx))
             seg_close = closes[t:w_end]
             seg_high, seg_low = highs[t:w_end], lows[t:w_end]
+            # 触及当天的反向极值不算"离开"：日线看不出它在触及之前还是之后，
+            # 支撑侧当天的高点很可能出现在下探之前。反向离开只从次日算起（下标 +1 对齐）
+            nxt_high, nxt_low = highs[t + 1:w_end], lows[t + 1:w_end]
             if side == "support":
                 broke = np.flatnonzero(seg_close <= level - break_atr * atr)
-                held = np.flatnonzero(seg_high >= level + react_atr * atr)
-                out.at[i, "mfe_atr"] = float((seg_high.max() - level) / atr)
+                held = np.flatnonzero(nxt_high >= level + react_atr * atr) + 1
+                out.at[i, "mfe_atr"] = float((nxt_high.max() - level) / atr) if nxt_high.size else np.nan
                 out.at[i, "mae_atr"] = float((level - seg_low.min()) / atr)
             else:
                 broke = np.flatnonzero(seg_close >= level + break_atr * atr)
-                held = np.flatnonzero(seg_low <= level - react_atr * atr)
-                out.at[i, "mfe_atr"] = float((level - seg_low.min()) / atr)
+                held = np.flatnonzero(nxt_low <= level - react_atr * atr) + 1
+                out.at[i, "mfe_atr"] = float((level - nxt_low.min()) / atr) if nxt_low.size else np.nan
                 out.at[i, "mae_atr"] = float((seg_high.max() - level) / atr)
 
             first_break = broke[0] if broke.size else np.inf

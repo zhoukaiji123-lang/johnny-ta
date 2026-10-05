@@ -125,7 +125,10 @@ def simulate(
     if fwd.empty:
         res.note = "计划日之后没有可用 4H 数据"
         return res
-    fwd = fwd.iloc[: rules.ttl_bars + rules.max_holding_bars + rules.confirm_window]
+    # 突破类先等日线确认（最多 ttl/2 个交易日 ≈ ttl 根 4H）再进入 ttl 窗口找回踩，
+    # 窗口要留够，否则持仓期被截断、提前记成超时
+    fwd = fwd.iloc[: 2 * rules.ttl_bars + rules.confirm_window + rules.fill_window
+                   + rules.max_holding_bars + 2]
     sig = (signals if signals is not None else bar_signals(intraday)).loc[fwd.index]
 
     atr = float(atr_series(daily.loc[:plan_ts]).iloc[-1])
@@ -149,8 +152,10 @@ def simulate(
         if above.empty:
             res.note = "有效期内日线未收盘站上该位"
             return res
-        confirm_ts = above.index[0]
-        after = np.flatnonzero(fwd.index > confirm_ts)
+        # 日线收盘确认要到确认日 16:00 才成立，回踩只能从下一个交易日的 4H 找起；
+        # 从确认日 00:00 算起会让当天两根 4H 用上当天收盘，和计划日前视是同一类错误
+        confirm_close = above.index[0].normalize() + pd.Timedelta(hours=16)
+        after = np.flatnonzero(fwd.index >= confirm_close)
         if after.size == 0:
             res.note = "突破确认后没有可用 4H 数据"
             return res
@@ -206,14 +211,14 @@ def simulate(
     if fill_idx is None:
         res.note = "确认后价格未回到限价内，未成交"
         return res
-    res.entry_date = fwd.index[fill_idx].isoformat()
-    res.entry_fill = round(fill, 4)
-    r_unit = _r_unit(fill, stop)
-    if r_unit <= 0:
+    if fill <= stop:
         res.note = "成交价已在止损位之下"
         return res
+    res.entry_date = fwd.index[fill_idx].isoformat()
+    res.entry_fill = round(fill, 4)
 
-    return _hold(res, fwd, fill_idx, fill, stop, plan.get("t1"), plan.get("t2"), atr, rules)
+    return _hold(res, fwd, fill_idx, fill, stop, plan.get("t1"), plan.get("t2"), atr, rules,
+                 r_unit=_r_unit(entry, stop))
 
 
 def _hold(
@@ -226,14 +231,20 @@ def _hold(
     t2: float | None,
     atr: float,
     rules: TradeRules,
+    *,
+    r_unit: float,
 ) -> TradeResult:
     """成交之后的持仓管理。三套计划、Brooks D 与随机对照共用这一段，
-    保证几组之间只有入场不同、离场规则完全一致。"""
+    保证几组之间只有入场不同、离场规则完全一致。
+
+    r_unit 是**计划**风险 |计划入场 − 止损|：仓位按它反推（size_position），
+    1R 就是计划里准备亏的那笔钱。用"成交价 − 止损"当 1R，跳空低开成交在止损附近时
+    1R 会缩到几乎为零，随后再一跳空就记成几十 R 的亏损（对照组出现过 −55.9R），
+    而真实账户按计划仓位只亏了一两个 R。"""
     o = fwd["open"].to_numpy(float)
     h = fwd["high"].to_numpy(float)
     l = fwd["low"].to_numpy(float)
     c = fwd["close"].to_numpy(float)
-    r_unit = _r_unit(fill, stop)
     # ---------------------------------------------------------------- 持仓
     remaining = 1.0
     realised = 0.0
@@ -544,7 +555,8 @@ def simulate_brooks(
         return res
     res.entry_date = fwd.index[fill_idx].isoformat()
     res.entry_fill = round(fill, 4)
-    return _hold(res, fwd, fill_idx, fill, stop, t1, plan.get("t2"), atr, rules)
+    return _hold(res, fwd, fill_idx, fill, stop, t1, plan.get("t2"), atr, rules,
+                 r_unit=_r_unit(entry, stop))
 
 
 def distance_matched(plan: dict[str, Any], atr: float, rng: np.random.RandomState) -> dict[str, Any]:

@@ -250,3 +250,10 @@ def test_summarise_warns_that_overall_is_uncontrolled():
 def test_summarise_on_empty_input():
     assert "error" in summarise(pd.DataFrame())
     assert format_summary({"error": "无记录"}) == "无记录"
+
+
+def test_touch_day_high_does_not_count_as_a_bounce():
+    """触及当天的高点可能出现在下探之前，不能拿来判定"守住"。"""
+    df = bars([(101, 99, 100)] + [(101, 89.5, 92)] + [(95, 91, 93)] * 5)
+    out = evaluate(record(90.0), provider_from(df), horizon=10)
+    assert out["outcome"].iloc[0] == "inconclusive"
