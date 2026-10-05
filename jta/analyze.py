@@ -35,7 +35,7 @@ from .levels.candidates import (
     note_market_cap_confluence,
     note_pivot_confluence,
 )
-from .levels.pivots import gaps, horizontal_pivots, prior_session_levels, round_numbers
+from .levels.pivots import gaps, horizontal_pivots, prior_session_levels, round_ladder, round_numbers
 from .marketcap import fetch_market_cap_context
 from .brooks import EMA_SPAN as BROOKS_EMA_SPAN, brooks_analysis
 from .indicators.ema import ema as ema_series
@@ -380,6 +380,89 @@ def confirmation_rules(candidate: Candidate) -> dict[str, Any]:
     }
 
 
+# ------------------------------------------------------------------ 整数关口梯子
+
+#: 一侧没有关键位时，整数关口往外取多远（ATR 倍数）
+ROUND_REACH_ATR = 2.0
+
+ROUND_NOTE = (
+    "整数关口是心理参考位，只穿插在关键位之间展示，不参与关键位筛选、证据计数与三套计划。"
+    "回放检验（26 个标的、2025-03 至 2026-09）里，整数位的守住率 46.0%，"
+    "同侧同距离的非整数价位 44.7%（z=0.72），没有可检测的差异。"
+)
+
+
+def _shown(level: dict[str, Any]) -> float:
+    return level["display"] if level.get("display") is not None else level["raw_price"]
+
+
+def _covers(level: dict[str, Any], price: float) -> bool:
+    """整数位是否落在关键位的展示区间里（单值展示时要求相等）。"""
+    lo = level.get("range_low") if level.get("range_low") is not None else _shown(level)
+    hi = level.get("range_high") if level.get("range_high") is not None else _shown(level)
+    return lo - 1e-9 <= price <= hi + 1e-9
+
+
+def _fmt_price(v: float) -> str:
+    return f"{v:,.10g}" if v == int(v) else f"{v:,}"
+
+
+def build_ladder(
+    supports: list[dict[str, Any]],
+    resistances: list[dict[str, Any]],
+    price: float,
+    atr: float,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """把整数关口穿插进 S1–S3 / R1–R3 之间，返回 (round_levels, ladder)。
+
+    只在最外侧关键位之间取整数位（一侧没有关键位时取 ROUND_REACH_ATR）。
+    整数位落在某个关键位的展示区间里时，标注在那个关键位上（round_number 字段），不重复列出；
+    只是挨得近（比如 1800 与 R2「约 1780–1790」）仍单独列出——那正是读者想看到的数字。
+    ladder 按价格从高到低，含关键位、整数关口与现价，前端照这个顺序画。
+    """
+    keys = [("resistance", r) for r in resistances] + [("support", s) for s in supports]
+    # 上下界取最外侧关键位的区间沿，落在区间里的整数位才能并到那一档上
+    low = min((s.get("range_low") or _shown(s) for s in supports),
+              default=price - ROUND_REACH_ATR * atr)
+    high = max((r.get("range_high") or _shown(r) for r in resistances),
+               default=price + ROUND_REACH_ATR * atr)
+    rounds: list[dict[str, Any]] = []
+    for rd in round_ladder(price, atr, min(low, price), max(high, price)):
+        host = next((lv for _, lv in keys if _covers(lv, rd["price"])), None)
+        if host is not None:
+            host["round_number"] = {"price": rd["price"], "tier": rd["tier"]}
+            continue
+        rounds.append({
+            **rd,
+            "side": "support" if rd["price"] < price else "resistance",
+            "distance_atr": round(abs(rd["price"] - price) / atr, 3),
+            "text": _fmt_price(rd["price"]),
+        })
+
+    # 排序用原始计算值：展示值按 0.1 ATR 取整，S1 原值 1716.3 会显示成 1720、排到现价 1719.99 上面
+    ladder = (
+        [{"kind": kind, "label": lv["label"], "price": _shown(lv), "text": lv["display_text"],
+          "_order": lv["raw_price"]} for kind, lv in keys]
+        + [{"kind": "round", "label": rd["tier"], "price": rd["price"], "text": rd["text"],
+            "_order": rd["price"]} for rd in rounds]
+        + [{"kind": "now", "label": "现价", "price": round(price, 4),
+            "text": _fmt_price(round(price, 2)), "_order": price}]
+    )
+    ladder.sort(key=lambda it: -it["_order"])
+    for it in ladder:
+        del it["_order"]
+    # 每个整数位标明落在哪两档之间，叙事层可以直接说"R1 与 R2 之间的 1800"
+    for i, it in enumerate(ladder):
+        if it["kind"] != "round":
+            continue
+        above = next((x["label"] for x in reversed(ladder[:i]) if x["kind"] != "round"), None)
+        below = next((x["label"] for x in ladder[i + 1:] if x["kind"] != "round"), None)
+        between = " 与 ".join(x for x in (above, below) if x)
+        it["between"] = between
+        next(rd for rd in rounds if rd["price"] == it["price"])["between"] = between
+    return rounds, ladder
+
+
 # ------------------------------------------------------------------ 主入口
 
 
@@ -498,6 +581,7 @@ def analyze(
 
     state = market_state(daily, intraday)
     support_rows, resistance_rows = render(supports), render(resistances)
+    round_rows, ladder = build_ladder(support_rows, resistance_rows, price, daily.atr)
     # 三套计划都是做多，因此一律以"指数多头是否成立"判断方向是否有利，
     # 不按各自关键位所在的一侧来判断
     index_bullish = (
@@ -542,7 +626,7 @@ def analyze(
                 p["sizing"] = sizing
 
     return {
-        "schema_version": "1.4",
+        "schema_version": "1.5",
         "symbol": symbol,
         "current_price": round(price, 4),
         "price_is_live": live is not None,
@@ -593,6 +677,9 @@ def analyze(
         "supports": support_rows,
         "resistances": resistance_rows,
         "selection": {"support": sup_meta, "resistance": res_meta},
+        "round_levels": round_rows,
+        "round_levels_note": ROUND_NOTE,
+        "ladder": ladder,
         "position_zone": zone,
         "plans": plans,
         "brooks": brooks,

@@ -123,6 +123,7 @@ h2::after{content:"";flex:1;height:1px;background:var(--rule-faint)}
 .lvl{border:1px solid var(--rule);border-radius:2px;padding:1px 6px;color:var(--muted);white-space:nowrap}
 .lvl.s{border-color:color-mix(in srgb,var(--good) 45%,transparent);color:var(--good)}
 .lvl.r{border-color:color-mix(in srgb,var(--bad) 45%,transparent);color:var(--bad)}
+.lvl.o{border-style:dashed;color:var(--muted)}
 .chip{font-family:var(--font-num);font-size:11px;padding:1px 7px;border-radius:2px;white-space:nowrap}
 .chip.warn{background:var(--warn-soft);color:var(--warn)}
 .chip.bad{background:var(--bad-soft);color:var(--bad)}
@@ -292,10 +293,22 @@ function card(r, key) {
   }
 
   const lv = h("div", "levels");
-  (r.resistances || []).slice().reverse().forEach(x =>
-    lv.appendChild(h("span", "lvl r", `${x.label} ${x.text || fmt(x.display, 0)} ${x.hits}/8`)));
-  (r.supports || []).forEach(x =>
-    lv.appendChild(h("span", "lvl s", `${x.label} ${x.text || fmt(x.display, 0)} ${x.hits}/8`)));
+  if (r.ladder && r.ladder.length) {
+    // 后端已按价格从高到低排好：关键位之间穿插整数关口（虚线框，只作参考）
+    r.ladder.forEach(x => {
+      if (x.kind === "round")
+        lv.appendChild(Object.assign(h("span", "lvl o", x.text),
+          { title: `${x.label}关口（心理参考，不入计划）` }));
+      else
+        lv.appendChild(h("span", x.kind === "support" ? "lvl s" : "lvl r",
+          `${x.label} ${x.text} ${x.hits}/8`));
+    });
+  } else {
+    (r.resistances || []).slice().reverse().forEach(x =>
+      lv.appendChild(h("span", "lvl r", `${x.label} ${x.text || fmt(x.display, 0)} ${x.hits}/8`)));
+    (r.supports || []).forEach(x =>
+      lv.appendChild(h("span", "lvl s", `${x.label} ${x.text || fmt(x.display, 0)} ${x.hits}/8`)));
+  }
   if (lv.children.length) c.appendChild(lv);
   return c;
 }

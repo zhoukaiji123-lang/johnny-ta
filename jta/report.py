@@ -132,6 +132,9 @@ def render_text(r: dict[str, Any], account: float | None = None, risk_pct: float
                     f"（等价价 {mc['equivalent_price']:,.2f}，{mc['weekly_state']}）"
                     f" 相距 {mc['distance_atr']} ATR，仅作辅助参考"
                 )
+            if lv.get("round_number"):
+                rn = lv["round_number"]
+                lines.append(f"      整数关口：区间内含 {rn['price']:,.10g}（{rn['tier']}，心理参考）")
             if lv.get("dynamic"):
                 lines.append("      动态位：数值随每根 bar 变化，须按数据时间复核")
             lines.append(f"      确认：{lv['confirmation']}")
@@ -143,6 +146,18 @@ def render_text(r: dict[str, Any], account: float | None = None, risk_pct: float
         for co in meta.get("crowded_out", [])[:3]:
             lines.append(f"  [未入选] {co['price']:,.2f}（{co['hits']}/8）— {co['reason']}")
 
+    if r.get("ladder"):
+        lines.append("")
+        lines.append("—— 价位阶梯（关键位之间穿插整数关口）——")
+        for it in r["ladder"]:
+            if it["kind"] == "now":
+                lines.append(f"  ▶ 现价 {it['text']}")
+            elif it["kind"] == "round":
+                lines.append(f"    · {it['text']}  {it['label']}关口（参考，不入计划）")
+            else:
+                lines.append(f"  {it['label']}  {it['text']}")
+        if r.get("round_levels_note"):
+            lines.append(f"  注：{r['round_levels_note']}")
     if account:
         # 仓位不再单独反推：三套计划各自带 sizing，且用的是计划自己的止损。
         # 保留一个独立区块会给出与计划矛盾的止损和入场档位。

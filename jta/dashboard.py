@@ -85,6 +85,7 @@ class Row:
     regime: dict[str, Any] | None = None
     supports: list[dict[str, Any]] = field(default_factory=list)
     resistances: list[dict[str, Any]] = field(default_factory=list)
+    ladder: list[dict[str, Any]] = field(default_factory=list)
     plans: list[dict[str, Any]] = field(default_factory=list)
     brooks: dict[str, Any] | None = None
     best_rr: float | None = None
@@ -199,6 +200,10 @@ def collect_row(
     row.regime = (r.get("benchmark") or {}).get("regime")
     row.supports = [_brief(l) for l in r["supports"]]
     row.resistances = [_brief(l) for l in r["resistances"]]
+    # 关键位之间穿插整数关口（只作参考）；现价不进看板这一行，标签本身已按价格排好
+    hits = {l["label"]: l["scoring"]["hits"] for l in r["supports"] + r["resistances"]}
+    row.ladder = [{**it, "hits": hits.get(it["label"])} for it in r.get("ladder", [])
+                  if it["kind"] != "now"]
     row.plans = [_plan_brief(p) for p in r["plans"]]
     bk = r.get("brooks") or {}
     if bk.get("available"):

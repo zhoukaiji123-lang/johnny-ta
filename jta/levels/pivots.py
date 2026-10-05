@@ -233,3 +233,38 @@ def round_numbers(
             )
         price += step
     return out
+
+
+#: 整数关口三档：数量级的 1/10、1/2、1 倍。闪迪 1720 → 100 / 500 / 1000，KO 85 → 1 / 5 / 10
+ROUND_TIERS = ((0.1, "整数"), (0.5, "半整数"), (1.0, "大整数"))
+
+#: 最细一档的步长至少要有这么多 ATR，否则整数位挤成一排，没有参考意义
+ROUND_MIN_STEP_ATR = 0.5
+
+
+def round_ladder(
+    current_price: float, atr_value: float, low: float, high: float
+) -> list[dict[str, Any]]:
+    """[low, high] 内的整数关口，按价格从高到低，每个带档位。
+
+    这是展示用的参考位，与 round_numbers()（候选池里的整数位，步长取数量级的一半）分开：
+    后者参与共振统计，改它会改变 S1–S3 / R1–R3；这里只负责把 1700 / 1800 / 1900
+    这类心理关口穿插进关键位之间，不参与评分，也不进三套计划。
+    """
+    if current_price <= 0 or not np.isfinite(atr_value) or atr_value <= 0 or high <= low:
+        return []
+    magnitude = 10 ** int(np.floor(np.log10(current_price)))
+    tiers = [(magnitude * m, label) for m, label in ROUND_TIERS
+             if magnitude * m >= ROUND_MIN_STEP_ATR * atr_value]
+    if not tiers:
+        return []
+    base = tiers[0][0]
+    out: list[dict[str, Any]] = []
+    for k in range(int(np.floor(high / base)), int(np.ceil(low / base)) - 1, -1):
+        price = round(k * base, 10)
+        if price <= 0 or price < low or price > high:
+            continue
+        step, label = next((s, lb) for s, lb in reversed(tiers)
+                           if abs(price / s - round(price / s)) < 1e-9)
+        out.append({"price": float(price), "tier": label, "step": float(step)})
+    return out
