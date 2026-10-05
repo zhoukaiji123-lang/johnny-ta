@@ -138,7 +138,7 @@ jta chart <SYMBOL> -b <指数> --account <净值> --out <path>.html
 
 ### 10. 收尾必须交代
 
-- `known_gaps` 全部列出（TD Countdown 13 未实现、基本面否决层需人工、市值模块未移植等）
+- `known_gaps` 全部列出（TD Countdown 13 未实现、基本面否决层需人工、历史回放时事件与市值模块不可用等）
 - `validation_disclaimer` 原样带上：前向验证显示这些关键位的守住率与同距离随机价位
   没有可检测差异。不要把 `hits` 说成胜率或强度评分。
 - 基本面提醒：技术支撑不覆盖重大基本面恶化。周期股的低远期 PE 可能来自周期高点利润，
