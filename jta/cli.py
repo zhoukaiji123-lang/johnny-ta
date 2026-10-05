@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 
 import pandas as pd
 
-from .analyze import analyze
+from .analyze import SELECTION_MODES, analyze
 from .data.fallback_provider import SOURCES, build_provider
 from .data.provider import DataUnavailable
 from .report import render_text
@@ -83,6 +83,7 @@ def cmd_analyze(args: argparse.Namespace) -> int:
             benchmark=args.benchmark,
             provider=build_provider(args.source, force_refresh=args.refresh),
             use_live=args.live,
+            selection=args.selection,
         )
     except DataUnavailable as exc:
         print(f"错误: {exc}", file=sys.stderr)
@@ -192,7 +193,8 @@ def cmd_backtest(args: argparse.Namespace) -> int:
         pairs, provider, start=args.start, end=args.end,
         rules=rules, executable_only=args.executable_only,
         control_seeds=tuple(range(args.control)),
-        min_entry_distance_atr=args.min_entry_distance, jobs=args.jobs,
+        min_entry_distance_atr=args.min_entry_distance, selection=args.selection,
+        jobs=args.jobs,
     )
     if args.out:
         df.to_parquet(args.out)
@@ -391,6 +393,8 @@ def main(argv: list[str] | None = None) -> int:
     f.set_defaults(func=cmd_fetch)
 
     a = sub.add_parser("analyze", help="输出关键位与共振证据")
+    a.add_argument("--selection", default=None, choices=SELECTION_MODES,
+                   help="关键位筛选口径：legacy 按命中数 / proximity 先近后深")
     a.add_argument("symbol")
     a.add_argument("-b", "--benchmark", default=None, help="基准指数，如 SOXX / QQQ")
     a.add_argument("--as-of", default=None, help="只使用该时点之前的数据（前向测试）")
@@ -448,7 +452,7 @@ def main(argv: list[str] | None = None) -> int:
     db.add_argument("--json", action="store_true")
     db.set_defaults(func=cmd_dashboard)
 
-    bt = sub.add_parser("backtest", help="按三套计划模拟成交，统计 R 倍数期望")
+    bt = sub.add_parser("backtest", help="按 L/A/B/C 计划模拟成交，统计 R 倍数期望")
     bt.add_argument("pairs", nargs="+", help="标的或 标的:基准，例如 MU:SOXX QQQ:SPY")
     bt.add_argument("--start", required=True)
     bt.add_argument("--end", required=True)
@@ -463,6 +467,8 @@ def main(argv: list[str] | None = None) -> int:
     bt.add_argument("--split", default=None, help="按计划日切成前后两段，例如 2026-06-25")
     bt.add_argument("--min-entry-distance", type=float, default=None,
                     help="覆盖 MIN_ENTRY_DISTANCE_ATR，复现距离过滤开/关对比")
+    bt.add_argument("--selection", default=None, choices=SELECTION_MODES,
+                    help="关键位筛选口径，覆盖 analyze.SELECTION_MODE")
     bt.set_defaults(func=cmd_backtest)
 
     fr = sub.add_parser("forward-report", help="从已保存的记录重新汇总")

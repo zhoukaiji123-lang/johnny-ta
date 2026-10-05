@@ -363,7 +363,7 @@ footer { font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--rul
   </section>
 
   <section>
-    <h2>三套互斥交易计划</h2>
+    <h2>交易计划</h2>
     <div class="plans" id="plans"></div>
     <p class="rule-line" style="margin:2px">选中某套计划，其入场、止损与目标会标注在上方日线图中。箭头一律表示条件情景，不是方向预测。</p>
   </section>
@@ -921,7 +921,9 @@ function planCard(p) {
   const ttl = h("div", "plan-title", p.title);
   if (p.setup_code) ttl.appendChild(h("span", "code", p.setup_code));
   head.appendChild(ttl);
-  head.appendChild(h("span", `verdict ${p.executable ? "ok" : "no"}`, p.executable ? "可执行" : "不可执行"));
+  head.appendChild(h("span", `verdict ${p.executable ? "ok" : "no"}`,
+    (p.executable ? "可执行" : "不可执行") + (p.status_label ? ` · ${p.status_label}` : "")));
+  if (p.validated === false) card.appendChild(h("div", "plan-note", "未经回测验证，仅作参考"));
   card.appendChild(head);
 
   const legs = h("div", "legs");

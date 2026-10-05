@@ -316,7 +316,7 @@ function card(r, key) {
 function planBlock(p, kind) {
   const b = h("div", kind === "brooks" ? "plan brooks" : "plan");
   const t = h("div", "plan-top");
-  t.appendChild(h("span", "plan-name", p.title));
+  t.appendChild(h("span", "plan-name", p.title + (p.validated === false ? "（未经回测验证）" : "")));
   t.appendChild(h("span", "legs",
     `入 ${fmt(p.entry, 2)} / 损 ${fmt(p.stop, 2)} / T1 ${fmt(p.t1, 2)}` +
     (p.entry_level ? `  (${p.entry_level})` : "")));

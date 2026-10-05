@@ -165,6 +165,26 @@ def simulate(
 
     window = slice(search_from, min(search_from + rules.ttl_bars, len(fwd)))
     side = "long_support"
+
+    if plan["key"] == "left":
+        # L 左侧支撑直入：限价单挂在入场位，不等确认。跳空低开在入场位下方按开盘价成交；
+        # 开盘已在 P_stop 之下说明支撑在挂单成交前就失效了，按上游 8A 撤单不做。
+        # 成交那根若同时触及 P_stop，_hold 按止损处理——4H 内分不出先后，取保守一侧。
+        hit = np.flatnonzero(l[window] <= entry)
+        if hit.size == 0:
+            res.note = "有效期内未回落到入场位"
+            return res
+        i = search_from + int(hit[0])
+        fill = float(min(o[i], entry))
+        if fill <= stop:
+            res.outcome = "cancelled"
+            res.note = "开盘已在止损位之下，支撑先于成交失效，撤单"
+            return res
+        res.entry_date = fwd.index[i].isoformat()
+        res.entry_fill = round(fill, 4)
+        return _hold(res, fwd, i, fill, stop, plan.get("t1"), plan.get("t2"), atr, rules,
+                     r_unit=_r_unit(entry, stop), targets_on_fill_bar=o[i] <= entry)
+
     touch_rel = _first_touch(l[window], h[window], entry, tol, side)
     if touch_rel is None:
         res.note = "有效期内未触及入场位"
@@ -218,7 +238,7 @@ def simulate(
     res.entry_fill = round(fill, 4)
 
     return _hold(res, fwd, fill_idx, fill, stop, plan.get("t1"), plan.get("t2"), atr, rules,
-                 r_unit=_r_unit(entry, stop))
+                 r_unit=_r_unit(entry, stop), targets_on_fill_bar=o[fill_idx] <= limit)
 
 
 def _hold(
@@ -233,6 +253,7 @@ def _hold(
     rules: TradeRules,
     *,
     r_unit: float,
+    targets_on_fill_bar: bool = True,
 ) -> TradeResult:
     """成交之后的持仓管理。三套计划、Brooks D 与随机对照共用这一段，
     保证几组之间只有入场不同、离场规则完全一致。
@@ -240,7 +261,10 @@ def _hold(
     r_unit 是**计划**风险 |计划入场 − 止损|：仓位按它反推（size_position），
     1R 就是计划里准备亏的那笔钱。用"成交价 − 止损"当 1R，跳空低开成交在止损附近时
     1R 会缩到几乎为零，随后再一跳空就记成几十 R 的亏损（对照组出现过 −55.9R），
-    而真实账户按计划仓位只亏了一两个 R。"""
+    而真实账户按计划仓位只亏了一两个 R。
+
+    targets_on_fill_bar=False：限价单在盘中回落时成交（开盘在限价上方），这根 bar 的高点
+    发生在成交之前，不能拿来判定 T1 / T2 已触及；止损仍照常检查。"""
     o = fwd["open"].to_numpy(float)
     h = fwd["high"].to_numpy(float)
     l = fwd["low"].to_numpy(float)
@@ -262,6 +286,8 @@ def _hold(
         hit_stop = bar_low <= cur_stop
         hit_t1 = (t1 is not None) and (not took_t1) and bar_high >= t1
         hit_t2 = (t2 is not None) and took_t1 and bar_high >= t2
+        if i == fill_idx and not targets_on_fill_bar:
+            hit_t1 = hit_t2 = False
 
         if hit_stop and (hit_t1 or hit_t2) and rules.same_bar_policy == "stop":
             hit_t1 = hit_t2 = False
@@ -414,12 +440,16 @@ def _abc_symbol(job: tuple) -> list[dict[str, Any]]:
     """
     import zlib
 
+    from . import analyze as analyze_mod
     from . import plans as plans_mod
 
-    symbol, bm, provider, start, end, rules, executable_only, seeds, min_dist = job
+    symbol, bm, provider, start, end, rules, executable_only, seeds, min_dist, selection = job
     saved = plans_mod.MIN_ENTRY_DISTANCE_ATR
+    saved_sel = analyze_mod.SELECTION_MODE
     if min_dist is not None:
         plans_mod.MIN_ENTRY_DISTANCE_ATR = min_dist
+    if selection is not None:
+        analyze_mod.SELECTION_MODE = selection
     try:
         daily = provider.daily(symbol)
         # ReplayProvider 已对齐过；这里再对齐一次是幂等的，换别的 provider 也不会混口径
@@ -428,6 +458,7 @@ def _abc_symbol(job: tuple) -> list[dict[str, Any]]:
         items = collect_plans(symbol, provider, start=start, end=end, benchmark=bm)
     finally:
         plans_mod.MIN_ENTRY_DISTANCE_ATR = saved
+        analyze_mod.SELECTION_MODE = saved_sel
     rows: list[dict[str, Any]] = []
     for n, item in enumerate(items):
         plan = item["plan"]
@@ -459,16 +490,18 @@ def run_backtest(
     executable_only: bool = False,
     control_seeds: tuple[int, ...] = (),
     min_entry_distance_atr: float | None = None,
+    selection: str | None = None,
     jobs: int = 1,
 ) -> pd.DataFrame:
-    """A/B/C 逐笔结果。stream：real / ctrl_<seed>（距离匹配随机对照）。
+    """L/A/B/C 逐笔结果。stream：real / ctrl_<seed>（距离匹配随机对照）。
 
-    min_entry_distance_atr 覆盖 plans.MIN_ENTRY_DISTANCE_ATR，用来复现"距离过滤开/关"的对比。
+    min_entry_distance_atr 覆盖 plans.MIN_ENTRY_DISTANCE_ATR，用来复现"距离过滤开/关"的对比；
+    selection 覆盖 analyze.SELECTION_MODE（legacy / proximity），用来对比两种关键位筛选口径。
     """
     rules = rules or TradeRules()
     tasks = [
         (symbol, bm, _subset(provider, {symbol, bm} - {None}), start, end, rules,
-         executable_only, tuple(control_seeds), min_entry_distance_atr)
+         executable_only, tuple(control_seeds), min_entry_distance_atr, selection)
         for symbol, bm in pairs
     ]
     rows: list[dict[str, Any]] = []

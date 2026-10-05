@@ -1,8 +1,12 @@
-"""三套互斥交易计划。
+"""交易计划：A/B/C 三套互斥计划 + L 左侧支撑直入（上游 v2.0.5）。
 
-计划全部由已入选的关键位确定性推导——入场取某一档，止损放在**下一档之外**，
+计划全部由已入选的关键位确定性推导——入场取某一档，止损放在该档自身失效之处，
 目标取对侧的下一档。这样每套计划的收益风险比是算出来的，不是估出来的，
 达不到门槛就直接标为不可执行，而不是靠人自觉遵守纪律。
+
+每套计划另带 status（等待到位 / 等待触发 / 到位可执行 / 不合格 / 数据不足，上游 v2.0.6），
+由现价与入场位的相对位置、blocked_by 与数据缺失直接算出；sides() 把它们汇总成
+上游要求的"左侧 / 右侧两项建议"。
 """
 
 from __future__ import annotations
@@ -18,8 +22,21 @@ STOP_BUFFER_ATR = 0.25
 #: 没有更深一档时的兜底缓冲
 FALLBACK_BUFFER_ATR = 0.5
 
-#: 收益风险比门槛：低吸类要求更高，右侧确认可以低一些
-MIN_RR = {"aggressive": 2.0, "deep": 2.0, "breakout": 1.5}
+#: 收益风险比门槛：低吸类要求更高，右侧确认可以低一些。
+#: L 与 A 同属支撑做多，沿用 2.0；1% 止损很紧，这个门槛基本只拦"目标贴着入场"的情形
+MIN_RR = {"left": 2.0, "aggressive": 2.0, "deep": 2.0, "breakout": 1.5}
+
+#: L 左侧支撑直入的止损：支撑基准 S 下方这个比例，P_stop = S × (1 − LEFT_STOP_PCT)。
+#:
+#: 来自上游 v2.0.5 第 8A 节，原文注明是"用户于 2026-09-27 明确指定的配置"，
+#: 不是 Johnny 公开的统一参数，也不是所有股票的最优阈值。盘中价格达到或低于 P_stop 即离场，
+#: 不等收盘、不加 ATR 缓冲；向更早保护的一侧取整（做多止损向上取整到 0.01）。
+#: S 取关键位原值 raw_price：jta 的"约 965–975"只是按 0.1 ATR 取整的展示宽度，
+#: 不是结构上的支撑带，取它的下沿当 S 等于凭空加宽止损。
+LEFT_STOP_PCT = 0.01
+
+#: 判断"已到位"的容差：现价距入场位不足这个 ATR 倍数视为到位
+AT_ENTRY_ATR = 0.1
 
 #: 入场位距现价的最小距离（ATR 倍数）。**当前默认关闭（0.0）。**
 #:
@@ -64,13 +81,14 @@ ADVERSE_INDEX_SCALE = 1.0
 REGIME_GATE = True
 
 PLAN_TITLES = {
+    "left": "L 左侧支撑直入",
     "aggressive": "A 第一支撑激进试仓",
     "deep": "B 更深支撑低吸",
     "breakout": "C 右侧突破回踩",
 }
 
 #: 第一笔占**计划总仓位**的比例，不是账户资产的比例
-FIRST_TRANCHE = {"aggressive": (0.20, 0.25), "deep": (0.25, 0.50), "breakout": (0.30, 0.50)}
+FIRST_TRANCHE = {"left": (0.20, 0.25), "aggressive": (0.20, 0.25), "deep": (0.25, 0.50), "breakout": (0.30, 0.50)}
 
 
 @dataclass
@@ -92,6 +110,13 @@ class Plan:
     entry_note: str | None = None
     position_scale: float = 1.0
     cautions: list[str] = field(default_factory=list)
+    side: str = "left"
+    status: str = "no_data"
+    status_label: str = ""
+    status_reason: str = ""
+    #: False 表示尚未经回测确认，不进看板"可执行"分组与 best_rr（L 在回测结论出来前如此）
+    validated: bool = True
+    support_basis: float | None = None
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -143,6 +168,7 @@ def build_plans(
     *,
     atr: float,
     zone: str,
+    current_price: float | None = None,
     event_mode: bool = False,
     event_reason: str | None = None,
     index_bullish: bool | None = None,
@@ -205,6 +231,43 @@ def build_plans(
 
     plans: list[Plan] = []
 
+    # L：到支撑直接限价买入，不等止跌确认；止损 = 支撑原值 × 0.99，盘中触及即离场。
+    # 入场档与 A 相同（第一个够远的支撑），两者的差别只在"等不等确认"和止损口径
+    s_l = s_a
+    raw_l = (s_l or {}).get("raw_price")
+    entry_l = _price(s_l)
+    basis_l = min(entry_l, raw_l) if entry_l is not None and raw_l is not None else None
+    stop_l = (
+        float(np.ceil(basis_l * (1 - LEFT_STOP_PCT) * 100) / 100) if basis_l is not None else None
+    )
+    t1_l, t2_l = first_target(entry_l, [r for r in resistances if r])
+    plans.append(
+        Plan(
+            key="left",
+            title=PLAN_TITLES["left"],
+            trigger=(
+                f"价格回落到 {s_l['label']} {entry_l:g} 直接限价买入，不等止跌/阳线/更高低点确认"
+                if s_l else "没有距现价足够远的支撑，计划不成立"
+            ),
+            entry=entry_l, stop=stop_l,
+            stop_basis=(
+                f"支撑基准 S={basis_l:g}（{s_l['label']} 原值），P_stop = 0.99×S = {stop_l:g}；"
+                "盘中成交价达到或低于即离场，不等收盘、不加缓冲"
+                if basis_l is not None else "无可用支撑"
+            ),
+            entry_level=(s_l or {}).get("label"), entry_note=_skip_note(sup_skipped, min_dist),
+            t1=t1_l, t2=t2_l, rr=_rr(entry_l, stop_l, t1_l),
+            tranche=FIRST_TRANCHE["left"],
+            cancel_if=[
+                "挂单成交前价格已跌破 P_stop 或支撑失效：撤单，不在途中接刀",
+                "1% 落在该标的正常噪声内、点差或跳空使离场不可靠时降低暴露或不做，不得放宽止损",
+                "止损后不摊平；重新进入需要新的有效依据，不因价格再次接近旧 S 就自动买回",
+            ],
+            executable=True, blocked_by=[], side="left", validated=False,
+            support_basis=basis_l,
+        )
+    )
+
     entry_a, (stop_a, basis_a) = _price(s_a), below(s_a, s_a_next)
     t1_a, t2_a = first_target(entry_a, [r for r in resistances if r])
     plans.append(
@@ -215,7 +278,7 @@ def build_plans(
             entry=entry_a, stop=stop_a, stop_basis=basis_a,
             entry_level=(s_a or {}).get("label"), entry_note=_skip_note(sup_skipped, min_dist),
             t1=t1_a, t2=t2_a, rr=_rr(entry_a, stop_a, t1_a),
-            tranche=FIRST_TRANCHE["aggressive"],
+            tranche=FIRST_TRANCHE["aggressive"], side="support_confirm",
             cancel_if=[
                 (s_a or {}).get("invalidation", "—"),
                 "触发前先跌穿该位，改等下一档，不在途中接刀",
@@ -239,7 +302,7 @@ def build_plans(
             entry=entry_b, stop=stop_b, stop_basis=basis_b,
             entry_level=(s_b or {}).get("label"), entry_note=None,
             t1=t1_b, t2=t2_b, rr=_rr(entry_b, stop_b, t1_b),
-            tranche=FIRST_TRANCHE["deep"],
+            tranche=FIRST_TRANCHE["deep"], side="support_confirm",
             cancel_if=[
                 (s_b or {}).get("invalidation", "—"),
                 "日线连续跌破且无法收复时停止加仓，转向下一档",
@@ -264,7 +327,7 @@ def build_plans(
             stop_basis=f"回踩失败位，{FALLBACK_BUFFER_ATR} ATR 缓冲",
             entry_level=(r_c or {}).get("label"), entry_note=_skip_note(res_skipped, min_dist),
             t1=t1_c, t2=t2_c, rr=_rr(entry_c, stop_c, t1_c),
-            tranche=FIRST_TRANCHE["breakout"],
+            tranche=FIRST_TRANCHE["breakout"], side="right",
             cancel_if=[
                 (r_c or {}).get("invalidation", "—"),
                 "只有影线突破、收盘回落，不算有效突破",
@@ -311,7 +374,67 @@ def build_plans(
         else:
             p.position_scale = 1.0
 
+        _set_status(p, current_price, atr)
+
     return [p.to_dict() for p in plans]
+
+
+STATUS_LABELS = {
+    "waiting_price": "等待到位",
+    "waiting_trigger": "等待触发",
+    "ready": "到位可执行",
+    "ineligible": "不合格",
+    "no_data": "数据不足",
+}
+
+
+def _set_status(p: Plan, current_price: float | None, atr: float) -> None:
+    """按上游 v2.0.6 第 8 节区分方案状态。等待到位 / 等待触发不等于不合格。"""
+    if p.entry is None or p.stop is None or p.t1 is None:
+        p.status, p.status_reason = "no_data", "缺少入场、止损或第一目标"
+    elif p.blocked_by:
+        p.status, p.status_reason = "ineligible", "；".join(p.blocked_by)
+    elif current_price is None:
+        p.status, p.status_reason = "no_data", "缺少现价"
+    else:
+        tol = AT_ENTRY_ATR * atr
+        if p.key == "breakout":
+            if current_price < p.entry - tol:
+                p.status, p.status_reason = "waiting_trigger", f"等日线收盘站上 {p.entry:g} 后回踩不破"
+            else:
+                p.status, p.status_reason = "waiting_trigger", f"已在 {p.entry:g} 附近，等日线收盘确认与回踩"
+        elif current_price > p.entry + tol:
+            p.status, p.status_reason = "waiting_price", f"现价在入场位 {p.entry:g} 上方，等回落到位"
+        elif p.key == "left":
+            p.status, p.status_reason = "ready", "已到支撑，可按计划直接尝试（不代表已成交）"
+        else:
+            p.status, p.status_reason = "waiting_trigger", "已到支撑，等 4H 止跌确认信号"
+    p.status_label = STATUS_LABELS[p.status]
+
+
+def sides(plans: list[dict[str, Any]]) -> dict[str, Any]:
+    """上游 v2.0.5 要求每个标的都给左侧与右侧两项建议，不适用也要写原因。
+
+    左侧取 L（支撑直入），右侧取 C（突破回踩）。A/B 是"支撑 + 确认"，介于两者之间，
+    仍在 plans 里完整给出，这里不重复。左右侧是入场时机的区分，不是多空。
+    """
+    by_key = {p["key"]: p for p in plans}
+
+    def brief(key: str) -> dict[str, Any]:
+        p = by_key.get(key)
+        if p is None:
+            return {"plan": None, "status": "no_data", "status_label": STATUS_LABELS["no_data"],
+                    "reason": "未生成该方案"}
+        return {"plan": key, "title": p["title"], "status": p["status"],
+                "status_label": p["status_label"], "reason": p["status_reason"],
+                "entry": p["entry"], "stop": p["stop"], "t1": p["t1"], "rr": p["rr"],
+                "validated": p.get("validated", True)}
+
+    return {
+        "left": brief("left"),
+        "right": brief("breakout"),
+        "note": "左右侧是入场时机的区分，不是多空；两侧作为备选或分批时共享同一份总风险预算",
+    }
 
 
 def holder_playbook(

@@ -169,10 +169,16 @@ def render_text(r: dict[str, Any], account: float | None = None, risk_pct: float
         lines.append("  各计划的股数与名义金额见下方计划区块，止损以该计划自身的失效位为准")
 
     lines.append("")
-    lines.append("—— 三套交易计划 ——")
+    lines.append("—— 交易计划 ——")
+    sd = r.get("sides") or {}
+    for k, name in (("left", "左侧"), ("right", "右侧")):
+        x = sd.get(k) or {}
+        if x:
+            lines.append(f"  【{name}】{x.get('title') or '—'}：{x['status_label']}，{x['reason']}")
     for p in r.get("plans", []):
         mark = "✓ 可执行" if p["executable"] else "✗ 不可执行"
-        lines.append(f"  {p['title']}   {mark}")
+        tag = "（未经回测验证）" if p.get("validated") is False else ""
+        lines.append(f"  {p['title']}{tag}   {mark} · {p.get('status_label', '')}")
         lines.append(
             f"      入场 {p['entry']}（{p['entry_level'] or '—'}） / 止损 {p['stop']}"
             f" / T1 {p['t1']} / T2 {p['t2']} / 收益风险比 {p['rr']}"

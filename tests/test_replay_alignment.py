@@ -46,9 +46,13 @@ def test_backtest_entries_never_land_on_the_plan_day():
     df = run_backtest([("TEST", None)], _replay_from_daily(), start="2025-01-01", end="2025-12-31")
     trig = df[df["outcome"].isin(TRIGGERED)]
     assert len(trig)                      # 不能是空跑
-    plan_day = pd.to_datetime(trig["plan_date"], utc=True).dt.tz_convert(TZ).dt.date
-    entry_day = pd.to_datetime(trig["entry_date"], utc=True).dt.tz_convert(TZ).dt.date
-    assert (entry_day > plan_day).all()
+    plan_ts = pd.to_datetime(trig["plan_date"], utc=True).dt.tz_convert(TZ)
+    entry_ts = pd.to_datetime(trig["entry_date"], utc=True).dt.tz_convert(TZ)
+    # plan_ts = 计划日日线时间戳 + 23h；夹具日线标在 09:30，plan_ts 会落到次日 08:30，
+    # 所以计划日要倒推回去，不能直接取 plan_ts 的日历日（L 不等确认，次日首根就能成交）
+    plan_day = (plan_ts - pd.Timedelta(hours=23)).dt.date
+    assert (entry_ts > plan_ts).all()
+    assert (entry_ts.dt.date > plan_day).all()
 
 
 def _unadjusted_pair(scale: float = 1.08) -> tuple[OHLCV, OHLCV]:

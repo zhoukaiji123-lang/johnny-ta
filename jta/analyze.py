@@ -39,7 +39,7 @@ from .levels.pivots import gaps, horizontal_pivots, prior_session_levels, round_
 from .marketcap import fetch_market_cap_context
 from .brooks import EMA_SPAN as BROOKS_EMA_SPAN, brooks_analysis
 from .indicators.ema import ema as ema_series
-from .plans import build_plans, holder_playbook, size_position
+from .plans import build_plans, holder_playbook, sides, size_position
 from .regime import benchmark_regime
 from .levels.trendline import fit_trendlines, parallel_channel
 from .scoring import evaluate, index_alignment
@@ -54,6 +54,27 @@ MIN_HITS = 3
 #: 这不是"距离近就合并候选"——候选全部保留在内部；但输出的 S1/S2/S3 必须表达
 #: 逐级路径，三个挤在 0.3 ATR 内的点无法回答"失守后看哪一档"。
 MIN_SEPARATION_ATR = 0.5
+
+#: 关键位筛选口径。
+#:
+#: - "legacy"：达标候选按命中数从高到低取前 3，再按距离编号。命中数统计的是 0.25 ATR
+#:   半径内有几类证据，主波段回撤区四套 Fib 扎堆、天然偏高，刚涨上来的价位附近天然偏低——
+#:   强势上涨后 S1 会被系统性推到深处（LITE 2026-10-05：现价 1085，S1 落在 1.74 ATR 外的 970，
+#:   近处的前日低点 1080、1000 整数 + 枢轴 + Fib 都轮不到）。等于拿一个未被回测证实的计数做了加权。
+#: - "proximity"：命中数 >= MIN_HITS 只作噪声下限、不排序。S1、S2 由近及远取"有真实反应"的
+#:   达标候选（自身来源含枢轴 / 前日高低 / 缺口，或价格行为项命中），相邻至少 MIN_SEPARATION_ATR；
+#:   S3 取 S2 外侧命中数最高的一档作结构覆盖（上游 v2.0.6：近端有效结构不因深层存在而被跳过，
+#:   深层结构也不被近端挤掉）。S2 不在窗口里按命中数挑：窗口一宽就又够到深处的 Fib 密集区。
+#:
+#: 默认 proximity（2026-10-05 起）。25 标的 / 2025-09-01 至 2026-09-23 回测，A/B/C 合计：
+#: legacy +0.036R（591 笔）比距离匹配随机对照低 0.225R（z=-1.9）；proximity +0.160R（629 笔），
+#: 与对照持平（-0.023R，z=-0.21）。proximity 比 legacy 高 0.125R（z=1.23），前后两段、A/B/C/L
+#: 各自方向一致但都不显著。读法是"去掉了按命中数排序带来的负向选择"，不是"选点有了超额价值"。
+SELECTION_MODE = "proximity"
+SELECTION_MODES = ("legacy", "proximity")
+
+#: 算作"真实价格反应"的来源族：历史上价格确实在这里转过向，而不是只由公式算出来
+REACTION_FAMILIES = {"pivot", "prev_session", "gap"}
 
 DAILY_LOOKBACK = 500
 INTRADAY_LOOKBACK = 400
@@ -132,6 +153,46 @@ def _structure(swings: Sequence) -> str:
     return "mixed"
 
 
+#: 相邻同类摆动点相差不足这个 ATR 倍数时记为等高 / 等低，不用小数差异宣布创新高低（上游 7.1）
+EQUAL_SWING_ATR = 0.1
+
+SWING_LABELS = {
+    "HH": "更高高点", "LH": "更低高点", "EH": "等高",
+    "HL": "更高低点", "LL": "更低低点", "EL": "等低",
+}
+
+
+def swing_sequence(swings: Sequence, atr_value: float, n: int = 6) -> list[dict[str, Any]]:
+    """最近 n 个已确认摆动点，各自与前一个同类点比较，标 HH/HL/LH/LL（上游 v2.0.4 第 7.1 节）。
+
+    只陈述关系，不推断趋势或形态——那是叙事层的判断。swings 已经过 visible_at，
+    只含截至 as_of 已确认的点，第一个同类点没有比较对象，label 为 None。
+    """
+    tol = EQUAL_SWING_ATR * atr_value
+    prev: dict[str, float] = {}
+    out: list[dict[str, Any]] = []
+    for s in swings:
+        p = prev.get(s.kind)
+        label = None
+        if p is not None:
+            if abs(s.price - p) <= tol:
+                label = "EH" if s.kind == "high" else "EL"
+            elif s.kind == "high":
+                label = "HH" if s.price > p else "LH"
+            else:
+                label = "HL" if s.price > p else "LL"
+        prev[s.kind] = s.price
+        out.append({
+            "ts": s.ts.isoformat(),
+            "kind": s.kind,
+            "price": round(float(s.price), 4),
+            "label": label,
+            "label_text": SWING_LABELS.get(label or ""),
+            "confirmed_at": s.confirmed_at.isoformat(),
+        })
+    return out[-n:]
+
+
 def market_state(daily: TimeframeContext, intraday: TimeframeContext) -> dict[str, Any]:
     price = float(daily.df["close"].iloc[-1])
     last = daily.emas.iloc[-1]
@@ -179,6 +240,12 @@ def market_state(daily: TimeframeContext, intraday: TimeframeContext) -> dict[st
         "intraday_ema_stack": ema_stack(intraday.emas.iloc[-1]),
         "daily_structure": structure,
         "intraday_structure": _structure(intraday.swings),
+        "swing_sequence": {
+            "daily": swing_sequence(daily.swings, daily.atr),
+            "intraday": swing_sequence(intraday.swings, intraday.atr),
+            "equal_tolerance_atr": EQUAL_SWING_ATR,
+            "note": "只陈述相邻同类摆动点的高低关系，不代表趋势已确认，也不识别形态",
+        },
         "ema_warmup": warm,
         "unreliable_emas": [k for k, v in warm.items() if not v["reliable"]],
     }
@@ -299,42 +366,79 @@ def select_key_levels(
     side: str,
     atr_value: float,
     current_price: float,
+    mode: str | None = None,
 ) -> tuple[list[tuple[Candidate, dict]], dict[str, Any]]:
     """每侧筛出 2–3 个作用独立的关键位。
 
     证据不足时输出更少并说明缺口，绝不用弱点凑数——这是原 skill 的硬纪律，
     也是这个函数唯一不该被"优化"的地方。
     """
+    mode = mode or SELECTION_MODE
+    if mode not in SELECTION_MODES:
+        raise ValueError(f"未知的筛选口径 {mode!r}，可选 {SELECTION_MODES}")
     pool = [(c, s) for c, s in scored if c.side == side]
     eligible = [(c, s) for c, s in pool if s["hits"] >= MIN_HITS]
-    eligible.sort(
-        key=lambda cs: (cs[1]["hits"], _timeframe_weight(cs[0]), -cs[0].distance_atr),
-        reverse=True,
-    )
 
     def shown(c: Candidate) -> float:
         return c.display if c.display is not None else c.price
 
+    def strength(cs: tuple[Candidate, dict]) -> tuple:
+        return (cs[1]["hits"], _timeframe_weight(cs[0]), -cs[0].distance_atr)
+
     picked: list[tuple[Candidate, dict]] = []
     crowded_out: list[dict[str, Any]] = []
     separation = MIN_SEPARATION_ATR * atr_value
-    for c, s in eligible:
-        if len(picked) >= MAX_LEVELS_PER_SIDE:
-            break
+
+    def crowd(c: Candidate, s: dict) -> bool:
         too_close = next(
             (p for p, _ in picked if abs(shown(p) - shown(c)) < separation), None
         )
-        if too_close is not None:
-            crowded_out.append(
-                {
-                    "price": shown(c),
-                    "hits": s["hits"],
-                    "reason": f"与已入选的 {shown(too_close):,.2f} 相距不足 "
-                    f"{MIN_SEPARATION_ATR} ATR，无法表达独立的下一档路径",
-                }
-            )
-            continue
-        picked.append((c, s))
+        if too_close is None:
+            return False
+        crowded_out.append(
+            {
+                "price": shown(c),
+                "hits": s["hits"],
+                "reason": f"与已入选的 {shown(too_close):,.2f} 相距不足 "
+                f"{MIN_SEPARATION_ATR} ATR，无法表达独立的下一档路径",
+            }
+        )
+        return True
+
+    if mode == "legacy":
+        for c, s in sorted(eligible, key=strength, reverse=True):
+            if len(picked) >= MAX_LEVELS_PER_SIDE:
+                break
+            if not crowd(c, s):
+                picked.append((c, s))
+    elif eligible:
+        by_dist = sorted(eligible, key=lambda cs: cs[0].distance_atr)
+
+        def reaction(cs: tuple[Candidate, dict]) -> bool:
+            pa = (cs[1].get("factors") or {}).get("price_action") or {}
+            return bool(cs[0].source_families & REACTION_FAMILIES) or bool(pa.get("hit"))
+
+        def nearest_beyond(d: float) -> tuple[Candidate, dict] | None:
+            pool_ = [cs for cs in by_dist if cs[0].distance_atr - d >= MIN_SEPARATION_ATR]
+            # 没有带真实反应的就退回最近的达标候选，不留空
+            return next((cs for cs in pool_ if reaction(cs)), pool_[0] if pool_ else None)
+
+        s1 = next((cs for cs in by_dist if reaction(cs)), by_dist[0])
+        picked.append(s1)
+        s2 = nearest_beyond(s1[0].distance_atr)
+        if s2 is not None:
+            picked.append(s2)
+            deeper = [cs for cs in by_dist
+                      if cs[0].distance_atr - s2[0].distance_atr >= MIN_SEPARATION_ATR]
+            if deeper:
+                picked.append(max(deeper, key=strength))
+        # 只列出被挤掉的最强几个，不把几十个候选全部倒出来
+        chosen = {id(c) for c, _ in picked}
+        for c, s in sorted(eligible, key=strength, reverse=True):
+            if len(crowded_out) >= 5:
+                break
+            if id(c) not in chosen:
+                crowd(c, s)
 
     # 编号按**展示值**排序：贴合会让展示值与原始计算值分离，
     # 若按原始值编号，读者会看到 R2 的数字比 R3 还大
@@ -357,6 +461,7 @@ def select_key_levels(
         )
         gap_note = f"{side} 侧只输出 {len(picked)} 个关键位：{reason}。按纪律不用弱点补足数量。"
     return picked, {
+        "mode": mode,
         "candidates_considered": len(pool),
         "eligible": len(eligible),
         "selected": len(picked),
@@ -478,6 +583,7 @@ def analyze(
     account: float | None = None,
     risk_pct: float = 0.01,
     use_live: bool = False,
+    selection: str | None = None,
 ) -> dict[str, Any]:
     provider = provider or build_provider("auto")
     daily_series, intraday_series = fetch_timeframes(provider, symbol, as_of)
@@ -552,8 +658,8 @@ def analyze(
             )
         )
 
-    supports, sup_meta = select_key_levels(scored, "support", daily.atr, price)
-    resistances, res_meta = select_key_levels(scored, "resistance", daily.atr, price)
+    supports, sup_meta = select_key_levels(scored, "support", daily.atr, price, selection)
+    resistances, res_meta = select_key_levels(scored, "resistance", daily.atr, price, selection)
 
     def render(items):
         out = []
@@ -592,6 +698,7 @@ def analyze(
         resistance_rows,
         atr=daily.atr,
         zone=zone,
+        current_price=price,
         event_mode=bool(events.get("event_mode")),
         event_reason=events.get("event_mode_reason"),
         index_bullish=index_bullish,
@@ -626,7 +733,7 @@ def analyze(
                 p["sizing"] = sizing
 
     return {
-        "schema_version": "1.5",
+        "schema_version": "1.6",
         "symbol": symbol,
         "current_price": round(price, 4),
         "price_is_live": live is not None,
@@ -682,6 +789,7 @@ def analyze(
         "ladder": ladder,
         "position_zone": zone,
         "plans": plans,
+        "sides": sides(plans),
         "brooks": brooks,
         "holder_playbook": holder_playbook(
             support_rows, resistance_rows, holding=holding, current_price=price

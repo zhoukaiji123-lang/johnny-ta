@@ -156,6 +156,8 @@ def _plan_brief(plan: dict[str, Any]) -> dict[str, Any]:
         "rr": plan.get("rr"),
         "entry_level": plan.get("entry_level"),
         "trigger": plan.get("trigger"),
+        "status_label": plan.get("status_label"),
+        "validated": plan.get("validated", True),
         "quantity": sizing.get("quantity"),
         "notional": sizing.get("notional"),
         "sizing_warning": sizing.get("warning"),
@@ -230,8 +232,10 @@ def collect_row(
     row.event_reason = events.get("event_mode_reason")
     row.earnings = (events.get("next_earnings") or {}).get("date")
 
-    executable = [p for p in r["plans"] if p["executable"]]
-    rrs = [p["rr"] for p in r["plans"] if p.get("rr") is not None]
+    # 未经回测确认的方案（validated=False，如 L）只展示，不改变分组，也不进 best_rr
+    counted = [p for p in r["plans"] if p.get("validated", True)]
+    executable = [p for p in counted if p["executable"]]
+    rrs = [p["rr"] for p in counted if p.get("rr") is not None]
     row.best_rr = max(rrs) if rrs else None
     row.group = "actionable" if executable else ("event" if row.event_mode else "quiet")
 
