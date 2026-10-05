@@ -528,7 +528,7 @@ def _diff(a: pd.DataFrame, b: pd.DataFrame, seeds_a: int = 1, seeds_b: int = 1) 
         se = np.sqrt(ra.var(ddof=1) / max(len(ra) / seeds_a, 1)
                      + rb.var(ddof=1) / max(len(rb) / seeds_b, 1))
         out["diff_r"] = round(d, 3)
-        out["z"] = round(d / se, 2) if se > 0 else None
+        out["z"] = round(float(d / se), 2) if se > 0 else None
     return out
 
 
