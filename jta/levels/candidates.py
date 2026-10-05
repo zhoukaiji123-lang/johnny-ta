@@ -211,7 +211,7 @@ def build_candidates(
 def annotate_resonance(
     candidates: Sequence[Candidate], atr_value: float, *, radius_atr: float = RESONANCE_ATR
 ) -> None:
-    """统计每个候选点周围（而不是точно同价）有哪些来源族在印证它。
+    """统计每个候选点周围（而不是精确同价）有哪些来源族在印证它。
 
     这一步只记录事实，不做加权求和——八项证据彼此高度相关，
     等权相加得出的分数没有统计含义。

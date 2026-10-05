@@ -81,7 +81,9 @@ def test_replay_provider_slices_by_as_of():
     df = bars([(101, 99, 100)] * 10)
     p = provider_from(df)
     cut = df.index[4]
-    assert len(p.fetch("TEST", "1d", as_of=cut).df) == 5
+    # 第 5 根日线在当天收盘后才可见；开盘前的 as_of 只能看到前 4 根
+    assert len(p.fetch("TEST", "1d", as_of=cut + pd.Timedelta(hours=16)).df) == 5
+    assert len(p.fetch("TEST", "1d", as_of=cut + pd.Timedelta(hours=10, minutes=30)).df) == 4
     assert len(p.fetch("TEST", "1d").df) == 10
 
 

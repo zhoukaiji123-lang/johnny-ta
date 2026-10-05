@@ -11,7 +11,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from .analyze import DAILY_LOOKBACK, INTRADAY_LOOKBACK, _prepare, analyze
+from .analyze import DAILY_LOOKBACK, INTRADAY_LOOKBACK, _prepare, analyze, fetch_timeframes
 from .data.fallback_provider import build_provider
 from .indicators.ema import ALL_SPANS, SHORT_SPANS, ema_set
 from .indicators.swing import DEFAULT_K, detect_swings, visible_at
@@ -112,9 +112,10 @@ def build_payload(
         use_live=use_live,
     )
 
-    daily = _prepare(provider.fetch(symbol, "1d"), DAILY_LOOKBACK, None)
+    daily_series, intraday_series = fetch_timeframes(provider, symbol)
+    daily = _prepare(daily_series, DAILY_LOOKBACK, None)
     daily_bars = adaptive_window(daily.df, max_bars=daily_bars)
-    intraday = _prepare(provider.fetch(symbol, "4h"), INTRADAY_LOOKBACK, None)
+    intraday = _prepare(intraday_series, INTRADAY_LOOKBACK, None)
     price = result["current_price"]
 
     # Fib 图层用完整比例集（含未入选的），因为图要表达"逐级路径"而不只是入选点

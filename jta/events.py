@@ -52,6 +52,20 @@ def _to_ts(v: Any, tz: str) -> pd.Timestamp | None:
     return ts.tz_localize(tz) if ts.tz is None else ts.tz_convert(tz)
 
 
+def _reaction_session(idx: pd.DatetimeIndex, ed: pd.Timestamp) -> int:
+    """财报后第一个反应交易日在日线索引里的位置。
+
+    盘前发布（开盘前，如 07:00）当天开盘就反应；盘后发布（16:00 后）或只给日期时，
+    反应在下一个交易日。一律取"时间戳之后的下一根日线"会把盘前财报的跳空整段漏掉，
+    量到的是第二天的波动。
+    """
+    day = ed.normalize()
+    open_ts = day + pd.Timedelta(hours=9, minutes=30)
+    if day < ed < open_ts:
+        return int(idx.searchsorted(day, side="left"))
+    return int(idx.searchsorted(day, side="right"))
+
+
 def historical_earnings_moves(
     df: pd.DataFrame, earnings: pd.DataFrame, atr: pd.Series, limit: int = 6
 ) -> list[EarningsMove]:
@@ -67,7 +81,7 @@ def historical_earnings_moves(
     closes = df["close"].to_numpy(dtype=float)
     for ed, row in earnings.iterrows():
         ed = ed.tz_convert(idx.tz) if ed.tz is not None else ed.tz_localize(idx.tz)
-        pos = idx.searchsorted(ed, side="right")
+        pos = _reaction_session(idx, ed)
         if pos <= 0 or pos >= len(idx):
             continue
         prev, cur = closes[pos - 1], closes[pos]

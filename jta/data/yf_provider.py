@@ -6,6 +6,8 @@
   水平位算在原始价上的错配。
 - adjust="raw" 返回未调整价，仅用于锚点敏感性检查。
 - 4H 非原生，由 60m 按 RTH 规则聚合，见 resample.BAR_ALIGNMENT_4H。
+- Yahoo 的 60m 即使 auto_adjust=True 也只做拆股调整、不折分红，与日线口径不同；
+  本 provider 原样返回，由 analyze.fetch_timeframes 按日线缩放（align_to_daily）。
 """
 
 from __future__ import annotations
@@ -179,7 +181,7 @@ class YFinanceProvider:
         elif native in ("60m", "30m", "15m"):
             bar_alignment = "交易所常规盘，时间戳为 bar 开始时间"
 
-        df = truncate_as_of(df, as_of)
+        df = truncate_as_of(df, as_of, interval)
         df, live = split_incomplete(df, interval)
         if live:
             warnings.append(

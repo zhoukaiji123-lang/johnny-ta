@@ -15,6 +15,7 @@ import pandas as pd
 
 from .data.fallback_provider import build_provider
 from .data.provider import MAX_DATA_AGE_SESSIONS, OHLCV
+from .data.resample import align_to_daily
 from .events import fetch_events
 from .indicators.atr import atr as atr_series
 from .indicators.ema import ALL_SPANS, ema_set, ema_stack, vegas_zone, warmup_status
@@ -56,6 +57,27 @@ MIN_SEPARATION_ATR = 0.5
 
 DAILY_LOOKBACK = 500
 INTRADAY_LOOKBACK = 400
+
+
+#: 4H 价格口径说明，随 JSON 一起输出
+INTRADAY_SCALE_NOTE = (
+    "4H 已按每天「日线收盘 / 当天最后一根 4H 收盘」缩放到日线复权口径；"
+    "只有 1 根 4H 的日子沿用前一个完整交易日的因子"
+)
+
+
+def fetch_timeframes(provider: Any, symbol: str, as_of=None) -> tuple[OHLCV, OHLCV]:
+    """取日线与 4H，并把 4H 缩放到日线的复权口径。
+
+    日线把历史分红折进价格，60m（4H 由它聚合）只做拆股调整：回看 400 根 4H 的最早一段，
+    分红股（PG/XOM/KO/JNJ 等）会比日线高约 2%，4H 候选位（局部 Fib、4H 摆动、4H EMA、
+    4H 趋势线）和日线候选位就不在同一尺度上，共振打分被污染。主备数据源混用时
+    （日线来自 yfinance、4H 来自 twelvedata）口径差异也在这里一并抹平。
+    analyze 与图表必须走同一个入口，否则图上的 K 线和关键位会错位。
+    """
+    daily = provider.fetch(symbol, "1d", as_of=as_of)
+    intraday = provider.fetch(symbol, "4h", as_of=as_of)
+    return daily, OHLCV(df=align_to_daily(intraday.df, daily.df), meta=intraday.meta)
 
 
 @dataclass
@@ -375,8 +397,7 @@ def analyze(
     use_live: bool = False,
 ) -> dict[str, Any]:
     provider = provider or build_provider("auto")
-    daily_series = provider.fetch(symbol, "1d", as_of=as_of)
-    intraday_series = provider.fetch(symbol, "4h", as_of=as_of)
+    daily_series, intraday_series = fetch_timeframes(provider, symbol, as_of)
 
     daily = _prepare(daily_series, DAILY_LOOKBACK, as_of)
     intraday = _prepare(intraday_series, INTRADAY_LOOKBACK, as_of)
@@ -419,7 +440,8 @@ def analyze(
             "symbol": benchmark,
             "price": round(float(bdf["close"].iloc[-1]), 4),
             "change_pct": change_pct,
-            "ema_stack": ema_stack(ema_set(bdf["close"]).iloc[-1]),
+            # 递推指标用完整序列算完再取末值，与 _prepare 同一口径
+            "ema_stack": ema_stack(ema_set(b.df["close"]).iloc[-1]),
             "as_of_bar": bdf.index[-1].isoformat(),
             # 基准驱动着方向降级判断；它自己的数据可信度必须一起传出，
             # 否则一份过期的基准会悄悄改变个股结论
@@ -520,7 +542,7 @@ def analyze(
                 p["sizing"] = sizing
 
     return {
-        "schema_version": "1.3",
+        "schema_version": "1.4",
         "symbol": symbol,
         "current_price": round(price, 4),
         "price_is_live": live is not None,
@@ -531,6 +553,7 @@ def analyze(
             "intraday": intraday_series.meta.to_dict(),
             "atr_daily": round(daily.atr, 4),
             "atr_intraday": round(intraday.atr, 4),
+            "intraday_scale": INTRADAY_SCALE_NOTE,
             "display_step": display_step(daily.atr),
             "display_step_note": (
                 "关键位按约 0.1 ATR 取整展示；原始计算值见每行 raw_price。"

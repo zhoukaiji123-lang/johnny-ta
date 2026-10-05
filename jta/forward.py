@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 
 from .analyze import analyze
-from .data.provider import OHLCV, SeriesMeta
+from .data.provider import OHLCV, SeriesMeta, truncate_as_of
 from .data.resample import align_to_daily
 from .data.yf_provider import YFinanceProvider
 from .scoring import FACTORS
@@ -80,12 +80,7 @@ class ReplayProvider:
         base = self._series.get((symbol, interval))
         if base is None:
             raise KeyError(f"回放数据里没有 {symbol} {interval}")
-        df = base.df
-        if as_of is not None:
-            ts = pd.Timestamp(as_of)
-            if ts.tz is None:
-                ts = ts.tz_localize("UTC")
-            df = df[df.index <= ts.tz_convert(df.index.tz)]
+        df = truncate_as_of(base.df, as_of, interval)
         if df.empty:
             from .data.provider import DataUnavailable
 

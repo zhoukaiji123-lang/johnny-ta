@@ -278,7 +278,9 @@ def build_plans(
     for p in plans:
         blocked: list[str] = []
         if p.entry is None or p.stop is None:
-            blocked.append("没有距现价 >= %.1f ATR 的可用档位" % min_dist)
+            blocked.append(
+                f"没有距现价 >= {min_dist:.1f} ATR 的可用档位" if min_dist > 0 else "没有可用档位"
+            )
         threshold = MIN_RR[p.key]
         if p.rr is None:
             blocked.append("目标位缺失，收益风险比无法计算")

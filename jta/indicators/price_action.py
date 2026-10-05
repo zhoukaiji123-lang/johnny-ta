@@ -21,7 +21,7 @@ WICK_RATIO = 0.5
 #: 影线相对实体的最小倍数
 WICK_BODY_MULT = 2.0
 
-#: 放量门槛（相对前 20 根均量）
+#: 放量门槛（相对前 20 根均量，不含当前 bar；日内按同一时段比较，见 volume_baseline）
 VOLUME_SPIKE_MULT = 1.5
 VOLUME_LOOKBACK = 20
 
@@ -34,6 +34,24 @@ class Reaction:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+def volume_baseline(df: pd.DataFrame, lookback: int = VOLUME_LOOKBACK) -> np.ndarray:
+    """前 lookback 根的均量，不含当前 bar。
+
+    日内数据按 bar 所在时段分组比较：4H 下午那根只有 2.5 小时，成交量中位数约为上午的 0.65 倍。
+    两种 bar 混在一起算均量，下午那根有 32% 被标成"缩量"、上午只有 4%，
+    "放量"正好反过来——测的是几点钟，不是量能。按时段分组后，每根 bar 只和
+    前 lookback 个交易日同一时段的 bar 比。
+    """
+    v = pd.Series(df["volume"].to_numpy(dtype=float), index=df.index)
+
+    def trailing(x: pd.Series) -> pd.Series:
+        return x.shift(1).rolling(lookback, min_periods=5).mean()
+
+    if len(df) and (df.index != df.index.normalize()).any() and df.index.normalize().has_duplicates:
+        return v.groupby(df.index.strftime("%H:%M")).transform(trailing).to_numpy()
+    return trailing(v).to_numpy()
 
 
 def bar_signals(df: pd.DataFrame) -> pd.DataFrame:
@@ -52,7 +70,7 @@ def bar_signals(df: pd.DataFrame) -> pd.DataFrame:
     bear_engulf = (c < o) & (prev_c > prev_o) & (c <= prev_o) & (o >= prev_c)
     bull_engulf[0] = bear_engulf[0] = False
 
-    avg_v = pd.Series(v).rolling(VOLUME_LOOKBACK, min_periods=5).mean().to_numpy()
+    avg_v = volume_baseline(df)
     with np.errstate(invalid="ignore"):
         vol_spike = v >= VOLUME_SPIKE_MULT * avg_v
         vol_dry = v <= 0.6 * avg_v

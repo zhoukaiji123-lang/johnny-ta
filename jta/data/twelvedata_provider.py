@@ -216,7 +216,7 @@ class TwelveDataProvider:
         elif native == "1h" or native in ("30min", "15min"):
             bar_alignment = "交易所常规盘，时间戳为 bar 开始时间"
 
-        df = truncate_as_of(df, as_of)
+        df = truncate_as_of(df, as_of, interval)
         df, live = split_incomplete(df, interval)
         if live:
             warnings.append(

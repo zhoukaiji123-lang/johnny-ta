@@ -230,13 +230,11 @@ def collect_row(
     row.best_rr = max(rrs) if rrs else None
     row.group = "actionable" if executable else ("event" if row.event_mode else "quiet")
 
-    # 与结构日之前一根的收盘比较；盘中则与最后一根完整 bar 比
+    # 现价是最后一根完整 bar 的收盘时，与它之前一根比；盘中现价则与最后一根完整 bar 比
     try:
         df = provider.fetch(symbol, "1d").df
         if len(df) >= 2:
-            row.prev_close = round(float(df["close"].iloc[-2]), 4)
-            base = float(df["close"].iloc[-1]) if not row.price_is_live else row.prev_close
-            ref = row.prev_close if row.price_is_live else float(df["close"].iloc[-2])
+            ref = float(df["close"].iloc[-1] if row.price_is_live else df["close"].iloc[-2])
             row.change_pct = round((row.price / ref - 1) * 100, 2) if ref else None
             row.prev_close = round(ref, 4)
     except Exception:  # noqa: BLE001
