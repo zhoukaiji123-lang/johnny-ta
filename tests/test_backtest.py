@@ -177,3 +177,11 @@ def test_summary_splits_by_regime():
     s = summarise_trades(df)["by_regime"]
     assert s["up"]["expectancy_r"] == pytest.approx(0.5)
     assert s["range"]["expectancy_r"] == pytest.approx(-1.0)
+
+
+def test_r_is_measured_against_the_planned_risk():
+    """跳空低开成交在止损附近、随后跳空穿止损：按计划仓位只亏 1 R 出头，不是几十 R。"""
+    bars = [wick(100, 100.5), (95.5, 96, 95.2, 95.8), (90, 91, 89, 90.5)] + [(90, 91, 89, 90)] * 3
+    r = run(bars)
+    assert r.entry_fill == 95.5 and r.exit_fill == 90.0
+    assert r.r_multiple == pytest.approx((90 - 95.5) / (100 - 95))

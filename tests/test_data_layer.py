@@ -292,3 +292,27 @@ def test_without_refresh_cache_fallback_is_marked_stale(tmp_path, monkeypatch):
     got = p.fetch("X", "1d")
     assert got.meta.stale is True
     assert any("回退缓存" in w for w in got.meta.warnings)
+
+
+def test_intraday_as_of_never_sees_an_unfinished_bar():
+    """as_of=10:30 时，当天的日线与 13:30 那根 4H 都还没走完，不能出现在数据里。"""
+    from jta.data.provider import bar_ends
+
+    days = pd.DatetimeIndex(pd.date_range("2026-08-24", periods=3, freq="B", tz=TZ))
+    d = pd.DataFrame({c: 1.0 for c in ("open", "high", "low", "close", "volume")}, index=days)
+    as_of = pd.Timestamp("2026-08-25 10:30", tz=TZ)
+    assert list(truncate_as_of(d, as_of, "1d").index) == [days[0]]
+    four_idx = pd.DatetimeIndex([days[1] + pd.Timedelta(hours=9, minutes=30),
+                                 days[1] + pd.Timedelta(hours=13, minutes=30)])
+    four = pd.DataFrame({c: 1.0 for c in ("open", "high", "low", "close", "volume")}, index=four_idx)
+    assert truncate_as_of(four, as_of, "4h").empty
+    assert len(truncate_as_of(four, pd.Timestamp("2026-08-25 13:30", tz=TZ), "4h")) == 1
+    assert list(bar_ends(four_idx, "4h").strftime("%H:%M")) == ["13:30", "16:00"]
+
+
+def test_weekly_bar_ends_on_friday_close():
+    from jta.data.provider import bar_end, is_bar_complete
+
+    monday = pd.Timestamp("2026-08-24", tz=TZ)
+    assert bar_end(monday, "1wk") == pd.Timestamp("2026-08-28 16:00", tz=TZ)
+    assert is_bar_complete(monday, "1wk", pd.Timestamp("2026-08-26 20:00", tz=TZ)) is False

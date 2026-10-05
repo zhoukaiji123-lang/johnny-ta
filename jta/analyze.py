@@ -15,6 +15,7 @@ import pandas as pd
 
 from .data.fallback_provider import build_provider
 from .data.provider import MAX_DATA_AGE_SESSIONS, OHLCV
+from .data.resample import align_to_daily
 from .events import fetch_events
 from .indicators.atr import atr as atr_series
 from .indicators.ema import ALL_SPANS, ema_set, ema_stack, vegas_zone, warmup_status
@@ -34,7 +35,7 @@ from .levels.candidates import (
     note_market_cap_confluence,
     note_pivot_confluence,
 )
-from .levels.pivots import gaps, horizontal_pivots, prior_session_levels, round_numbers
+from .levels.pivots import gaps, horizontal_pivots, prior_session_levels, round_ladder, round_numbers
 from .marketcap import fetch_market_cap_context
 from .brooks import EMA_SPAN as BROOKS_EMA_SPAN, brooks_analysis
 from .indicators.ema import ema as ema_series
@@ -56,6 +57,27 @@ MIN_SEPARATION_ATR = 0.5
 
 DAILY_LOOKBACK = 500
 INTRADAY_LOOKBACK = 400
+
+
+#: 4H 价格口径说明，随 JSON 一起输出
+INTRADAY_SCALE_NOTE = (
+    "4H 已按每天「日线收盘 / 当天最后一根 4H 收盘」缩放到日线复权口径；"
+    "只有 1 根 4H 的日子沿用前一个完整交易日的因子"
+)
+
+
+def fetch_timeframes(provider: Any, symbol: str, as_of=None) -> tuple[OHLCV, OHLCV]:
+    """取日线与 4H，并把 4H 缩放到日线的复权口径。
+
+    日线把历史分红折进价格，60m（4H 由它聚合）只做拆股调整：回看 400 根 4H 的最早一段，
+    分红股（PG/XOM/KO/JNJ 等）会比日线高约 2%，4H 候选位（局部 Fib、4H 摆动、4H EMA、
+    4H 趋势线）和日线候选位就不在同一尺度上，共振打分被污染。主备数据源混用时
+    （日线来自 yfinance、4H 来自 twelvedata）口径差异也在这里一并抹平。
+    analyze 与图表必须走同一个入口，否则图上的 K 线和关键位会错位。
+    """
+    daily = provider.fetch(symbol, "1d", as_of=as_of)
+    intraday = provider.fetch(symbol, "4h", as_of=as_of)
+    return daily, OHLCV(df=align_to_daily(intraday.df, daily.df), meta=intraday.meta)
 
 
 @dataclass
@@ -358,6 +380,89 @@ def confirmation_rules(candidate: Candidate) -> dict[str, Any]:
     }
 
 
+# ------------------------------------------------------------------ 整数关口梯子
+
+#: 一侧没有关键位时，整数关口往外取多远（ATR 倍数）
+ROUND_REACH_ATR = 2.0
+
+ROUND_NOTE = (
+    "整数关口是心理参考位，只穿插在关键位之间展示，不参与关键位筛选、证据计数与三套计划。"
+    "回放检验（26 个标的、2025-03 至 2026-09）里，整数位的守住率 46.0%，"
+    "同侧同距离的非整数价位 44.7%（z=0.72），没有可检测的差异。"
+)
+
+
+def _shown(level: dict[str, Any]) -> float:
+    return level["display"] if level.get("display") is not None else level["raw_price"]
+
+
+def _covers(level: dict[str, Any], price: float) -> bool:
+    """整数位是否落在关键位的展示区间里（单值展示时要求相等）。"""
+    lo = level.get("range_low") if level.get("range_low") is not None else _shown(level)
+    hi = level.get("range_high") if level.get("range_high") is not None else _shown(level)
+    return lo - 1e-9 <= price <= hi + 1e-9
+
+
+def _fmt_price(v: float) -> str:
+    return f"{v:,.10g}" if v == int(v) else f"{v:,}"
+
+
+def build_ladder(
+    supports: list[dict[str, Any]],
+    resistances: list[dict[str, Any]],
+    price: float,
+    atr: float,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """把整数关口穿插进 S1–S3 / R1–R3 之间，返回 (round_levels, ladder)。
+
+    只在最外侧关键位之间取整数位（一侧没有关键位时取 ROUND_REACH_ATR）。
+    整数位落在某个关键位的展示区间里时，标注在那个关键位上（round_number 字段），不重复列出；
+    只是挨得近（比如 1800 与 R2「约 1780–1790」）仍单独列出——那正是读者想看到的数字。
+    ladder 按价格从高到低，含关键位、整数关口与现价，前端照这个顺序画。
+    """
+    keys = [("resistance", r) for r in resistances] + [("support", s) for s in supports]
+    # 上下界取最外侧关键位的区间沿，落在区间里的整数位才能并到那一档上
+    low = min((s.get("range_low") or _shown(s) for s in supports),
+              default=price - ROUND_REACH_ATR * atr)
+    high = max((r.get("range_high") or _shown(r) for r in resistances),
+               default=price + ROUND_REACH_ATR * atr)
+    rounds: list[dict[str, Any]] = []
+    for rd in round_ladder(price, atr, min(low, price), max(high, price)):
+        host = next((lv for _, lv in keys if _covers(lv, rd["price"])), None)
+        if host is not None:
+            host["round_number"] = {"price": rd["price"], "tier": rd["tier"]}
+            continue
+        rounds.append({
+            **rd,
+            "side": "support" if rd["price"] < price else "resistance",
+            "distance_atr": round(abs(rd["price"] - price) / atr, 3),
+            "text": _fmt_price(rd["price"]),
+        })
+
+    # 排序用原始计算值：展示值按 0.1 ATR 取整，S1 原值 1716.3 会显示成 1720、排到现价 1719.99 上面
+    ladder = (
+        [{"kind": kind, "label": lv["label"], "price": _shown(lv), "text": lv["display_text"],
+          "_order": lv["raw_price"]} for kind, lv in keys]
+        + [{"kind": "round", "label": rd["tier"], "price": rd["price"], "text": rd["text"],
+            "_order": rd["price"]} for rd in rounds]
+        + [{"kind": "now", "label": "现价", "price": round(price, 4),
+            "text": _fmt_price(round(price, 2)), "_order": price}]
+    )
+    ladder.sort(key=lambda it: -it["_order"])
+    for it in ladder:
+        del it["_order"]
+    # 每个整数位标明落在哪两档之间，叙事层可以直接说"R1 与 R2 之间的 1800"
+    for i, it in enumerate(ladder):
+        if it["kind"] != "round":
+            continue
+        above = next((x["label"] for x in reversed(ladder[:i]) if x["kind"] != "round"), None)
+        below = next((x["label"] for x in ladder[i + 1:] if x["kind"] != "round"), None)
+        between = " 与 ".join(x for x in (above, below) if x)
+        it["between"] = between
+        next(rd for rd in rounds if rd["price"] == it["price"])["between"] = between
+    return rounds, ladder
+
+
 # ------------------------------------------------------------------ 主入口
 
 
@@ -375,8 +480,7 @@ def analyze(
     use_live: bool = False,
 ) -> dict[str, Any]:
     provider = provider or build_provider("auto")
-    daily_series = provider.fetch(symbol, "1d", as_of=as_of)
-    intraday_series = provider.fetch(symbol, "4h", as_of=as_of)
+    daily_series, intraday_series = fetch_timeframes(provider, symbol, as_of)
 
     daily = _prepare(daily_series, DAILY_LOOKBACK, as_of)
     intraday = _prepare(intraday_series, INTRADAY_LOOKBACK, as_of)
@@ -419,7 +523,8 @@ def analyze(
             "symbol": benchmark,
             "price": round(float(bdf["close"].iloc[-1]), 4),
             "change_pct": change_pct,
-            "ema_stack": ema_stack(ema_set(bdf["close"]).iloc[-1]),
+            # 递推指标用完整序列算完再取末值，与 _prepare 同一口径
+            "ema_stack": ema_stack(ema_set(b.df["close"]).iloc[-1]),
             "as_of_bar": bdf.index[-1].isoformat(),
             # 基准驱动着方向降级判断；它自己的数据可信度必须一起传出，
             # 否则一份过期的基准会悄悄改变个股结论
@@ -476,6 +581,7 @@ def analyze(
 
     state = market_state(daily, intraday)
     support_rows, resistance_rows = render(supports), render(resistances)
+    round_rows, ladder = build_ladder(support_rows, resistance_rows, price, daily.atr)
     # 三套计划都是做多，因此一律以"指数多头是否成立"判断方向是否有利，
     # 不按各自关键位所在的一侧来判断
     index_bullish = (
@@ -520,7 +626,7 @@ def analyze(
                 p["sizing"] = sizing
 
     return {
-        "schema_version": "1.3",
+        "schema_version": "1.5",
         "symbol": symbol,
         "current_price": round(price, 4),
         "price_is_live": live is not None,
@@ -531,6 +637,7 @@ def analyze(
             "intraday": intraday_series.meta.to_dict(),
             "atr_daily": round(daily.atr, 4),
             "atr_intraday": round(intraday.atr, 4),
+            "intraday_scale": INTRADAY_SCALE_NOTE,
             "display_step": display_step(daily.atr),
             "display_step_note": (
                 "关键位按约 0.1 ATR 取整展示；原始计算值见每行 raw_price。"
@@ -570,6 +677,9 @@ def analyze(
         "supports": support_rows,
         "resistances": resistance_rows,
         "selection": {"support": sup_meta, "resistance": res_meta},
+        "round_levels": round_rows,
+        "round_levels_note": ROUND_NOTE,
+        "ladder": ladder,
         "position_zone": zone,
         "plans": plans,
         "brooks": brooks,
@@ -604,9 +714,10 @@ def analyze(
             *intraday_series.meta.warnings,
         ],
         "validation_disclaimer": (
-            "前向验证（7 标的 / 2025-08–2026-07 / 1023 条已判定观察）显示：控制距现价"
+            "前向验证（7 标的 / 2025-08–2026-07 / 973 条已判定观察）显示：控制距现价"
             "远近后，这些关键位的守住率与同侧同距离的随机价位没有可检测差异，"
-            "证据命中数与守住率也没有单调关系。本图的价值在于口径统一、"
+            "证据命中数与守住率也没有单调关系；计划级回测里照计划入场也没有跑赢"
+            "同样远近的随机入场。本图的价值在于口径统一、"
             "失效位明确与仓位可反推，不在于预测胜率。"
         ),
     }

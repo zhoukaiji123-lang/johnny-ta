@@ -19,7 +19,8 @@ import numpy as np
 import pandas as pd
 
 from .analyze import analyze
-from .data.provider import OHLCV, SeriesMeta
+from .data.provider import OHLCV, SeriesMeta, truncate_as_of
+from .data.resample import align_to_daily
 from .data.yf_provider import YFinanceProvider
 from .scoring import FACTORS
 
@@ -46,11 +47,22 @@ CONTROL_DISTANCE_RANGE = (0.3, 3.0)
 
 
 class ReplayProvider:
-    """把一次性抓来的全量行情按 as_of 切片，回放期间不再触网。"""
+    """把一次性抓来的全量行情按 as_of 切片，回放期间不再触网。
+
+    构造时把每个标的的 4H 缩放到日线复权口径（见 align_to_daily）：回放里 analyze 的
+    4H 候选位（局部 Fib、4H 摆动、4H EMA、4H 趋势线）要和日线候选位同尺度才能算共振，
+    simulate 的成交也要和按日线算出的计划价同尺度。因子逐日计算，切片后不引入前视。
+    """
 
     name = "replay"
 
-    def __init__(self, series: dict[tuple[str, str], OHLCV]) -> None:
+    def __init__(self, series: dict[tuple[str, str], OHLCV], *, align: bool = True) -> None:
+        if align:
+            series = dict(series)
+            for (sym, iv), s in list(series.items()):
+                d = series.get((sym, "1d"))
+                if iv == "4h" and d is not None:
+                    series[(sym, iv)] = OHLCV(df=align_to_daily(s.df, d.df), meta=s.meta)
         self._series = series
 
     @classmethod
@@ -68,12 +80,7 @@ class ReplayProvider:
         base = self._series.get((symbol, interval))
         if base is None:
             raise KeyError(f"回放数据里没有 {symbol} {interval}")
-        df = base.df
-        if as_of is not None:
-            ts = pd.Timestamp(as_of)
-            if ts.tz is None:
-                ts = ts.tz_localize("UTC")
-            df = df[df.index <= ts.tz_convert(df.index.tz)]
+        df = truncate_as_of(base.df, as_of, interval)
         if df.empty:
             from .data.provider import DataUnavailable
 
@@ -265,15 +272,18 @@ def evaluate(
             w_end = min(t + horizon, len(idx))
             seg_close = closes[t:w_end]
             seg_high, seg_low = highs[t:w_end], lows[t:w_end]
+            # 触及当天的反向极值不算"离开"：日线看不出它在触及之前还是之后，
+            # 支撑侧当天的高点很可能出现在下探之前。反向离开只从次日算起（下标 +1 对齐）
+            nxt_high, nxt_low = highs[t + 1:w_end], lows[t + 1:w_end]
             if side == "support":
                 broke = np.flatnonzero(seg_close <= level - break_atr * atr)
-                held = np.flatnonzero(seg_high >= level + react_atr * atr)
-                out.at[i, "mfe_atr"] = float((seg_high.max() - level) / atr)
+                held = np.flatnonzero(nxt_high >= level + react_atr * atr) + 1
+                out.at[i, "mfe_atr"] = float((nxt_high.max() - level) / atr) if nxt_high.size else np.nan
                 out.at[i, "mae_atr"] = float((level - seg_low.min()) / atr)
             else:
                 broke = np.flatnonzero(seg_close >= level + break_atr * atr)
-                held = np.flatnonzero(seg_low <= level - react_atr * atr)
-                out.at[i, "mfe_atr"] = float((level - seg_low.min()) / atr)
+                held = np.flatnonzero(nxt_low <= level - react_atr * atr) + 1
+                out.at[i, "mfe_atr"] = float((level - nxt_low.min()) / atr) if nxt_low.size else np.nan
                 out.at[i, "mae_atr"] = float((seg_high.max() - level) / atr)
 
             first_break = broke[0] if broke.size else np.inf

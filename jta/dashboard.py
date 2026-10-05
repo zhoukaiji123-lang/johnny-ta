@@ -85,6 +85,7 @@ class Row:
     regime: dict[str, Any] | None = None
     supports: list[dict[str, Any]] = field(default_factory=list)
     resistances: list[dict[str, Any]] = field(default_factory=list)
+    ladder: list[dict[str, Any]] = field(default_factory=list)
     plans: list[dict[str, Any]] = field(default_factory=list)
     brooks: dict[str, Any] | None = None
     best_rr: float | None = None
@@ -199,6 +200,10 @@ def collect_row(
     row.regime = (r.get("benchmark") or {}).get("regime")
     row.supports = [_brief(l) for l in r["supports"]]
     row.resistances = [_brief(l) for l in r["resistances"]]
+    # 关键位之间穿插整数关口（只作参考）；现价不进看板这一行，标签本身已按价格排好
+    hits = {l["label"]: l["scoring"]["hits"] for l in r["supports"] + r["resistances"]}
+    row.ladder = [{**it, "hits": hits.get(it["label"])} for it in r.get("ladder", [])
+                  if it["kind"] != "now"]
     row.plans = [_plan_brief(p) for p in r["plans"]]
     bk = r.get("brooks") or {}
     if bk.get("available"):
@@ -230,13 +235,11 @@ def collect_row(
     row.best_rr = max(rrs) if rrs else None
     row.group = "actionable" if executable else ("event" if row.event_mode else "quiet")
 
-    # 与结构日之前一根的收盘比较；盘中则与最后一根完整 bar 比
+    # 现价是最后一根完整 bar 的收盘时，与它之前一根比；盘中现价则与最后一根完整 bar 比
     try:
         df = provider.fetch(symbol, "1d").df
         if len(df) >= 2:
-            row.prev_close = round(float(df["close"].iloc[-2]), 4)
-            base = float(df["close"].iloc[-1]) if not row.price_is_live else row.prev_close
-            ref = row.prev_close if row.price_is_live else float(df["close"].iloc[-2])
+            ref = float(df["close"].iloc[-1] if row.price_is_live else df["close"].iloc[-2])
             row.change_pct = round((row.price / ref - 1) * 100, 2) if ref else None
             row.prev_close = round(ref, 4)
     except Exception:  # noqa: BLE001

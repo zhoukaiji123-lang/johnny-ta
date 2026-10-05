@@ -191,12 +191,14 @@ def cmd_backtest(args: argparse.Namespace) -> int:
     df = run_backtest(
         pairs, provider, start=args.start, end=args.end,
         rules=rules, executable_only=args.executable_only,
+        control_seeds=tuple(range(args.control)),
+        min_entry_distance_atr=args.min_entry_distance, jobs=args.jobs,
     )
     if args.out:
         df.to_parquet(args.out)
         print(f"已写入 {args.out}（{len(df)} 行）", file=sys.stderr)
 
-    summary = summarise_trades(df)
+    summary = summarise_trades(df, split=args.split)
     if args.json:
         print(json.dumps(summary, ensure_ascii=False, indent=2, default=str))
         return 0
@@ -227,6 +229,40 @@ def cmd_backtest(args: argparse.Namespace) -> int:
                 continue
             print(f"{k:<12}{v['triggered']:>6}{v['win_rate']:>8.1%}"
                   f"{v['expectancy_r']:>9.3f}{v['stderr_r'] or 0:>8.3f}")
+    def gate_line(name: str, g: dict) -> str:
+        d = g.get("up_minus_blocked") or {}
+        if d.get("a") is None or d.get("b") is None:
+            return f"{name:<14}样本不足"
+        return (f"{name:<14}向上 {d['a']:+.3f}R（{d['n_a']}）· 被拦截 {d['b']:+.3f}R（{d['n_b']}）"
+                f" · 差 {(d['diff_r'] or 0):+.3f}R z={d['z']}")
+
+    def cmp_line(name: str, c: dict) -> str:
+        r, k = c["real"], c["control"]
+        if not r.get("triggered") or not k.get("triggered"):
+            return f"{name:<14}样本不足"
+        return (f"{name:<14}真实 {r['expectancy_r']:+.3f}R（{r['triggered']}）· 对照 "
+                f"{k['expectancy_r']:+.3f}R（{k['triggered']}）· 差 {(c['diff_r'] or 0):+.3f}R z={c['z_diff']}")
+
+    print()
+    print("大盘开关（REGIME_GATE）：")
+    print(gate_line("真实计划", summary["regime_gate"]))
+    ctrl = summary.get("control")
+    if ctrl:
+        print(gate_line("距离匹配对照", ctrl["regime_gate"]))
+        print()
+        print(f"距离匹配随机对照（{ctrl['seeds']} 个种子，标准误按单个种子样本量算）：")
+        print(cmp_line("全部", ctrl["overall"]))
+        for k, v in ctrl["by_plan"].items():
+            print(cmp_line(k, v))
+    h = summary.get("halves")
+    if h:
+        print()
+        for key, label in (("first", f"<= {h['split']}"), ("second", f"> {h['split']}")):
+            part = h[key]
+            print(f"[{label}]")
+            if "control" in part:
+                print(cmp_line("  真实 vs 对照", part["control"]))
+            print(gate_line("  大盘开关", part["regime_gate"]))
     print()
     for c in summary["caveats"]:
         print(f"· {c}")
@@ -422,6 +458,11 @@ def main(argv: list[str] | None = None) -> int:
     bt.add_argument("--brooks", action="store_true",
                     help="回测 Brooks 计划 D，并与距离匹配的随机入场对照比较")
     bt.add_argument("--jobs", type=int, default=1, help="并行进程数（按标的拆分）")
+    bt.add_argument("--control", type=int, default=0,
+                    help="距离匹配随机对照的种子数（每条计划复制 N 份，入场 ±0.5–1.0 ATR 平移）")
+    bt.add_argument("--split", default=None, help="按计划日切成前后两段，例如 2026-06-25")
+    bt.add_argument("--min-entry-distance", type=float, default=None,
+                    help="覆盖 MIN_ENTRY_DISTANCE_ATR，复现距离过滤开/关对比")
     bt.set_defaults(func=cmd_backtest)
 
     fr = sub.add_parser("forward-report", help="从已保存的记录重新汇总")

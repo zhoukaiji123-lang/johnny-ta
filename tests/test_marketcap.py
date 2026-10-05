@@ -73,9 +73,16 @@ def _daily_df(weekly_closes: list[float], *, last_week_partial_days: int = 0) ->
 
 def test_completed_weekly_closes_drops_the_still_open_week():
     df = _daily_df([100, 110, 120], last_week_partial_days=3)  # 最后一周只到周三
-    weekly = _completed_weekly_closes(df)
+    weekly = _completed_weekly_closes(df, now=df.index[-1] + pd.Timedelta(hours=20))
     assert len(weekly) == 2
     assert list(weekly.values) == [100, 110]
+
+
+def test_completed_weekly_closes_keeps_a_week_that_ended_on_a_holiday_thursday():
+    """周五休市那一周最后一根是周四：周末再看时这一周已经走完，不能丢掉。"""
+    df = _daily_df([100, 110, 120], last_week_partial_days=4)  # 最后一周到周四
+    weekly = _completed_weekly_closes(df, now=df.index[-1] + pd.Timedelta(days=2))
+    assert list(weekly.values) == [100, 110, 120]
 
 
 def test_completed_weekly_closes_keeps_friday_closed_week():
@@ -113,7 +120,8 @@ def test_classify_weekly_state_boundary_uncertain():
 
 def test_classify_weekly_state_no_data():
     df = _daily_df([100], last_week_partial_days=2)  # 唯一一周还没走完
-    state = _classify_weekly_state(df, target_price=100.0, tolerance=0.1)
+    state = _classify_weekly_state(df, target_price=100.0, tolerance=0.1,
+                                   now=df.index[-1] + pd.Timedelta(hours=20))
     assert state["state"] == "数据不足"
 
 
@@ -121,7 +129,8 @@ def test_classify_weekly_state_flags_in_progress_attempt():
     # 上周未站上、这周（还没收盘）盘中已经摸到目标价
     df = _daily_df([90, 95], last_week_partial_days=3)
     df.iloc[-1, df.columns.get_loc("high")] = 101.0
-    state = _classify_weekly_state(df, target_price=100.0, tolerance=0.1)
+    state = _classify_weekly_state(df, target_price=100.0, tolerance=0.1,
+                                   now=df.index[-1] + pd.Timedelta(hours=20))
     assert state["state"] == "未触及"  # 上周的正式状态不受影响
     assert state["in_progress_attempt"] is True
 

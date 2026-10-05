@@ -40,15 +40,20 @@ def _bracket_anchors(market_cap: float) -> tuple[float, float]:
     return below, above
 
 
-def _completed_weekly_closes(df: pd.DataFrame) -> pd.Series:
+def _completed_weekly_closes(df: pd.DataFrame, now: pd.Timestamp | None = None) -> pd.Series:
     """按自然周（周五收盘）聚合，只保留已经真正走完的周。
 
-    df 已经是结构计算用的日线（今天未收盘的 bar 已被上游 split_incomplete
-    剔除），所以只需要看最后一根 bar 是不是周五——不是就说明这一周还没走完，
-    丢掉最后一个还在累积的桶。
+    df 已经是结构计算用的日线（今天未收盘的 bar 已被上游 split_incomplete 剔除）。
+    最后一个桶在两种情况下算走完：最后一根 bar 是周五；或者现在已经过了这一周的
+    周五收盘——周五休市（如耶稣受难日）那一周最后一根是周四，只看"是不是周五"
+    会把它一直当成未走完，周线状态整整错一周。
     """
     weekly = df["close"].resample("W-FRI").last()
-    if df.index[-1].weekday() != 4:
+    if weekly.empty:
+        return weekly
+    now = pd.Timestamp.now(tz=df.index.tz) if now is None else now
+    friday_close = weekly.index[-1].normalize() + pd.Timedelta(hours=16)
+    if df.index[-1].weekday() != 4 and now < friday_close:
         weekly = weekly.iloc[:-1]
     return weekly
 
@@ -64,9 +69,9 @@ def _touched(bars: pd.DataFrame, target_price: float) -> bool:
 
 
 def _classify_weekly_state(
-    df: pd.DataFrame, target_price: float, tolerance: float
+    df: pd.DataFrame, target_price: float, tolerance: float, now: pd.Timestamp | None = None
 ) -> dict[str, Any]:
-    completed = _completed_weekly_closes(df)
+    completed = _completed_weekly_closes(df, now)
     if completed.empty:
         return {"state": "数据不足", "note": "还没有一整个完整交易周的数据"}
 

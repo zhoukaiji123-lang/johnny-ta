@@ -81,7 +81,9 @@ def test_replay_provider_slices_by_as_of():
     df = bars([(101, 99, 100)] * 10)
     p = provider_from(df)
     cut = df.index[4]
-    assert len(p.fetch("TEST", "1d", as_of=cut).df) == 5
+    # 第 5 根日线在当天收盘后才可见；开盘前的 as_of 只能看到前 4 根
+    assert len(p.fetch("TEST", "1d", as_of=cut + pd.Timedelta(hours=16)).df) == 5
+    assert len(p.fetch("TEST", "1d", as_of=cut + pd.Timedelta(hours=10, minutes=30)).df) == 4
     assert len(p.fetch("TEST", "1d").df) == 10
 
 
@@ -248,3 +250,10 @@ def test_summarise_warns_that_overall_is_uncontrolled():
 def test_summarise_on_empty_input():
     assert "error" in summarise(pd.DataFrame())
     assert format_summary({"error": "无记录"}) == "无记录"
+
+
+def test_touch_day_high_does_not_count_as_a_bounce():
+    """触及当天的高点可能出现在下探之前，不能拿来判定"守住"。"""
+    df = bars([(101, 99, 100)] + [(101, 89.5, 92)] + [(95, 91, 93)] * 5)
+    out = evaluate(record(90.0), provider_from(df), horizon=10)
+    assert out["outcome"].iloc[0] == "inconclusive"

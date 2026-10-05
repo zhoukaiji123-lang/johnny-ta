@@ -182,6 +182,8 @@ class TwelveDataProvider:
             df, meta_d = cached
             df = normalize_index(df)
             fetched_at = datetime.fromisoformat(meta_d["fetched_at"])
+            # 口径降级的警告随缓存一起保存，命中缓存时照样报出，不能静默
+            warnings.extend(meta_d.get("download_warnings", []))
         else:
             try:
                 df, dl_warnings = self._download(symbol, native, adjust)
@@ -195,6 +197,7 @@ class TwelveDataProvider:
                         "interval": native,
                         "adjust": adjust,
                         "splits": [],
+                        "download_warnings": dl_warnings,
                     },
                 )
             except Exception as exc:  # noqa: BLE001 — 网络/接口异常统一降级
@@ -206,6 +209,7 @@ class TwelveDataProvider:
                 df = normalize_index(df)
                 fetched_at = datetime.fromisoformat(meta_d["fetched_at"])
                 stale = True
+                warnings.extend(meta_d.get("download_warnings", []))
                 warnings.append(f"抓取失败，回退缓存（{exc}）")
 
         bar_alignment = None
@@ -216,7 +220,7 @@ class TwelveDataProvider:
         elif native == "1h" or native in ("30min", "15min"):
             bar_alignment = "交易所常规盘，时间戳为 bar 开始时间"
 
-        df = truncate_as_of(df, as_of)
+        df = truncate_as_of(df, as_of, interval)
         df, live = split_incomplete(df, interval)
         if live:
             warnings.append(

@@ -123,11 +123,13 @@ BAR_DURATION = {
 
 
 def bar_end(ts: "pd.Timestamp", interval: str) -> "pd.Timestamp":
-    """bar 的结束时刻。日内 bar 不会越过当日收盘。"""
+    """bar 的结束时刻。日内 bar 不会越过当日收盘；周线以周一为起点，结束于当周周五收盘。"""
     session_close = ts.normalize() + pd.Timedelta(
         hours=RTH_CLOSE.hour, minutes=RTH_CLOSE.minute
     )
-    if interval in ("1d", "1wk"):
+    if interval == "1wk":
+        return session_close + pd.Timedelta(days=max(0, 4 - ts.weekday()))
+    if interval == "1d":
         return session_close
     return min(ts + BAR_DURATION.get(interval, timedelta(hours=1)), session_close)
 
@@ -204,11 +206,33 @@ def normalize_index(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def truncate_as_of(df: pd.DataFrame, as_of: datetime | None) -> pd.DataFrame:
-    """按 as_of 截断。比较使用 bar 的收盘时间概念上的开始时间戳。"""
+def bar_ends(index: pd.DatetimeIndex, interval: str) -> pd.DatetimeIndex:
+    """bar_end 的向量版。"""
+    close = index.normalize() + pd.Timedelta(hours=RTH_CLOSE.hour, minutes=RTH_CLOSE.minute)
+    if interval == "1wk":
+        return close + pd.to_timedelta(np.maximum(0, 4 - index.weekday), unit="D")
+    if interval == "1d":
+        return close
+    ends = index + BAR_DURATION.get(interval, timedelta(hours=1))
+    return ends.where(ends <= close, close)
+
+
+def truncate_as_of(
+    df: pd.DataFrame, as_of: datetime | None, interval: str | None = None
+) -> pd.DataFrame:
+    """按 as_of 截断。
+
+    给了 interval 时只保留在 as_of 之前**已经走完**的 bar：按开始时间截断的话，
+    as_of=10:30 会把当天那根完整日线（含收盘）也放进来，等于偷看了当天剩下的行情。
+    历史数据里没有"截至 10:30 的半根日线"，那根 bar 只能整根排除。
+    不给 interval 时退回按开始时间比较（仅供不知道周期的调用方）。
+    """
     if as_of is None:
         return df
     ts = pd.Timestamp(as_of)
     if ts.tz is None:
         ts = ts.tz_localize("UTC")
-    return df[df.index <= ts.tz_convert(df.index.tz)]
+    ts = ts.tz_convert(df.index.tz)
+    if interval is None:
+        return df[df.index <= ts]
+    return df[bar_ends(df.index, interval) <= ts]

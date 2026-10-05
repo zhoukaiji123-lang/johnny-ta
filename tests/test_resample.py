@@ -109,3 +109,12 @@ def test_naive_index_rejected():
     src.index = src.index.tz_localize(None)
     with pytest.raises(ValueError):
         to_4h(src)
+
+
+def test_missing_opening_hour_does_not_shift_the_4h_grid():
+    """某天缺了 09:30 那根 60m：4H 仍按 09:30 / 13:30 切，不能整天错位成 10:30 / 14:30。"""
+    df = make_60m(["2026-08-24", "2026-08-25", "2026-08-26"])
+    df = df.drop(pd.Timestamp("2026-08-25 09:30", tz=TZ))
+    out = to_4h(df)
+    day = out[out.index.normalize() == pd.Timestamp("2026-08-25", tz=TZ)]
+    assert list(day.index.strftime("%H:%M")) == ["09:30", "13:30"]
