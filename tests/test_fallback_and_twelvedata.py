@@ -223,6 +223,10 @@ def test_twelvedata_downgrades_adjust_when_all_rejected(tmp_path, monkeypatch):
     got = p.fetch("X", "1d", as_of=datetime(2026, 8, 25, 20, 0, tzinfo=timezone.utc))
     assert seen_adjust == ["all", "splits"]
     assert any("降级" in w for w in got.meta.warnings)
+    # 第二次命中缓存，不再请求，但降级警告必须还在
+    again = p.fetch("X", "1d", as_of=datetime(2026, 8, 25, 20, 0, tzinfo=timezone.utc))
+    assert seen_adjust == ["all", "splits"]
+    assert any("降级" in w for w in again.meta.warnings)
 
 
 def test_twelvedata_4h_resamples_from_1h(tmp_path, monkeypatch):

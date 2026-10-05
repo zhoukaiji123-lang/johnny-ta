@@ -104,3 +104,19 @@ def test_breakout_pullback_search_starts_after_the_confirming_close():
     r = simulate(p, four, d, pd.Timestamp("2026-01-02 23:00", tz=TZ), symbol="T",
                  index_bullish=True, rules=TradeRules())
     assert r.entry_fill is None and "未触及" in r.note
+
+
+def test_backtest_with_distance_matched_control_and_split():
+    from jta.backtest import summarise_trades
+
+    df = run_backtest([("TEST", None)], _replay_from_daily(), start="2025-01-01",
+                      end="2025-12-31", control_seeds=(0, 1))
+    assert set(df["stream"]) == {"real", "ctrl_0", "ctrl_1"}
+    real, c0 = df[df["stream"] == "real"], df[df["stream"] == "ctrl_0"]
+    assert len(real) == len(c0)                                # 每条计划一份对照
+    off = (c0["entry_plan"].to_numpy() - real["entry_plan"].to_numpy())
+    assert np.allclose(c0["stop_plan"].to_numpy() - real["stop_plan"].to_numpy(), off)
+    s = summarise_trades(df, split="2025-06-30")
+    assert s["control"]["seeds"] == 2 and "regime_gate" in s["control"]
+    assert set(s["halves"]) == {"split", "first", "second"}
+    assert s["overall"]["plans"] == len(real)                  # 汇总只按真实计划计

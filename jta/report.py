@@ -78,6 +78,8 @@ def render_text(r: dict[str, Any], account: float | None = None, risk_pct: float
         )
     if d["intraday"].get("bar_alignment"):
         lines.append(f"4H 对齐：{d['intraday']['bar_alignment']}")
+    if d.get("intraday_scale"):
+        lines.append(f"4H 口径：{d['intraday_scale']}")
 
     ms = r["market_state"]
     lines.append("")

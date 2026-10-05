@@ -49,10 +49,15 @@ def to_4h(df60: pd.DataFrame, boundary_hours: int = 4) -> pd.DataFrame:
     ns = idx.asi8.astype("int64")
     day_key = idx.normalize().asi8.astype("int64")
 
-    # 索引已升序，故每个交易日的首个 bar 即该日开盘 bar
+    # 索引已升序，故每个交易日的首个 bar 通常就是开盘 bar。锚点取各天首根 bar 时刻的众数
+    # （美股 09:30，境外市场按其自身开盘）：某天缺了开盘那根时，若拿当天首根当锚点，
+    # 整天的 4H 会错位成 10:30 / 14:30，后面的 Fib、EMA 与按时段比较的量能全跟着错
     _, first_pos = np.unique(day_key, return_index=True)
     group_sizes = np.diff(np.append(first_pos, len(ns)))
-    session_open_ns = np.repeat(ns[first_pos], group_sizes)
+    first_tod = ns[first_pos] - day_key[first_pos]
+    vals, counts = np.unique(first_tod, return_counts=True)
+    anchor = vals[np.argmax(counts)]
+    session_open_ns = np.repeat(day_key[first_pos] + np.minimum(first_tod, anchor), group_sizes)
 
     slot = (ns - session_open_ns) // (boundary_hours * ns_per_hour)
     bar_start_ns = session_open_ns + slot * boundary_hours * ns_per_hour
