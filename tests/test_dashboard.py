@@ -92,3 +92,22 @@ def test_dashboard_row_uses_previous_close_during_market_hours():
     prev_close = float(p.fetch("TEST", "1d").df["close"].iloc[-1])
     assert row.price_is_live is False
     assert row.price == pytest.approx(prev_close, abs=1e-4)
+
+
+def test_left_plan_counts_toward_actionable_group(monkeypatch):
+    """删除 A 后 L 是唯一的第一支撑方案：validated=False 只标注，不再排除出分组与 best_rr。"""
+    import jta.dashboard as dash
+    from jta.analyze import analyze as real_analyze
+
+    def only_left_executable(*a, **kw):
+        r = real_analyze(*a, **kw)
+        for p in r["plans"]:
+            is_left = p["key"] == "left"
+            p["executable"] = is_left
+            p["rr"] = 3.0 if is_left else None
+        return r
+
+    monkeypatch.setattr(dash, "analyze", only_left_executable)
+    row = dash.collect_row("TEST", None, provider=FakeProvider(), account=None, risk_pct=0.01)
+    assert row.group == "actionable"
+    assert row.best_rr == 3.0

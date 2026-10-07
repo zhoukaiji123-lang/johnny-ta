@@ -488,8 +488,8 @@ def test_distance_filter_is_off_by_default():
     sups = [level("S1", 99.0, 0.1), level("S2", 92.0, 0.8)]
     ress = [level("R1", 101.0, 0.1, "resistance"), level("R2", 112.0, 1.2, "resistance")]
     by_key = {p["key"]: p for p in build_plans(sups, ress, atr=10.0, zone="at_support")}
-    assert by_key["aggressive"]["entry"] == 99.0        # 仍然用最近的 S1
-    assert by_key["aggressive"]["entry_note"] is None
+    assert by_key["left"]["entry"] == 99.0              # 仍然用最近的 S1
+    assert by_key["left"]["entry_note"] is None
     assert by_key["breakout"]["entry"] == 101.0
 
 
@@ -504,10 +504,10 @@ def test_distance_filter_still_works_when_explicitly_enabled():
         for p in build_plans(sups, ress, atr=10.0, zone="at_support",
                              min_entry_distance_atr=0.5)
     }
-    assert by_key["aggressive"]["entry"] == 92.0        # 跳过 S1
+    assert by_key["left"]["entry"] == 92.0              # 跳过 S1
     assert by_key["deep"]["entry"] == 85.0
     assert by_key["breakout"]["entry"] == 112.0
-    assert "S1" in by_key["aggressive"]["entry_note"]
+    assert "S1" in by_key["left"]["entry_note"]
 
 
 def test_plan_blocked_when_every_level_is_filtered_out():

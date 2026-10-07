@@ -34,7 +34,7 @@ def daily_frame(n=40, price=100.0, rng=4.0):
     )
 
 
-def plan(key="aggressive", entry=100.0, stop=95.0, t1=110.0, t2=120.0):
+def plan(key="deep", entry=100.0, stop=95.0, t1=110.0, t2=120.0):
     return {"key": key, "entry": entry, "stop": stop, "t1": t1, "t2": t2,
             "rr": 2.0, "executable": True}
 
@@ -149,7 +149,7 @@ def test_holding_window_forces_an_exit():
 
 def test_summary_reports_expectancy_with_its_standard_error():
     df = pd.DataFrame([
-        {"executable": True, "plan_key": "aggressive", "index_bullish": True,
+        {"executable": True, "plan_key": "deep", "index_bullish": True,
          "outcome": o, "r_multiple": v, "gapped": False}
         for o, v in [("stopped", -1.0), ("target", 2.0), ("stopped", -1.0), ("target", 3.0)]
     ])
@@ -169,7 +169,7 @@ def test_summary_handles_no_trades():
 
 def test_summary_splits_by_regime():
     df = pd.DataFrame([
-        {"executable": True, "plan_key": "aggressive", "index_bullish": True,
+        {"executable": True, "plan_key": "deep", "index_bullish": True,
          "outcome": o, "r_multiple": v, "gapped": False, "regime": g}
         for o, v, g in [("target", 2.0, "up"), ("stopped", -1.0, "up"),
                         ("stopped", -1.0, "range"), ("stopped", -1.0, "range")]

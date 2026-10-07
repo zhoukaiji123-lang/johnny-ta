@@ -452,7 +452,7 @@ def main(argv: list[str] | None = None) -> int:
     db.add_argument("--json", action="store_true")
     db.set_defaults(func=cmd_dashboard)
 
-    bt = sub.add_parser("backtest", help="按 L/A/B/C 计划模拟成交，统计 R 倍数期望")
+    bt = sub.add_parser("backtest", help="按 L/B/C 计划模拟成交，统计 R 倍数期望")
     bt.add_argument("pairs", nargs="+", help="标的或 标的:基准，例如 MU:SOXX QQQ:SPY")
     bt.add_argument("--start", required=True)
     bt.add_argument("--end", required=True)

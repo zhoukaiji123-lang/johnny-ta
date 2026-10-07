@@ -232,8 +232,9 @@ def collect_row(
     row.event_reason = events.get("event_mode_reason")
     row.earnings = (events.get("next_earnings") or {}).get("date")
 
-    # 未经回测确认的方案（validated=False，如 L）只展示，不改变分组，也不进 best_rr
-    counted = [p for p in r["plans"] if p.get("validated", True)]
+    # 2026-10-07 删除 A 后，L 是唯一的第一支撑方案，纳入分组与 best_rr；
+    # validated=False 只在页面上标注"未经回测验证"，不再排除
+    counted = r["plans"]
     executable = [p for p in counted if p["executable"]]
     rrs = [p["rr"] for p in counted if p.get("rr") is not None]
     row.best_rr = max(rrs) if rrs else None

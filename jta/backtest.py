@@ -433,7 +433,7 @@ def _subset(provider: Any, keep: set[str]) -> Any:
 
 
 def _abc_symbol(job: tuple) -> list[dict[str, Any]]:
-    """一个标的的 A/B/C 回测（进程池任务，必须是模块级函数）。
+    """一个标的的 L/B/C 回测（进程池任务，必须是模块级函数）。
 
     control_seeds 非空时，每条计划再按距离匹配复制若干份（distance_matched），
     与真实计划用同一套触发、确认、成交与离场规则——两组唯一的差别是"在哪里等"。
@@ -493,7 +493,7 @@ def run_backtest(
     selection: str | None = None,
     jobs: int = 1,
 ) -> pd.DataFrame:
-    """L/A/B/C 逐笔结果。stream：real / ctrl_<seed>（距离匹配随机对照）。
+    """L/B/C 逐笔结果。stream：real / ctrl_<seed>（距离匹配随机对照）。
 
     min_entry_distance_atr 覆盖 plans.MIN_ENTRY_DISTANCE_ATR，用来复现"距离过滤开/关"的对比；
     selection 覆盖 analyze.SELECTION_MODE（legacy / proximity / structure），用来对比关键位筛选口径。

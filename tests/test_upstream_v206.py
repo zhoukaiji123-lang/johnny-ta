@@ -108,20 +108,20 @@ def test_left_stop_rounds_toward_earlier_exit():
     assert left["stop"] == 100.36
 
 
-def test_left_and_aggressive_share_entry_but_not_stop():
+def test_plan_a_is_gone_and_l_takes_the_first_support():
+    """2026-10-07 删除 A：它与 L 同档同入场价，回测里 87% 的成交与 L 重叠。"""
     p = plans_at(105.0)
-    assert p["left"]["entry"] == p["aggressive"]["entry"]
-    assert p["left"]["stop"] > p["aggressive"]["stop"]
+    assert set(p) == {"left", "deep", "breakout"}
+    assert p["left"]["entry_level"] == "S1"
+    assert p["deep"]["entry_level"] == "S2"
 
 
 def test_status_waiting_vs_ready():
     far = plans_at(110.0)
     assert far["left"]["status"] == "waiting_price"
-    assert far["aggressive"]["status"] == "waiting_price"
     assert far["breakout"]["status"] == "waiting_trigger"
     at = plans_at(100.5)
     assert at["left"]["status"] == "ready"
-    assert at["aggressive"]["status"] == "waiting_trigger"   # A 仍要等确认
 
 
 def test_status_ineligible_and_no_data():

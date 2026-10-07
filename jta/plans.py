@@ -1,4 +1,8 @@
-"""交易计划：A/B/C 三套互斥计划 + L 左侧支撑直入（上游 v2.0.5）。
+"""交易计划：L 左侧支撑直入（上游 v2.0.5）+ B 深支撑低吸 + C 右侧突破回踩。
+
+2026-10-07 删除了 A 第一支撑激进试仓：它与 L 用同一档支撑、入场价完全相同，只多一步
+4H 止跌确认。25 标的回测里 A 的 219 笔有 191 笔（87%）L 也成交，两者都没跑赢距离匹配
+随机对照（A −0.180R、L −0.111R），A 不是独立的 setup。"支撑 + 确认"的思路仍由 B 承担。
 
 计划全部由已入选的关键位确定性推导——入场取某一档，止损放在该档自身失效之处，
 目标取对侧的下一档。这样每套计划的收益风险比是算出来的，不是估出来的，
@@ -23,8 +27,8 @@ STOP_BUFFER_ATR = 0.25
 FALLBACK_BUFFER_ATR = 0.5
 
 #: 收益风险比门槛：低吸类要求更高，右侧确认可以低一些。
-#: L 与 A 同属支撑做多，沿用 2.0；1% 止损很紧，这个门槛基本只拦"目标贴着入场"的情形
-MIN_RR = {"left": 2.0, "aggressive": 2.0, "deep": 2.0, "breakout": 1.5}
+#: L 沿用低吸的 2.0；1% 止损很紧，这个门槛基本只拦"目标贴着入场"的情形
+MIN_RR = {"left": 2.0, "deep": 2.0, "breakout": 1.5}
 
 #: L 左侧支撑直入的止损：支撑基准 S 下方这个比例，P_stop = S × (1 − LEFT_STOP_PCT)。
 #:
@@ -82,13 +86,12 @@ REGIME_GATE = True
 
 PLAN_TITLES = {
     "left": "L 左侧支撑直入",
-    "aggressive": "A 第一支撑激进试仓",
     "deep": "B 更深支撑低吸",
     "breakout": "C 右侧突破回踩",
 }
 
 #: 第一笔占**计划总仓位**的比例，不是账户资产的比例
-FIRST_TRANCHE = {"left": (0.20, 0.25), "aggressive": (0.20, 0.25), "deep": (0.25, 0.50), "breakout": (0.30, 0.50)}
+FIRST_TRANCHE = {"left": (0.20, 0.25), "deep": (0.25, 0.50), "breakout": (0.30, 0.50)}
 
 
 @dataclass
@@ -114,7 +117,8 @@ class Plan:
     status: str = "no_data"
     status_label: str = ""
     status_reason: str = ""
-    #: False 表示尚未经回测确认，不进看板"可执行"分组与 best_rr（L 在回测结论出来前如此）
+    #: False 表示没有通过回测验证（L 的期望为正但没跑赢距离匹配对照），页面上要标注；
+    #: 2026-10-07 起不再因此排除出看板"可执行"分组
     validated: bool = True
     support_basis: float | None = None
 
@@ -190,9 +194,8 @@ def build_plans(
     sup_tradable, sup_skipped = _split_by_distance(supports, min_dist)
     res_tradable, res_skipped = _split_by_distance(resistances, min_dist)
 
-    # A 用第一个够远的支撑，B 用再下一个；贴现价的档位不参与入场
-    s_a = sup_tradable[0] if sup_tradable else None
-    s_a_next = sup_tradable[1] if len(sup_tradable) > 1 else None
+    # L 用第一个够远的支撑，B 用再下一个；贴现价的档位不参与入场
+    s_first = sup_tradable[0] if sup_tradable else None
     s_b = sup_tradable[1] if len(sup_tradable) > 1 else None
     s_b_next = sup_tradable[2] if len(sup_tradable) > 2 else None
     r_c = res_tradable[0] if res_tradable else None
@@ -204,7 +207,7 @@ def build_plans(
         """止损放在**该档自身**失效之处。
 
         放到下一档之外是概念错误：那等于把这笔交易的风险定义成"下一档也失守"，
-        激进试仓就不再是试仓。只有当下一档近到与本档同属一个反应带时
+        低吸就不再是低吸。只有当下一档近到与本档同属一个反应带时
         （相距不足 0.5 ATR），才一起纳入，否则穿一个就该认错。
         """
         p, d = _price(level), _price(deeper)
@@ -231,9 +234,8 @@ def build_plans(
 
     plans: list[Plan] = []
 
-    # L：到支撑直接限价买入，不等止跌确认；止损 = 支撑原值 × 0.99，盘中触及即离场。
-    # 入场档与 A 相同（第一个够远的支撑），两者的差别只在"等不等确认"和止损口径
-    s_l = s_a
+    # L：到第一个够远的支撑直接限价买入，不等止跌确认；止损 = 支撑原值 × 0.99，盘中触及即离场
+    s_l = s_first
     raw_l = (s_l or {}).get("raw_price")
     entry_l = _price(s_l)
     basis_l = min(entry_l, raw_l) if entry_l is not None and raw_l is not None else None
@@ -268,28 +270,8 @@ def build_plans(
         )
     )
 
-    entry_a, (stop_a, basis_a) = _price(s_a), below(s_a, s_a_next)
-    t1_a, t2_a = first_target(entry_a, [r for r in resistances if r])
-    plans.append(
-        Plan(
-            key="aggressive",
-            title=PLAN_TITLES["aggressive"],
-            trigger=(s_a or {}).get("confirmation", "没有距现价足够远的支撑，计划不成立"),
-            entry=entry_a, stop=stop_a, stop_basis=basis_a,
-            entry_level=(s_a or {}).get("label"), entry_note=_skip_note(sup_skipped, min_dist),
-            t1=t1_a, t2=t2_a, rr=_rr(entry_a, stop_a, t1_a),
-            tranche=FIRST_TRANCHE["aggressive"], side="support_confirm",
-            cancel_if=[
-                (s_a or {}).get("invalidation", "—"),
-                "触发前先跌穿该位，改等下一档，不在途中接刀",
-                "止损后不补亏损，重新出现确认信号才重新交易",
-            ],
-            executable=True, blocked_by=[],
-        )
-    )
-
     entry_b, (stop_b, basis_b) = _price(s_b), below(s_b, s_b_next)
-    t1_b, t2_b = first_target(entry_b, [lv for lv in ([s_a] + resistances) if lv])
+    t1_b, t2_b = first_target(entry_b, [lv for lv in ([s_first] + resistances) if lv])
     plans.append(
         Plan(
             key="deep",
@@ -415,7 +397,7 @@ def _set_status(p: Plan, current_price: float | None, atr: float) -> None:
 def sides(plans: list[dict[str, Any]]) -> dict[str, Any]:
     """上游 v2.0.5 要求每个标的都给左侧与右侧两项建议，不适用也要写原因。
 
-    左侧取 L（支撑直入），右侧取 C（突破回踩）。A/B 是"支撑 + 确认"，介于两者之间，
+    左侧取 L（支撑直入），右侧取 C（突破回踩）。B 是"更深支撑 + 确认"，
     仍在 plans 里完整给出，这里不重复。左右侧是入场时机的区分，不是多空。
     """
     by_key = {p["key"]: p for p in plans}
