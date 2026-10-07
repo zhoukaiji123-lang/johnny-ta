@@ -496,7 +496,7 @@ def run_backtest(
     """L/A/B/C 逐笔结果。stream：real / ctrl_<seed>（距离匹配随机对照）。
 
     min_entry_distance_atr 覆盖 plans.MIN_ENTRY_DISTANCE_ATR，用来复现"距离过滤开/关"的对比；
-    selection 覆盖 analyze.SELECTION_MODE（legacy / proximity），用来对比两种关键位筛选口径。
+    selection 覆盖 analyze.SELECTION_MODE（legacy / proximity / structure），用来对比关键位筛选口径。
     """
     rules = rules or TradeRules()
     tasks = [

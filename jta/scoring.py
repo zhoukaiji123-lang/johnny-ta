@@ -39,6 +39,7 @@ FAMILY_TO_FACTOR = {
     "prev_session": "horizontal",
     "gap": "horizontal",
     "round_number": "horizontal",
+    "swing": "horizontal",
     "trendline": "trendline",
     "channel": "trendline",
     "ema": "ema_cluster",

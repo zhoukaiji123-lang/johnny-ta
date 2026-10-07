@@ -40,7 +40,12 @@ ROLE_LABELS = {
     "immediate_resistance": "即时阻力/减仓位",
     "breakout_confirmation": "突破确认位",
     "higher_target": "更高止盈目标",
+    "structure_pivot_low": "日线结构支点（维持趋势的摆动低点）",
+    "structure_pivot_high": "日线结构高点（维持趋势的摆动高点）",
 }
+
+#: structure 口径下，结构支点入选后的角色（按所在一侧）
+STRUCTURE_PIVOT_ROLE = {"support": "structure_pivot_low", "resistance": "structure_pivot_high"}
 
 #: 哪些来源属于"动态"——每根 bar 数值都会变，必须标注约/参考位
 DYNAMIC_SOURCES = {"ema", "vegas", "trendline", "channel"}

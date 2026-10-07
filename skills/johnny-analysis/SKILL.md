@@ -83,6 +83,13 @@ jta analyze <SYMBOL> --benchmark <指数> --json
 转述 S3 时要说明"价格要先失守 S1、S2 才相关"，不要暗示它是当前重点；`legacy` 时三档按命中数挑选，
 可能离现价很远，要提醒近处结构未入选。
 
+`structure`（需显式 `--selection structure`，默认仍是 proximity）：S1、S2 选法同 proximity；
+`role_label` 为"日线结构支点"的那一档，是日线最近一个已确认的摆动低点 / 高点（上游 7.1 节
+"维持趋势的结构低点"）。`selection.*.structure_pivot` 给出它的日期、价格和 HH / HL / LH / LL 关系，
+转述时说明"跌破它意味着日线这一级的上涨结构受损"，它同样是备用预案，不是当前重点。
+`placed` 为 false 时原样转述 `note`（已入选 / 证据不足 / 离已入选点太近）。被它挤掉的原第三档在
+`crowded_out` 里，按上一条纪律不得提升为正式关键位。
+
 不得增删关键位，不得把 `selection.crowded_out` 里的未入选点提升为正式关键位。
 `selection.*.gap_note` 非空时，必须原样告知用户某侧证据不足，不能用弱点补数量。
 

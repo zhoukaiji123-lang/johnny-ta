@@ -25,6 +25,7 @@ from .indicators.td import COUNTDOWN_IMPLEMENTED, latest_td_signal, td_setup
 from .levels import fib as fibmod
 from .levels.candidates import (
     RESISTANCE_ROLES,
+    STRUCTURE_PIVOT_ROLE,
     display_step,
     SUPPORT_ROLES,
     Candidate,
@@ -70,11 +71,20 @@ MIN_SEPARATION_ATR = 0.5
 #: legacy +0.036R（591 笔）比距离匹配随机对照低 0.225R（z=-1.9）；proximity +0.160R（629 笔），
 #: 与对照持平（-0.023R，z=-0.21）。proximity 比 legacy 高 0.125R（z=1.23），前后两段、A/B/C/L
 #: 各自方向一致但都不显著。读法是"去掉了按命中数排序带来的负向选择"，不是"选点有了超额价值"。
+#:
+#: - "structure"：在 proximity 之上补上游 7.1 节的"结构支点"。日线最近一个已确认的摆动低点
+#:   （现价下方）/ 摆动高点（现价上方）作为 swing 证据进入候选；它若未入选、在 S2 外侧至少
+#:   MIN_SEPARATION_ATR、且达到 MIN_HITS，就占第三档，被替换的原第三档记进 crowded_out。
+#:   S1、S2 的选法与 proximity 相同；swing 证据也会计入 0.25 ATR 内邻近候选的共振，
+#:   个别情况下可能让邻近候选多一类证据。水平枢轴要求 >= 2 次触碰，单个 HL 进不了候选，
+#:   这是与上游手工判读分歧最多的地方（2026-10-07 QQQ/SOXX/LITE 的 HL 均缺席）。
+#:   只取日线：4H 的小摆动会把第三档拉到现价附近的噪声上（QQQ 选到 736–737 而不是 731.63）。
 SELECTION_MODE = "proximity"
-SELECTION_MODES = ("legacy", "proximity")
+SELECTION_MODES = ("legacy", "proximity", "structure")
 
-#: 算作"真实价格反应"的来源族：历史上价格确实在这里转过向，而不是只由公式算出来
-REACTION_FAMILIES = {"pivot", "prev_session", "gap"}
+#: 算作"真实价格反应"的来源族：历史上价格确实在这里转过向，而不是只由公式算出来。
+#: swing 只在 structure 口径下产生，不影响另外两种口径
+REACTION_FAMILIES = {"pivot", "prev_session", "gap", "swing"}
 
 DAILY_LOOKBACK = 500
 INTRADAY_LOOKBACK = 400
@@ -353,6 +363,35 @@ def _structural_sources(ctx: TimeframeContext, price: float) -> list[tuple[float
     return out
 
 
+def _swing_sources(ctx: TimeframeContext, price: float) -> list[tuple[float, dict]]:
+    """日线结构支点：现价下方最近确认的摆动低点、上方最近确认的摆动高点（上游 7.1 节）。
+
+    ctx.swings 已经过 visible_at，只含截至 as_of 已确认的点，回放不会看到未来的拐点。
+    最近一个低点若已被跌破（在现价上方），取更早的、仍在现价下方的那个——
+    已失守的支点不再是支撑，它的角色转换由水平枢轴等其他来源去表达。
+    """
+    seq = swing_sequence(ctx.swings, ctx.atr, n=len(ctx.swings))
+    out: list[tuple[float, dict]] = []
+    for kind, below in (("low", True), ("high", False)):
+        pt = next((p for p in reversed(seq)
+                   if p["kind"] == kind and (p["price"] < price) == below), None)
+        if pt is None:
+            continue
+        rel = pt["label"]
+        out.append((
+            pt["price"],
+            make_source(
+                "swing",
+                f"日线结构{'低' if kind == 'low' else '高'}点" + (f"（{rel}）" if rel else ""),
+                timeframe=ctx.interval,
+                confirmed_at=pt["confirmed_at"],
+                detail={"ts": pt["ts"], "price": pt["price"], "relation": rel,
+                        "relation_text": pt["label_text"]},
+            ),
+        ))
+    return out
+
+
 # ------------------------------------------------------------------ 筛选
 
 
@@ -388,6 +427,7 @@ def select_key_levels(
     picked: list[tuple[Candidate, dict]] = []
     crowded_out: list[dict[str, Any]] = []
     separation = MIN_SEPARATION_ATR * atr_value
+    pivot_meta: dict[str, Any] | None = None
 
     def crowd(c: Candidate, s: dict) -> bool:
         too_close = next(
@@ -432,6 +472,8 @@ def select_key_levels(
                       if cs[0].distance_atr - s2[0].distance_atr >= MIN_SEPARATION_ATR]
             if deeper:
                 picked.append(max(deeper, key=strength))
+        if mode == "structure":
+            pivot_meta = _place_structure_pivot(picked, eligible, pool, crowded_out)
         # 只列出被挤掉的最强几个，不把几十个候选全部倒出来
         chosen = {id(c) for c, _ in picked}
         for c, s in sorted(eligible, key=strength, reverse=True):
@@ -450,6 +492,8 @@ def select_key_levels(
         # 角色按最终入选顺序分配：它描述的是这一档在路径中的作用，
         # 若按全部候选的距离预先分配，所有较深的候选都会共享同一个角色
         c.role = roles[min(i - 1, len(roles) - 1)]
+        if pivot_meta and pivot_meta.get("placed") and "swing" in c.source_families:
+            c.role = STRUCTURE_PIVOT_ROLE[side]
 
     gap_note = None
     if len(picked) < 2:
@@ -460,7 +504,7 @@ def select_key_levels(
             f"{MIN_SEPARATION_ATR} ATR，无法构成独立的下一档"
         )
         gap_note = f"{side} 侧只输出 {len(picked)} 个关键位：{reason}。按纪律不用弱点补足数量。"
-    return picked, {
+    meta = {
         "mode": mode,
         "candidates_considered": len(pool),
         "eligible": len(eligible),
@@ -468,6 +512,61 @@ def select_key_levels(
         "crowded_out": crowded_out,
         "gap_note": gap_note,
     }
+    if mode == "structure":
+        meta["structure_pivot"] = pivot_meta
+    return picked, meta
+
+
+def _place_structure_pivot(
+    picked: list[tuple[Candidate, dict]],
+    eligible: list[tuple[Candidate, dict]],
+    pool: list[tuple[Candidate, dict]],
+    crowded_out: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    """structure 口径：让日线结构支点占第三档（原地修改 picked）。
+
+    只动第三档，S1、S2 沿用 proximity 的选法。支点已入选、离已入选点不足
+    MIN_SEPARATION_ATR、或证据不足 MIN_HITS 时都不动，原因写进返回值。
+    """
+    holders = sorted((cs for cs in pool if "swing" in cs[0].source_families),
+                     key=lambda cs: cs[0].distance_atr)
+    if not holders:
+        return None
+    c, s = holders[0]
+    src = next(x for x in c.sources if x.get("family") == "swing")
+    info: dict[str, Any] = {
+        "price": round(float(src["detail"]["price"]), 4),
+        "relation": src["detail"].get("relation"),
+        "ts": src["detail"].get("ts"),
+        "hits": s["hits"],
+        "placed": False,
+    }
+    if any(p is c for p, _ in picked):
+        info["note"] = "结构支点已经入选"
+        return info
+    if all(p is not c for p, _ in eligible):
+        info["note"] = f"证据不足 {MIN_HITS} 类，不进入关键位"
+        return info
+    near = next((p for p, _ in picked
+                 if abs(p.distance_atr - c.distance_atr) < MIN_SEPARATION_ATR), None)
+    if near is not None:
+        info["note"] = f"与已入选的 {near.display:,.2f} 相距不足 {MIN_SEPARATION_ATR} ATR，由该档代表"
+        return info
+    if len(picked) >= 2 and c.distance_atr < picked[1][0].distance_atr:
+        # proximity 的 S2 已是 S1 外侧最近的真实反应位，支点不可能落在两者之间而未入选；
+        # 防御性保留，不改动 S1、S2
+        info["note"] = "支点位于 S1 与 S2 之间，保持 proximity 结果"
+        return info
+    if len(picked) >= MAX_LEVELS_PER_SIDE:
+        old_c, old_s = picked.pop(MAX_LEVELS_PER_SIDE - 1)
+        crowded_out.append({
+            "price": old_c.display if old_c.display is not None else old_c.price,
+            "hits": old_s["hits"],
+            "reason": "第三档让位给日线结构支点（上游 7.1 节：维持趋势的结构低点 / 高点）",
+        })
+    picked.append((c, s))
+    info["placed"] = True
+    return info
 
 
 def confirmation_rules(candidate: Candidate) -> dict[str, Any]:
@@ -602,6 +701,9 @@ def analyze(
     for ctx in (daily, intraday):
         raw += _fib_sources(ctx, price, as_of)
         raw += _structural_sources(ctx, price)
+    # 结构支点只在 structure 口径下进入候选，保证 legacy / proximity 的输出逐字不变
+    if (selection or SELECTION_MODE) == "structure":
+        raw += _swing_sources(daily, price)
 
     candidates = build_candidates(raw, price, daily.atr)
     annotate_resonance(candidates, daily.atr)

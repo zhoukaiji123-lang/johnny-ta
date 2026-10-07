@@ -394,7 +394,7 @@ def main(argv: list[str] | None = None) -> int:
 
     a = sub.add_parser("analyze", help="输出关键位与共振证据")
     a.add_argument("--selection", default=None, choices=SELECTION_MODES,
-                   help="关键位筛选口径：legacy 按命中数 / proximity 先近后深")
+                   help="关键位筛选口径：legacy 按命中数 / proximity 先近后深 / structure 先近后深 + 日线结构支点")
     a.add_argument("symbol")
     a.add_argument("-b", "--benchmark", default=None, help="基准指数，如 SOXX / QQQ")
     a.add_argument("--as-of", default=None, help="只使用该时点之前的数据（前向测试）")
