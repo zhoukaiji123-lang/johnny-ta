@@ -247,7 +247,7 @@ function markdown(md){
     if (list){ out.push(`<ul>${list.join("")}</ul>`); list = null; }
     if (!line.trim()) continue;
     const h = line.match(/^(#{2,4})\s+(.*)$/);
-    if (h){ const n = Math.min(4, h[1].length + 1); out.push(`<h${n}>${inline(h[2])}</h${n}>`); continue; }
+    if (h){ const n = h[1].length >= 4 ? 4 : 3; out.push(`<h${n}>${inline(h[2])}</h${n}>`); continue; }
     out.push(`<p>${inline(line)}</p>`);
   }
   if (list) out.push(`<ul>${list.join("")}</ul>`);

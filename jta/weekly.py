@@ -661,7 +661,7 @@ def build_weekly(
         "sections": sections,
         "data_health": {"failed": failed, "stale": stale},
         "rules": {
-            "lookback_weeks": list(LOOKBACK_WEEKS),
+            "lookback_weeks": list(LOOKBACK_WEEKS), "high_weeks": HIGH_52W,
             "ema": [EMA_FAST, EMA_SLOW], "atr_weeks": ATR_WEEKS,
             "rs_high_weeks": RS_HIGH_WEEKS, "rs_slope_weeks": RS_SLOPE_WEEKS,
             "accel": {"close_pos": ACCEL_CLOSE_POS, "move_atr": ACCEL_MOVE_ATR},
