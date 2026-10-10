@@ -3,7 +3,7 @@
  "monday": "2026-10-05",
  "friday": "2026-10-09",
  "partial": false,
- "generated_at": "2026-10-10T01:54:06-04:00",
+ "generated_at": "2026-10-10T02:05:22-04:00",
  "market": "QQQ",
  "regimes": {
   "QQQ": {
@@ -277,6 +277,77 @@
    }
   ]
  },
+ "focus": [
+  {
+   "symbol": "MRNA",
+   "section": "其他",
+   "label": "过热",
+   "reasons": [
+    "周幅 +1.7 倍周 ATR",
+    "RS 排名 1/18"
+   ]
+  },
+  {
+   "symbol": "SKHY",
+   "section": "存储",
+   "label": "转弱",
+   "reasons": [
+    "周幅 -1.08 倍周 ATR",
+    "RS 排名 17/18"
+   ]
+  },
+  {
+   "symbol": "AMD",
+   "section": "半导体设计",
+   "label": "冲高回落",
+   "reasons": [
+    "强弱翻转 延续 → 冲高回落",
+    "RS 排名 3/18"
+   ]
+  },
+  {
+   "symbol": "NBIS",
+   "section": "云计算",
+   "label": "转弱",
+   "reasons": [
+    "强弱翻转 延续 → 转弱",
+    "2 条预警"
+   ]
+  },
+  {
+   "symbol": "GOOGL",
+   "section": "云计算",
+   "label": "延续",
+   "reasons": [
+    "强弱翻转 转弱 → 延续",
+    "2 条预警"
+   ]
+  },
+  {
+   "symbol": "WDC",
+   "section": "存储",
+   "label": "下行",
+   "reasons": [
+    "RS 排名 18/18"
+   ]
+  },
+  {
+   "symbol": "LITE",
+   "section": "光模块",
+   "label": "延续",
+   "reasons": [
+    "RS 排名 2/18"
+   ]
+  },
+  {
+   "symbol": "SNDK",
+   "section": "存储",
+   "label": "转弱",
+   "reasons": [
+    "RS 排名 16/18"
+   ]
+  }
+ ],
  "sections": [
   {
    "name": "指数",
@@ -6724,6 +6795,12 @@
    "整理",
    "历史不足"
   ],
+  "focus": {
+   "move_atr": 1.0,
+   "min_warnings": 2,
+   "rank_edge": 3,
+   "max": 8
+  },
   "note": "标签只描述状态，阈值事先写定，未回测预测力；成员是精选强势票，板块合成值天然偏强"
  }
 }

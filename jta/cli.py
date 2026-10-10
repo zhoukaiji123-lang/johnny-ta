@@ -393,6 +393,51 @@ def cmd_weekly(args: argparse.Namespace) -> int:
     return 1 if payload["data_health"]["failed"] else 0
 
 
+def _load_week(args: argparse.Namespace) -> tuple[dict, "Path"]:
+    from pathlib import Path
+
+    from .weekly import default_week, parse_week, week_id
+
+    wk = week_id(parse_week(args.week) if args.week else default_week())
+    out_dir = Path(args.out_dir)
+    f = out_dir / f"{wk}.json"
+    if not f.exists():
+        raise SystemExit(f"错误: {f} 不存在，先跑 jta weekly --week {wk}")
+    return json.loads(f.read_text(encoding="utf-8")), out_dir
+
+
+def cmd_weekly_news(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from .narrative import collect_news
+
+    payload, _ = _load_week(args)
+    symbols = [x.strip().upper() for x in args.symbols.split(",")] if args.symbols else \
+        [f["symbol"] for f in payload.get("focus", [])]
+    doc = collect_news(payload, symbols)
+    blob = json.dumps(doc, ensure_ascii=False, indent=2)
+    if args.out:
+        Path(args.out).write_text(blob, encoding="utf-8")
+    print(blob)
+    return 0
+
+
+def cmd_weekly_narrative(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from .narrative import save_narrative
+    from .weekly import write_site
+
+    payload, out_dir = _load_week(args)
+    md = Path(args.draft).read_text(encoding="utf-8")
+    sources = json.loads(Path(args.sources).read_text(encoding="utf-8")) if args.sources else []
+    doc = save_narrative(out_dir, payload, md, sources=sources, model=args.model)
+    page = write_site(payload, out_dir)
+    print(json.dumps({"page": str(page), "flags": doc["flags"],
+                      "sources": len(doc["sources"])}, ensure_ascii=False, indent=2))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="jta", description="Johnny TA 计算层")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -499,6 +544,21 @@ def main(argv: list[str] | None = None) -> int:
     wk.add_argument("--no-write", action="store_true", help="只打印，不写文件")
     wk.add_argument("--json", action="store_true")
     wk.set_defaults(func=cmd_weekly)
+
+    wn = sub.add_parser("weekly-news", help="周报消息采集：Yahoo 新闻标题与财报日程（默认取重点标的）")
+    wn.add_argument("--week", default=None)
+    wn.add_argument("--symbols", default=None, help="逗号分隔；默认取周报 JSON 里的 focus")
+    wn.add_argument("--out-dir", default="docs/weekly")
+    wn.add_argument("--out", default=None, help="把结果写到这个路径")
+    wn.set_defaults(func=cmd_weekly_news)
+
+    wr = sub.add_parser("weekly-narrative", help="校验叙事里的数字并写入周报页面")
+    wr.add_argument("--week", default=None)
+    wr.add_argument("--draft", required=True, help="叙事 markdown 文件")
+    wr.add_argument("--sources", default=None, help="来源 JSON：[{id,title,publisher,date,url,facts}]")
+    wr.add_argument("--model", default=None, help="写叙事的模型名，显示在页面上")
+    wr.add_argument("--out-dir", default="docs/weekly")
+    wr.set_defaults(func=cmd_weekly_narrative)
 
     fr = sub.add_parser("forward-report", help="从已保存的记录重新汇总")
     fr.add_argument("path")

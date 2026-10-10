@@ -86,6 +86,8 @@ h3{margin:0;font-size:16px;font-weight:600;display:flex;flex-wrap:wrap;align-ite
 .story ul{margin:0 0 10px;padding-left:20px}
 .story mark.flag{background:var(--bad-soft);color:var(--bad);border-bottom:1px solid var(--bad);padding:0 2px}
 .story .src{font-size:12px}
+.story ol.sources{margin:0 0 10px;padding-left:22px;font-size:13px;line-height:1.6}
+.story ol.sources .sub{margin-left:6px}
 .flagbox{border-left:2px solid var(--bad);background:var(--bad-soft);padding:8px 12px;font-size:13px;color:var(--bad)}
 .flagbox ul{margin:4px 0 0;padding-left:18px}
 .muted{color:var(--muted);font-size:13.5px}
@@ -339,7 +341,12 @@ if (nr && nr.markdown){
   const flags = nr.flags || [];
   if (flags.length) h += `<div class="flagbox">数字校验：${flags.length} 处数字在计算层 JSON 里找不到，已在正文标红<ul>${
     flags.map(f => `<li>${esc(f.number)}：${esc(f.sentence)}</li>`).join("")}</ul></div>`;
+  if (P.narrative_stale) h += `<div class="flagbox">计算层在叙事写完之后重跑过、数字有变化，正文可能和下面的表格对不上；需要重写叙事。</div>`;
   h += markdown(nr.markdown);
+  const src = nr.sources || [];
+  if (src.length) h += `<h4>来源</h4><ol class="sources">${src.map(x => `<li id="src-${esc(x.id)}">${
+    /^https?:\/\//.test(x.url || "") ? `<a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.title || x.url)}</a>` : esc(x.title || "")}
+    <span class="sub">${esc([x.publisher, x.date].filter(Boolean).join(" · "))}</span></li>`).join("")}</ol>`;
   if (nr.model || nr.written_at) h += `<p class="src muted">叙事由 ${esc(nr.model || "LLM")} 依据本页数据与外部消息撰写${nr.written_at ? "，" + esc(nr.written_at) : ""}；消息面为外部信息，未经核验，只陈述同期消息，不构成因果判断。</p>`;
 } else {
   h += `<p class="muted">本周还没有叙事。下面的数据全部由代码计算。</p>`;

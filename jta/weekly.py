@@ -72,6 +72,15 @@ HIGH_52W = 52
 #: 热力图展示最近几周的逐周涨跌
 HEATMAP_WEEKS = 8
 
+#: 重点标的（叙事层只对这些补搜个股消息）：强弱方向翻转、周幅 >= 1 倍周 ATR、
+#: 预警 >= 2 条、RS 排名前后各 3 名；按理由条数排序，最多 8 只
+FOCUS_MOVE_ATR = 1.0
+FOCUS_MIN_WARNINGS = 2
+FOCUS_RANK_EDGE = 3
+FOCUS_MAX = 8
+#: 标签的强弱方向。休整 / 整理 / 过热这类中性状态之间的来回不算翻转
+LABEL_TONE = {"加速": 1, "延续": 1, "转弱": -1, "下行": -1, "冲高回落": -1}
+
 # ---- 趋势标签阈值：看结果之前写定，不调参 ----
 #: 加速：周收盘位于当周振幅上 1/4，且周涨幅 >= 1.5 倍上周的周 ATR，且对 QQQ 的 RS 创 13 周新高
 ACCEL_CLOSE_POS = 0.75
@@ -550,6 +559,32 @@ def rotation(sections: list[dict[str, Any]]) -> dict[str, Any]:
     return {"basis": "个股 / QQQ 的 RS 线 4 周变化", "ranking": rows}
 
 
+def focus_list(sections: list[dict[str, Any]], ranking: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """按事先写定的规则挑出本周重点标的，并写明入选原因。"""
+    n = len(ranking)
+    rank = {r["symbol"]: r["rank"] for r in ranking}
+    out = []
+    for sec in sections:
+        for m in sec["members"]:
+            why = []
+            t0, t1 = LABEL_TONE.get(m.get("prev_label") or ""), LABEL_TONE.get(m["label"])
+            if t0 and t1 and t0 != t1:
+                why.append(f"强弱翻转 {m['prev_label']} → {m['label']}")
+            if m["move_atr"] is not None and abs(m["move_atr"]) >= FOCUS_MOVE_ATR:
+                why.append(f"周幅 {m['move_atr']:+g} 倍周 ATR")
+            if len(m["warnings"]) >= FOCUS_MIN_WARNINGS:
+                why.append(f"{len(m['warnings'])} 条预警")
+            r = rank.get(m["symbol"])
+            if r is not None and (r <= FOCUS_RANK_EDGE or r > n - FOCUS_RANK_EDGE):
+                why.append(f"RS 排名 {r}/{n}")
+            if why:
+                edge = min(r - 1, n - r) if r is not None else n
+                out.append({"symbol": m["symbol"], "section": sec["name"],
+                            "label": m["label"], "reasons": why, "_key": (-len(why), edge)})
+    out.sort(key=lambda x: x.pop("_key"))
+    return out[:FOCUS_MAX]
+
+
 def sector_table(sections: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """板块轮动总表：板块 ETF 自身的标签与对 QQQ 的 RS，加上成员的广度。"""
     out = []
@@ -611,6 +646,7 @@ def build_weekly(
     now = (now or utcnow()).astimezone(ET)
     partial = now < week_close_time(monday)
     sections = [_section(n, s, monday, data) for n, s in universe.sections.items()]
+    rot = rotation(sections)
     return {
         "week": week_id(monday),
         "monday": monday.isoformat(),
@@ -620,7 +656,8 @@ def build_weekly(
         "market": MARKET,
         "regimes": regimes(data, monday),
         "sector_table": sector_table(sections),
-        "rotation": rotation(sections),
+        "rotation": rot,
+        "focus": focus_list(sections, rot["ranking"]),
         "sections": sections,
         "data_health": {"failed": failed, "stale": stale},
         "rules": {
@@ -635,6 +672,8 @@ def build_weekly(
             "distribution": {"volume_mult": DISTRIBUTION_VOLUME_MULT,
                              "warn_days": DISTRIBUTION_WARN_DAYS},
             "label_order": LABEL_ORDER,
+            "focus": {"move_atr": FOCUS_MOVE_ATR, "min_warnings": FOCUS_MIN_WARNINGS,
+                      "rank_edge": FOCUS_RANK_EDGE, "max": FOCUS_MAX},
             "note": "标签只描述状态，阈值事先写定，未回测预测力；成员是精选强势票，板块合成值天然偏强",
         },
     }
@@ -757,6 +796,9 @@ def write_site(payload: dict[str, Any], out_dir: Path) -> Path:
     for i, wk in enumerate(weeks):
         p = json.loads((out_dir / f"{wk}.json").read_text(encoding="utf-8"))
         p["narrative"] = load_narrative(out_dir, wk)
+        if p["narrative"]:
+            from .narrative import data_fingerprint
+            p["narrative_stale"] = p["narrative"].get("data_fingerprint") != data_fingerprint(p)
         p["nav"] = {"prev": f"{weeks[i - 1]}.html" if i > 0 else None,
                     "next": f"{weeks[i + 1]}.html" if i + 1 < len(weeks) else None}
         (out_dir / f"{wk}.html").write_text(_render(p, f"johnny-ta 周报 {wk}"), encoding="utf-8")
