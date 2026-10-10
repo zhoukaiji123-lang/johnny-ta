@@ -3,7 +3,7 @@
  "monday": "2026-10-05",
  "friday": "2026-10-09",
  "partial": false,
- "generated_at": "2026-10-10T02:05:22-04:00",
+ "generated_at": "2026-10-10T02:09:36-04:00",
  "market": "QQQ",
  "regimes": {
   "QQQ": {
@@ -6765,6 +6765,7 @@
    4,
    13
   ],
+  "high_weeks": 52,
   "ema": [
    10,
    20

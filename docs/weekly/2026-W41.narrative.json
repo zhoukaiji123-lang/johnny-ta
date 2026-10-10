@@ -1,0 +1,123 @@
+{
+ "week": "2026-W41",
+ "markdown": "### 本周主线\n这周钱从存储和芯片硬件往外走，云计算是唯一一个参照 ETF 还在「延续」的板块。DRAM 跌 7.4%、从「整理」变成「转弱」，对 QQQ 的 RS（相对强弱）4 周 -8.0%；SKYY 涨 4.0%，周收盘几乎收在最高点（收位 99%），对 QQQ 的 RS 4 周 +4.9%。分化很大，强的只剩几只：RS 排名前四是 MRNA、LITE、AMD、NET，垫底的四只里三只是存储。\n\n### 大盘\nQQQ、SPY、SOXX 的日线大盘开关整周都是「震荡」，ADX 分别是 14.6、9.7、17.1，都没过 20。周线上 QQQ 维持「延续」，只涨 0.2%，周二创了 13 周新高后回落，收在当周振幅 41% 处；SPY 从「整理」转「延续」，涨 1.2%。SOXX 是这周最弱的指数：跌 5.0%，内包周，收在振幅 9% 的位置，周四单日跌 3.35% 而且放量，标签从「延续」降到「休整」。同期纳斯达克综合指数周一上涨 1.05%、连续第二天收在纪录高位（[来源 11](https://www.roic.ai/news/nasdaq-composite-marks-second-closing-record-in-a-row-10-06-2026)），周五又有 AI 交易担忧缓和、科技股反弹的报道（[来源 8](https://finance.yahoo.com/markets/article/tech-rebounds-as-ai-trade-jitters-ease-alphacheck-135417533.html)）。\n\n### 存储\n板块整体转弱。DRAM 收盘 57.19，跌破上周低点 58.27；4 只成员只有 MU 还在 10 周 EMA 上方，没有一只创 13 周新高，成员等权跌 7.5%。\n\n领涨从 SKHY 换成了 MU，但这是「跌得少」换来的：MU 本周跌 4.3%，相对 DRAM 的 RS 4 周 +9.0% 并创了 13 周新高，标签仍是「整理」，收盘 1029.0 离 10 周 EMA 1001.9444 不远。SKHY 是这周最难看的一只，跌 13.4%，周幅 -1.08 倍周 ATR（平均真实波幅），周二单日跌 6.39%，收盘 169.03 跌破上周低点 179.31，从「整理」变成「转弱」。SNDK 跌 8.0%，收盘 1581.8199 同样跌破上周低点 1659.02。WDC 从「转弱」进一步变成「下行」，13 周跌 31.8%，离 52 周高点 -50.3%，周二放量跌 6.93%。\n\n同期消息：周四三星公布第三季度初步业绩，营业利润约 107 万亿韩元、首次超过 100 万亿韩元，但股价下跌（[来源 2](https://investinglive.com/stocks/samsung-profit-tops-100-trillion-won-for-first-time-but-shares-slip/)），当天有「存储交易降温」的报道（[来源 1](https://finance.yahoo.com/markets/stocks/articles/memory-trade-cools-samsung-preliminary-155142154.html)）。同一天 MU 跌 4.79%、SNDK 跌 4.9%。\n\n### 光模块\n两只走成两个方向。LITE 是全列表 RS 第 2，周五创出当周高点 1143.0，周涨 1.7%、4 周涨 19.0%，相对 SOXX 的 RS 4 周 +12.1% 并创 13 周新高，标签「延续」。COHR 跌 7.3%，周四单日跌 9.63%，收盘 312.62 刚好压在 10 周 EMA 311.9804 上方（0.01 倍周 ATR），相对 SOXX 的 RS 4 周 -3.6%，8 月那周留下的 LH（更低高点）391.37 也还没突破。\n\n同期消息：周五有报道称 AI 需求已把 Lumentum 的产能排到 2029 年初（[来源 3](https://finance.yahoo.com/technology/ai/articles/lumentum-shares-rise-ai-demand-142000071.html)），另一篇写的是 Lumentum CEO 表示 AI 光器件售罄至 2029 年、Lumentum 与 Coherent 股价上涨（[来源 4](https://finance.yahoo.com/technology/ai/articles/lumentum-coherent-stocks-jump-ceo-133448260.html)）。\n\n### 半导体设计\n参照 SOXX「休整」，三只成员都不好看。AMD 从「延续」变成「冲高回落」：周二冲到 658.52，高于上周的 645.46，之后一路回落，收盘 608.1 在当周振幅 4% 的位置，周跌 4.1%。它 4 周仍涨 17.8%，相对 SOXX 的 RS 4 周 +10.9%，但价格创了 13 周新高、RS 没有跟上，这是背离。INTC 跌 12.3%，收盘 104.7 跌破上周低点 113.97，从「整理」变成「转弱」。AVGO 本周涨 1.8%，但收在 10 周 EMA 365.6573 下方，标签仍是「下行」，LH 431.943 还压在上面。\n\n同期消息：苏姿丰 10 月 6 日在台北表示 2027 年将大幅增加供应，AI 订单持续超过产能（[来源 5](https://www.tikr.com/blog/amd-plans-a-big-2027-supply-ramp-wall-street-already-expects-38-billion-of-new-revenue)）；周四晚有一篇「AMD CEO 就芯片市场前景发出警示」的报道（[来源 6](https://finance.yahoo.com/technology/articles/amd-ceo-delivers-stark-warning-010300304.html)）。\n\n### 云计算\n板块 ETF 是本周最强的。SKYY 涨 4.0%，4 周涨 10.4%；成员 5 只里 4 只在 10 周 EMA 上方，AMZN、GOOGL、NOW 都从「转弱」回到「延续」，NET 从「休整」回到「延续」。\n\n但这层要分开看：你的云计算票整体跑不赢 SKYY，4 周只有 NET 跑赢。AMZN 本周涨 4.3%、收在振幅 97% 处，相对 SKYY 的 RS 4 周却是 -7.4%；GOOGL 是 -5.9%，LH 384.233 也没突破；NOW 是 -3.7%。NET 是这一节真正的领头，4 周涨 17.8%，相对 SKYY 的 RS 4 周 +6.7%，不过本周价格创 13 周新高、RS 没创，出现背离。NBIS 反过来，周二单日涨 7.44% 之后连跌，周跌 9.0%，收盘 221.07 跌破上周低点 228.38，从「延续」变成「转弱」，相对 SKYY 的 RS 4 周 -10.8%。\n\n同期消息：本周未见明确的云计算板块级消息。和 NBIS 相关的只有一条，周四 Bloomberg 报道 Firmus 上市受挫，给排队中的数据中心 IPO 蒙上阴影（[来源 7](https://finance.yahoo.com/technology/ai/articles/firmus-misfire-casts-shadow-data-205345691.html)）。\n\n### 其他\nMRNA 是全列表 RS 第 1，本周涨 18.4%，周五单日涨 14.21%，收在当周最高点 225.0，13 周涨 229.6%。收盘高出 10 周 EMA 3.34 倍周 ATR，标签从「延续」变成「过热」。同期消息：Moderna 于 10 月 9 日开盘前纳入纳斯达克 100 指数（[来源 9](https://www.streetinsider.com/Globe+Newswire/22884300.html)），周五有报道称美国计划推动全国性癌症疫苗项目，Moderna 股价创 4 年新高（[来源 10](https://finance.yahoo.com/markets/stocks/article/moderna-stock-hits-4-year-high-on-planned-national-cancer-vaccine-effort-201351554.html)）。DELL 涨 4.2%，离 52 周高点只差 1.6%；SPCX 相对 QQQ 的 RS 创 13 周新高。\n\n### 强势股健康度\n- **背离**：AMD、NET 的价格都创了 13 周新高，相对板块 ETF 的 RS 没有跟上；QQQ 对 SPY 也是同样情况。\n- **涨了但跑输板块**：AMZN（RS 4 周 -7.4%）、GOOGL（-5.9%）、NOW（-3.7%）、AVGO（-5.8%）、INTC（-4.2%）、COHR（-3.6%）。\n- **跌破上周低点**：SKHY、SNDK、INTC、NBIS。\n- **还没突破的周线 LH**：COHR 391.37、AVGO 431.943、GOOGL 384.233、NBIS 280.83、TSLA 432.86。\n- **过热**：MRNA，离 10 周 EMA 3.34 倍周 ATR。\n\n相对参照的 RS 还在创 13 周新高的只有 4 只：LITE、MU、MRNA、SPCX，其中 MRNA 已经过热，MU 本周价格是跌的。\n\n### 下周关注\n- **财报**：最近的是 TSLA（10 月 22 日）和 WDC（10 月 23 日），之后是 SKHY（10 月 28 日）、GOOGL 与 NOW（10 月 29 日）、SNDK、INTC、AMZN、NET（10 月 30 日）。\n- **结构位**：SOXX 本周低点 555.81、10 周 EMA 548.8627；MU 10 周 EMA 1001.9444；COHR 10 周 EMA 311.9804；AMD 本周低点 606.0；LITE 本周高点 1143.0。\n- **RS**：AMD、NET 的背离能不能被 RS 修复；云计算里 AMZN、GOOGL、NOW 相对 SKYY 的 RS 什么时候止跌；MU 相对 DRAM 的 RS 能不能守在 13 周新高附近。\n",
+ "flags": [],
+ "sources": [
+  {
+   "id": "1",
+   "title": "The Memory Trade Cools After Samsung's Preliminary Results Disappoint",
+   "publisher": "Investopedia",
+   "date": "2026-10-08",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/memory-trade-cools-samsung-preliminary-155142154.html",
+   "facts": [
+    "三星初步业绩公布后，存储交易降温"
+   ]
+  },
+  {
+   "id": "2",
+   "title": "Samsung profit tops 100 trillion won for first time, but shares slip",
+   "publisher": "investingLive",
+   "date": "2026-10-08",
+   "url": "https://investinglive.com/stocks/samsung-profit-tops-100-trillion-won-for-first-time-but-shares-slip/",
+   "facts": [
+    "三星第三季度初步营业利润约 107 万亿韩元，首次超过 100 万亿韩元",
+    "业绩公布后股价下跌"
+   ]
+  },
+  {
+   "id": "3",
+   "title": "Lumentum shares rise as AI demand fills production capacity through early 2029",
+   "publisher": "Proactive",
+   "date": "2026-10-09",
+   "url": "https://finance.yahoo.com/technology/ai/articles/lumentum-shares-rise-ai-demand-142000071.html",
+   "facts": [
+    "AI 需求已把 Lumentum 的产能排到 2029 年初"
+   ]
+  },
+  {
+   "id": "4",
+   "title": "Lumentum, Coherent Stocks Jump After CEO Warns AI Components Sold Out Through 2029",
+   "publisher": "GuruFocus",
+   "date": "2026-10-09",
+   "url": "https://finance.yahoo.com/technology/ai/articles/lumentum-coherent-stocks-jump-ceo-133448260.html",
+   "facts": [
+    "Lumentum CEO 表示 AI 光器件已售罄至 2029 年，Lumentum 与 Coherent 股价上涨"
+   ]
+  },
+  {
+   "id": "5",
+   "title": "AMD plans a big 2027 supply ramp; Wall Street already expects $38 billion of new revenue",
+   "publisher": "TIKR",
+   "date": "2026-10-06",
+   "url": "https://www.tikr.com/blog/amd-plans-a-big-2027-supply-ramp-wall-street-already-expects-38-billion-of-new-revenue",
+   "facts": [
+    "苏姿丰 10 月 6 日在台北表示 2027 年将大幅增加供应，AI 订单持续超过产能",
+    "AMD 把产能规划从 1–2 年拉长到 3–5 年"
+   ]
+  },
+  {
+   "id": "6",
+   "title": "AMD CEO delivers stark warning on chip market's future",
+   "publisher": "TheStreet",
+   "date": "2026-10-09",
+   "url": "https://finance.yahoo.com/technology/articles/amd-ceo-delivers-stark-warning-010300304.html",
+   "facts": [
+    "AMD CEO 就芯片市场前景发出警示"
+   ]
+  },
+  {
+   "id": "7",
+   "title": "Firmus Misfire Casts Shadow on Data Center IPOs in the Pipeline",
+   "publisher": "Bloomberg",
+   "date": "2026-10-08",
+   "url": "https://finance.yahoo.com/technology/ai/articles/firmus-misfire-casts-shadow-data-205345691.html",
+   "facts": [
+    "Firmus 上市受挫，给排队中的数据中心 IPO 蒙上阴影"
+   ]
+  },
+  {
+   "id": "8",
+   "title": "Tech rebounds as AI trade jitters ease: AlphaCheck",
+   "publisher": "Yahoo Finance",
+   "date": "2026-10-09",
+   "url": "https://finance.yahoo.com/markets/article/tech-rebounds-as-ai-trade-jitters-ease-alphacheck-135417533.html",
+   "facts": [
+    "AI 交易的担忧缓和，科技股反弹"
+   ]
+  },
+  {
+   "id": "9",
+   "title": "Moderna, Inc. to Join the Nasdaq-100 Index Beginning October 9, 2026",
+   "publisher": "GlobeNewswire / StreetInsider",
+   "date": "2026-10-01",
+   "url": "https://www.streetinsider.com/Globe+Newswire/22884300.html",
+   "facts": [
+    "Moderna 于 10 月 9 日开盘前纳入纳斯达克 100 指数，替换 Warner Bros. Discovery"
+   ]
+  },
+  {
+   "id": "10",
+   "title": "Moderna stock hits 4-year high on planned national cancer vaccine effort",
+   "publisher": "Yahoo Finance",
+   "date": "2026-10-09",
+   "url": "https://finance.yahoo.com/markets/stocks/article/moderna-stock-hits-4-year-high-on-planned-national-cancer-vaccine-effort-201351554.html",
+   "facts": [
+    "有报道称美国计划推动全国性癌症疫苗项目，Moderna 股价创 4 年新高"
+   ]
+  },
+  {
+   "id": "11",
+   "title": "Nasdaq Composite marks second closing record in a row (10/06/2026)",
+   "publisher": "ROIC.AI",
+   "date": "2026-10-05",
+   "url": "https://www.roic.ai/news/nasdaq-composite-marks-second-closing-record-in-a-row-10-06-2026",
+   "facts": [
+    "纳斯达克综合指数 10 月 5 日上涨 1.05%，连续第二天收在纪录高位"
+   ]
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "written_at": "2026-10-10 14:09 CST",
+ "data_generated_at": "2026-10-10T02:09:00-04:00",
+ "data_fingerprint": "a1f77355552d6b53"
+}

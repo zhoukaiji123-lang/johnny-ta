@@ -174,7 +174,7 @@ footer{border-top:1px solid var(--rule-faint);margin-top:44px;padding-top:16px;
 <body>
 <div id="app"></div>
 <div id="tip" role="tooltip"></div>
-<script id="payload" type="application/json">{"index": [{"week": "2026-W41", "file": "2026-W41.html", "monday": "2026-10-05", "friday": "2026-10-09", "summary": "存储 转弱 · 光模块 休整 · 半导体设计 休整 · 云计算 延续", "narrative": false}, {"week": "2026-W40", "file": "2026-W40.html", "monday": "2026-09-28", "friday": "2026-10-02", "summary": "存储 整理 · 光模块 延续 · 半导体设计 延续 · 云计算 延续", "narrative": false}]}</script>
+<script id="payload" type="application/json">{"index": [{"week": "2026-W41", "file": "2026-W41.html", "monday": "2026-10-05", "friday": "2026-10-09", "summary": "存储 转弱 · 光模块 休整 · 半导体设计 休整 · 云计算 延续", "narrative": true}, {"week": "2026-W40", "file": "2026-W40.html", "monday": "2026-09-28", "friday": "2026-10-02", "summary": "存储 整理 · 光模块 延续 · 半导体设计 延续 · 云计算 延续", "narrative": false}]}</script>
 <script>
 (function(){
 "use strict";
@@ -247,7 +247,7 @@ function markdown(md){
     if (list){ out.push(`<ul>${list.join("")}</ul>`); list = null; }
     if (!line.trim()) continue;
     const h = line.match(/^(#{2,4})\s+(.*)$/);
-    if (h){ const n = Math.min(4, h[1].length + 1); out.push(`<h${n}>${inline(h[2])}</h${n}>`); continue; }
+    if (h){ const n = h[1].length >= 4 ? 4 : 3; out.push(`<h${n}>${inline(h[2])}</h${n}>`); continue; }
     out.push(`<p>${inline(line)}</p>`);
   }
   if (list) out.push(`<ul>${list.join("")}</ul>`);
