@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* 色板与看板（dashboard.html）同源；三条 RS 线取 dataviz 参考色板前三槽，已过亮/暗两套校验 */
+:root {
+  --ground:#F7F8F6; --surface:#FFFFFF; --sunk:#EFF1EE;
+  --ink:#1A2126; --ink-soft:#4A555C; --muted:#7E8C93;
+  --rule:#D9DEDA; --rule-faint:#E7EBE7;
+  --accent:#3A6C8C; --accent-soft:#E2ECF2;
+  --good:#3F7A5E; --good-soft:#E3EFE8;
+  --bad:#A3462F; --bad-soft:#F6E5E0;
+  --warn:#96702A; --warn-soft:#F6EEDC;
+  --mid:#F0EFEC;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --font-ui:"Archivo","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --font-num:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0E1418; --surface:#151D22; --sunk:#111920;
+  --ink:#DDE4E7; --ink-soft:#A9B5BB; --muted:#78868D;
+  --rule:#26323A; --rule-faint:#1D272E;
+  --accent:#6FA6C6; --accent-soft:#17303F;
+  --good:#63A583; --good-soft:#162A21;
+  --bad:#CE7358; --bad-soft:#2E1B15;
+  --warn:#C6A05B; --warn-soft:#2A2317;
+  --mid:#2A3238;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+}}
+:root[data-theme="dark"]{
+  --ground:#0E1418; --surface:#151D22; --sunk:#111920;
+  --ink:#DDE4E7; --ink-soft:#A9B5BB; --muted:#78868D;
+  --rule:#26323A; --rule-faint:#1D272E;
+  --accent:#6FA6C6; --accent-soft:#17303F;
+  --good:#63A583; --good-soft:#162A21;
+  --bad:#CE7358; --bad-soft:#2E1B15;
+  --warn:#C6A05B; --warn-soft:#2A2317;
+  --mid:#2A3238;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-ui);
+     font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums}
+.shell{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+@media (max-width:640px){.shell{padding-left:16px;padding-right:16px}}
+a{color:var(--accent)}
+
+.masthead{background:var(--surface);border-bottom:1px solid var(--rule)}
+.masthead .shell{padding-top:22px;padding-bottom:18px;display:flex;flex-wrap:wrap;
+                 align-items:baseline;gap:8px 18px}
+.wordmark{font-family:var(--font-num);font-size:21px;font-weight:600;letter-spacing:-.02em}
+.vintage{font-family:var(--font-num);font-size:12.5px;color:var(--muted)}
+.spacer{flex:1 1 auto}
+.nav{display:flex;gap:14px;font-size:13px}
+.nav a{text-decoration:none}
+.nav a:hover{text-decoration:underline}
+.nav .off{color:var(--muted);opacity:.5}
+.alert{padding:10px 0;font-weight:600;font-size:13.5px}
+.alert.bad{background:var(--bad);color:var(--ground)}
+.alert.warn{background:var(--warn);color:var(--ground)}
+.alert .shell{padding-top:0;padding-bottom:0}
+
+main{display:flex;flex-direction:column;gap:38px;padding-top:28px}
+section{display:flex;flex-direction:column;gap:12px}
+h2{margin:0;font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+   font-weight:600;display:flex;align-items:center;gap:10px}
+h2::after{content:"";flex:1;height:1px;background:var(--rule-faint)}
+h3{margin:0;font-size:16px;font-weight:600;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.sub{font-size:12.5px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:16px 18px;
+      display:flex;flex-direction:column;gap:12px;min-width:0}
+
+/* 叙事 */
+.story{font-size:15px;line-height:1.75}
+.story h3{margin:18px 0 6px;font-size:15.5px}
+.story h3:first-child{margin-top:0}
+.story h4{margin:14px 0 4px;font-size:14px;color:var(--ink-soft)}
+.story p{margin:0 0 10px}
+.story ul{margin:0 0 10px;padding-left:20px}
+.story mark.flag{background:var(--bad-soft);color:var(--bad);border-bottom:1px solid var(--bad);padding:0 2px}
+.story .src{font-size:12px}
+.flagbox{border-left:2px solid var(--bad);background:var(--bad-soft);padding:8px 12px;font-size:13px;color:var(--bad)}
+.flagbox ul{margin:4px 0 0;padding-left:18px}
+.muted{color:var(--muted);font-size:13.5px}
+
+/* 大盘开关 */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:12px 14px;
+      display:flex;flex-direction:column;gap:4px}
+.tile .sym{font-family:var(--font-num);font-weight:600;font-size:15px}
+.tile .why{font-size:12px;color:var(--muted)}
+
+/* 表格 */
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{font-size:11px;letter-spacing:.06em;color:var(--muted);font-weight:600;text-align:right;
+   padding:6px 8px;border-bottom:1px solid var(--rule);white-space:nowrap}
+th.l,td.l{text-align:left}
+td{padding:7px 8px;border-bottom:1px solid var(--rule-faint);text-align:right;white-space:nowrap;
+   font-family:var(--font-num);font-variant-numeric:tabular-nums}
+td.l{font-family:var(--font-ui)}
+tr.warnrow td{border-bottom:1px solid var(--rule-faint);padding-top:0;white-space:normal;text-align:left}
+tr.has-warn td{border-bottom:none}
+.up{color:var(--good)} .dn{color:var(--bad)} .zero{color:var(--muted)}
+.symcell{font-family:var(--font-num);font-weight:600}
+.symcell .alias{font-family:var(--font-ui);font-weight:400;color:var(--muted);font-size:12px;margin-left:4px}
+tr.warnrow td{font-family:var(--font-ui)}
+/* 表格横向滚动时预警行钉在可见区域内换行，不跟着被截断 */
+.warns{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--warn);padding-left:2px;
+       position:sticky;left:0;max-width:calc(100vw - 72px)}
+.warns span::before{content:"▲ ";font-size:9px;vertical-align:1px}
+
+.chip{font-family:var(--font-ui);font-size:12px;padding:1px 7px;border-radius:2px;white-space:nowrap;
+      background:var(--sunk);color:var(--ink-soft)}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.trans{display:inline-flex;align-items:center;gap:4px}
+.trans .from{font-size:12px;color:var(--muted)}
+.trans .from::after{content:" →"}
+.agg{font-size:13px;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:4px 16px}
+.agg b{font-family:var(--font-num);font-weight:600;color:var(--ink)}
+
+/* 图 */
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.grid line{stroke:var(--rule-faint);stroke-width:1}
+.axis text{fill:var(--muted);font-family:var(--font-num);font-size:10.5px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:var(--ink-soft)}
+.legend i{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:6px;border-radius:1px}
+.spark{display:block}
+.spark path{fill:none;stroke:var(--ink-soft);stroke-width:1.5}
+.spark circle{fill:var(--ink)}
+.heat td{padding:0;border:2px solid var(--surface);text-align:center;font-size:11.5px;min-width:46px;height:28px}
+.heat td.l{padding:0 10px 0 0;border:none;text-align:left;font-size:13px}
+.heat th{text-align:center;padding:4px 2px}
+.heat tr.grp td{border:none;padding:10px 0 2px;font-size:11px;letter-spacing:.06em;color:var(--muted);
+                font-family:var(--font-ui);text-align:left;height:auto}
+.bars .row{display:grid;grid-template-columns:110px 1fr 74px;align-items:center;gap:8px;
+           font-size:13px;padding:2px 0}
+.bars .name{font-family:var(--font-num);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bars .name small{font-family:var(--font-ui);font-weight:400;color:var(--muted);margin-left:4px}
+.bars .track{position:relative;height:14px}
+.bars .track .zero{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--rule)}
+.bars .bar{position:absolute;top:2px;height:10px;border-radius:2px}
+.bars .bar.pos{background:var(--good)} .bars .bar.neg{background:var(--bad)}
+.bars .val{font-family:var(--font-num);text-align:right}
+@media (max-width:640px){.bars .row{grid-template-columns:84px 1fr 64px}}
+
+#tip{position:fixed;pointer-events:none;z-index:10;background:var(--ink);color:var(--ground);
+     font-size:12px;line-height:1.45;padding:6px 9px;border-radius:3px;max-width:260px;
+     opacity:0;transition:opacity .08s;font-family:var(--font-num)}
+#tip.on{opacity:.96}
+
+.weeks{display:flex;flex-direction:column;gap:8px}
+.weekrow{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;background:var(--surface);
+         border:1px solid var(--rule);border-radius:3px;padding:12px 16px;text-decoration:none;color:inherit}
+.weekrow:hover{border-color:var(--accent)}
+.weekrow .wk{font-family:var(--font-num);font-weight:600}
+
+footer{border-top:1px solid var(--rule-faint);margin-top:44px;padding-top:16px;
+       font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:5px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="tip" role="tooltip"></div>
+<script id="payload" type="application/json">__PAYLOAD__</script>
+<script>
+(function(){
+"use strict";
+const P = JSON.parse(document.getElementById("payload").textContent);
+const app = document.getElementById("app");
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const fmt = (v, d=2) => v == null ? "—" : (v > 0 ? "+" : "") + Number(v).toFixed(d);
+const cls = v => v == null || v === 0 ? "zero" : v > 0 ? "up" : "dn";
+const pct = (v, d=1) => `<span class="${cls(v)}">${v == null ? "—" : fmt(v, d) + "%"}</span>`;
+const pos = v => v == null ? "—" : Math.round(v * 100) + "%";
+
+const TONE = {"转弱":"bad","下行":"bad","冲高回落":"bad","过热":"warn","加速":"good","延续":"good"};
+const chip = l => l ? `<span class="chip ${TONE[l] || ""}">${esc(l)}</span>` : "—";
+const trans = (prev, cur) => prev && prev !== cur
+  ? `<span class="trans"><span class="from">${esc(prev)}</span>${chip(cur)}</span>` : chip(cur);
+
+/* ---------- 提示框：所有带 data-tip 的元素共用 ---------- */
+const tip = document.getElementById("tip");
+function showTip(html, x, y){
+  tip.innerHTML = html; tip.classList.add("on");
+  const r = tip.getBoundingClientRect();
+  let left = x + 14, top = y + 14;
+  if (left + r.width > innerWidth - 8) left = x - r.width - 14;
+  if (top + r.height > innerHeight - 8) top = y - r.height - 14;
+  tip.style.left = Math.max(8, left) + "px"; tip.style.top = Math.max(8, top) + "px";
+}
+const hideTip = () => tip.classList.remove("on");
+document.addEventListener("mousemove", e => {
+  const t = e.target.closest && e.target.closest("[data-tip]");
+  if (t) showTip(t.getAttribute("data-tip"), e.clientX, e.clientY);
+  else if (!e.target.closest || !e.target.closest(".chart")) hideTip();
+});
+
+/* ---------- 小图：13 周收盘 ---------- */
+function spark(values, w=96, h=26){
+  const v = (values || []).filter(x => x != null);
+  if (v.length < 2) return "";
+  const lo = Math.min(...v), hi = Math.max(...v), span = hi - lo || 1;
+  const pts = v.map((y, i) => [2 + i * (w - 4) / (v.length - 1), h - 3 - (y - lo) / span * (h - 6)]);
+  const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join("");
+  const last = pts[pts.length - 1];
+  const chg = (v[v.length - 1] / v[0] - 1) * 100;
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img"
+    aria-label="13 周走势" data-tip="13 周：${esc(v[0])} → ${esc(v[v.length-1])}（${fmt(chg,1)}%）">
+    <path d="${d}"/><circle cx="${last[0]}" cy="${last[1]}" r="2"/></svg>`;
+}
+
+/* ---------- 发散色：涨绿跌红，0 为中性灰，±8% 封顶 ---------- */
+function heatColor(v){
+  if (v == null) return "transparent";
+  const t = Math.min(1, Math.abs(v) / 8);
+  const pole = v >= 0 ? "var(--good)" : "var(--bad)";
+  return `color-mix(in srgb, ${pole} ${Math.round(12 + t * 70)}%, var(--mid))`;
+}
+function heatInk(v){ return v != null && Math.abs(v) / 8 > 0.55 ? "var(--surface)" : "var(--ink)"; }
+
+/* ---------- 叙事：极简 markdown，==…== 是数字校验未通过的句子 ---------- */
+function inline(s){
+  return esc(s)
+    .replace(/==(.+?)==/g, '<mark class="flag" title="这句里有数字在计算层 JSON 里找不到">$1</mark>')
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+}
+function markdown(md){
+  const out = []; let list = null;
+  for (const raw of String(md || "").split(/\n/)){
+    const line = raw.trimEnd();
+    if (/^\s*[-*] /.test(line)){ (list = list || []).push(`<li>${inline(line.replace(/^\s*[-*] /, ""))}</li>`); continue; }
+    if (list){ out.push(`<ul>${list.join("")}</ul>`); list = null; }
+    if (!line.trim()) continue;
+    const h = line.match(/^(#{2,4})\s+(.*)$/);
+    if (h){ const n = Math.min(4, h[1].length + 1); out.push(`<h${n}>${inline(h[2])}</h${n}>`); continue; }
+    out.push(`<p>${inline(line)}</p>`);
+  }
+  if (list) out.push(`<ul>${list.join("")}</ul>`);
+  return out.join("");
+}
+
+/* ---------- 板块 ETF 对 QQQ 的 RS 线 ---------- */
+function rsChart(lines){
+  const W = 720, H = 260, L = 44, R = 64, T = 12, B = 26;
+  const weeks = lines[0].weeks;
+  const all = lines.flatMap(l => l.values).filter(v => v != null);
+  let lo = Math.min(1, ...all), hi = Math.max(1, ...all);
+  const pad = (hi - lo) * 0.08 || 0.02; lo -= pad; hi += pad;
+  const n = weeks.length;
+  const x = i => L + i * (W - L - R) / (n - 1);
+  const y = v => T + (hi - v) / (hi - lo) * (H - T - B);
+  const ticks = [];
+  const step = (hi - lo) > 0.3 ? 0.1 : 0.05;
+  for (let t = Math.ceil(lo / step) * step; t <= hi; t += step) ticks.push(+t.toFixed(2));
+  let g = `<g class="grid">${ticks.map(t => `<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}"/>`).join("")}</g>`;
+  g += `<line x1="${L}" x2="${W-R}" y1="${y(1)}" y2="${y(1)}" stroke="var(--muted)" stroke-width="1"/>`;
+  g += `<g class="axis">${ticks.map(t => `<text x="${L-6}" y="${y(t)+3.5}" text-anchor="end">${t.toFixed(2)}</text>`).join("")}`;
+  g += weeks.map((w, i) => i % 2 === (n - 1) % 2 ? `<text x="${x(i)}" y="${H-6}" text-anchor="middle">${w.slice(5)}</text>` : "").join("") + "</g>";
+  // 末端直接标名字；相互太近时上下错开
+  const ends = lines.map((l, k) => ({k, v: l.values[n - 1], y: y(l.values[n - 1])})).sort((a, b) => a.y - b.y);
+  for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i-1].y < 16) ends[i].y = ends[i-1].y + 16;
+  lines.forEach((l, k) => {
+    const d = l.values.map((v, i) => v == null ? "" : (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join("");
+    g += `<path d="${d}" fill="none" stroke="var(--s${k+1})" stroke-width="2" stroke-linejoin="round"/>`;
+    const e = ends.find(o => o.k === k);
+    g += `<circle cx="${x(n-1)}" cy="${y(l.values[n-1])}" r="4" fill="var(--s${k+1})" stroke="var(--surface)" stroke-width="2"/>`;
+    g += `<text x="${x(n-1)+9}" y="${e.y+4}" font-size="12" font-family="var(--font-num)" fill="var(--ink-soft)">${esc(l.name)}</text>`;
+  });
+  g += `<text x="${L+4}" y="${y(1)-5}" font-size="10.5" font-family="var(--font-num)" fill="var(--muted)">1.00 = 与 QQQ 同步</text>`;
+  g += `<line class="cross" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="var(--muted)" stroke-width="1" opacity="0"/>`;
+  g += `<rect class="hit" x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent"/>`;
+  const legend = lines.map((l, k) => `<span><i style="background:var(--s${k+1})"></i>${esc(l.name)} · ${esc(l.sections.join("、"))}</span>`).join("");
+  return {html: `<div class="legend">${legend}</div><div class="chart" data-rs><svg viewBox="0 0 ${W} ${H}" role="img"
+    aria-label="板块 ETF 对 QQQ 的 13 周 RS 线">${g}</svg></div>`,
+    bind(root){
+      const svg = root.querySelector("[data-rs] svg"); if (!svg) return;
+      const cross = svg.querySelector(".cross"), hit = svg.querySelector(".hit");
+      hit.addEventListener("mousemove", e => {
+        const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+        const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+        const i = Math.max(0, Math.min(n - 1, Math.round((p.x - L) / ((W - L - R) / (n - 1)))));
+        cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("opacity", "1");
+        const rows = lines.map((l, k) => `<span style="color:var(--s${k+1})">●</span> ${esc(l.name)} ${l.values[i] == null ? "—" : l.values[i].toFixed(3)}`).join("<br>");
+        showTip(`${esc(weeks[i])}<br>${rows}`, e.clientX, e.clientY);
+      });
+      hit.addEventListener("mouseleave", () => { cross.setAttribute("opacity", "0"); hideTip(); });
+    }};
+}
+
+/* ---------- 周报列表页 ---------- */
+if (P.index){
+  app.innerHTML = `<header class="masthead"><div class="shell">
+      <span class="wordmark">johnny-ta 周报</span><span class="spacer"></span>
+      <nav class="nav"><a href="../index.html">每日看板</a></nav></div></header>
+    <div class="shell"><main><section><h2>全部周报</h2><div class="weeks">${
+      P.index.length ? P.index.map(w => `<a class="weekrow" href="${esc(w.file)}">
+        <span class="wk">${esc(w.week)}</span><span class="sub num">${esc(w.monday)} – ${esc(w.friday)}</span>
+        <span class="sub">${esc(w.summary)}</span>${w.narrative ? "" : '<span class="chip">无叙事</span>'}</a>`).join("")
+      : '<p class="muted">还没有周报。</p>'}</div></section></main></div>`;
+  return;
+}
+
+/* ---------- 单周页 ---------- */
+const nav = P.nav || {};
+let h = `<header class="masthead"><div class="shell">
+  <span class="wordmark">周报 ${esc(P.week)}</span>
+  <span class="vintage">${esc(P.monday)} – ${esc(P.friday)} · 生成于 ${esc(String(P.generated_at).slice(0,16).replace("T"," "))} ET</span>
+  <span class="spacer"></span>
+  <nav class="nav">${nav.prev ? `<a href="${esc(nav.prev)}">← 上一周</a>` : '<span class="off">← 上一周</span>'}
+    ${nav.next ? `<a href="${esc(nav.next)}">下一周 →</a>` : '<span class="off">下一周 →</span>'}
+    <a href="index.html">全部周报</a><a href="../index.html">每日看板</a></nav>
+</div></header>`;
+if (P.partial) h += `<div class="alert warn"><div class="shell">未完成周：本周还没收完，数字会变</div></div>`;
+const health = P.data_health || {};
+const failed = Object.keys(health.failed || {});
+if (failed.length || (health.stale || []).length)
+  h += `<div class="alert bad"><div class="shell">数据问题：${failed.length ? "抓取失败 " + esc(failed.join("、")) : ""}${
+    (health.stale||[]).length ? " 回退缓存 " + esc(health.stale.join("、")) : ""}</div></div>`;
+
+h += `<div class="shell"><main>`;
+
+// 叙事
+const nr = P.narrative;
+h += `<section><h2>本周回顾</h2><div class="card story">`;
+if (nr && nr.markdown){
+  const flags = nr.flags || [];
+  if (flags.length) h += `<div class="flagbox">数字校验：${flags.length} 处数字在计算层 JSON 里找不到，已在正文标红<ul>${
+    flags.map(f => `<li>${esc(f.number)}：${esc(f.sentence)}</li>`).join("")}</ul></div>`;
+  h += markdown(nr.markdown);
+  if (nr.model || nr.written_at) h += `<p class="src muted">叙事由 ${esc(nr.model || "LLM")} 依据本页数据与外部消息撰写${nr.written_at ? "，" + esc(nr.written_at) : ""}；消息面为外部信息，未经核验，只陈述同期消息，不构成因果判断。</p>`;
+} else {
+  h += `<p class="muted">本周还没有叙事。下面的数据全部由代码计算。</p>`;
+}
+h += `</div></section>`;
+
+// 大盘开关
+h += `<section><h2>大盘开关 · 日线</h2><div class="tiles">${Object.entries(P.regimes || {}).map(([s, r]) => {
+  const tone = {up:"good", down:"bad"}[r.end] || "";
+  const lab = {up:"向上", range:"震荡", down:"向下", unknown:"未知"};
+  return `<div class="tile"><span class="sym">${esc(s)}</span>
+    <span>${r.start !== r.end ? `<span class="trans"><span class="from">${esc(lab[r.start])}</span><span class="chip ${tone}">${esc(lab[r.end])}</span></span>`
+      : `<span class="chip ${tone}">${esc(lab[r.end])}</span>`}</span>
+    <span class="why">${esc(r.reason)}</span></div>`;}).join("")}</div></section>`;
+
+// 板块轮动总表
+const secs = P.sections || [];
+h += `<section><h2>板块轮动</h2><div class="card"><div class="tablewrap"><table>
+  <thead><tr><th class="l">板块</th><th class="l">参照 · 标签</th><th>参照 1w</th><th>4w</th><th>对 QQQ 4w</th>
+  <th>成员 1w</th><th>4w</th><th>广度</th><th class="l">领涨 / 落后</th><th class="l">参照 13 周</th></tr></thead><tbody>${
+  (P.sector_table || []).map(s => {
+    const sec = secs.find(x => x.name === s.section) || {};
+    const ref = sec.reference_metrics || {};
+    const rr = s.reference_ret_pct || {}, cr = s.composite_ret_pct || {};
+    return `<tr><td class="l"><a href="#sec-${esc(s.section)}">${esc(s.section)}</a></td>
+      <td class="l"><span class="num">${esc(s.reference || "—")}</span> ${s.reference ? trans(s.reference_prev_label, s.reference_label) : ""}</td>
+      <td>${pct(rr["1w"])}</td><td>${pct(rr["4w"])}</td><td>${pct(s.reference_rs_market_4w_pct)}</td>
+      <td>${pct(cr["1w"])}</td><td>${pct(cr["4w"])}</td><td>${esc(s.breadth)}</td>
+      <td class="l"><span class="num">${esc(s.leader || "—")} / ${esc(s.laggard || "—")}</span>${s.leader_changed ? ' <span class="chip warn">领涨换人</span>' : ""}</td>
+      <td class="l">${spark(ref.spark)}</td></tr>`;}).join("")}</tbody></table></div>
+  <p class="sub">成员涨跌是你关注列表里的票等权平均。这些票本来就是精选的强势票，合成值天然偏强，只用来和参照 ETF 对比。广度 = 收在 10 周 EMA 上方的成员数。</p></div></section>`;
+
+// RS 线
+const refs = {};
+secs.forEach(s => { const m = s.reference_metrics; if (s.reference && m && m.rs_market && m.rs_market.series)
+  (refs[s.reference] = refs[s.reference] || {name: s.reference, sections: [], values: m.rs_market.series, weeks: m.rs_market.series_weeks}).sections.push(s.name); });
+const lines = Object.values(refs).slice(0, 3);
+let rs = null;
+if (lines.length){
+  rs = rsChart(lines);
+  h += `<section><h2>板块 ETF 对 QQQ · 13 周 RS</h2><div class="card">${rs.html}
+    <p class="sub">RS 线 = 板块 ETF 周收盘 / QQQ 周收盘，以 13 周前那一周为 1。高于 1 = 这段时间跑赢 QQQ；看斜率比看位置更重要。</p></div></section>`;
+}
+
+// 热力图
+const heatSecs = secs.filter(s => s.members.length);
+const hw = (heatSecs[0] && heatSecs[0].members[0] && heatSecs[0].members[0].weekly_returns || []).map(r => r.week);
+h += `<section><h2>逐周涨跌 · 最近 ${hw.length} 周</h2><div class="card"><div class="tablewrap"><table class="heat">
+  <thead><tr><th></th>${hw.map(w => `<th class="num">${esc(w.slice(5))}</th>`).join("")}</tr></thead><tbody>${
+  heatSecs.map(s => `<tr class="grp"><td colspan="${hw.length + 1}">${esc(s.name)}</td></tr>` + s.members.map(m => {
+    const by = Object.fromEntries((m.weekly_returns || []).map(r => [r.week, r.ret_pct]));
+    return `<tr><td class="l symcell">${esc(m.symbol)}</td>${hw.map(w => { const v = by[w];
+      return `<td style="background:${heatColor(v)};color:${heatInk(v)}" data-tip="${esc(m.symbol)} ${esc(w)}：${v == null ? "无数据" : fmt(v,2) + "%"}">${v == null ? "" : fmt(v,1)}</td>`;}).join("")}</tr>`;
+  }).join("")).join("")}</tbody></table></div>
+  <p class="sub">涨绿跌红，颜色深浅到 ±8% 封顶；格子里是周涨跌幅（%）。</p></div></section>`;
+
+// 各大类
+for (const s of secs){
+  const ref = s.reference_metrics, a = s.aggregate;
+  h += `<section id="sec-${esc(s.name)}"><h2>${esc(s.name)}</h2><div class="card">`;
+  if (ref) h += `<h3><span class="num">${esc(s.reference)}</span>${trans(ref.prev_label, ref.label)}
+      <span class="sub num">1w ${pct(ref.ret_pct["1w"])} · 4w ${pct(ref.ret_pct["4w"])} · 13w ${pct(ref.ret_pct["13w"])} · 对 QQQ RS 4w ${pct((ref.rs_market||{}).chg_4w_pct)}</span></h3>
+      <div class="sub">${(ref.label_reasons || []).map(esc).join("；")}</div>`;
+  else if (s.name === "其他") h += `<div class="sub">单只成类的票，没有板块参照，RS 都对 QQQ。</div>`;
+  const refName = s.name === "指数" ? "参照" : (s.reference || "QQQ");
+  const oneRs = s.name === "指数" || !s.reference;   // 其他一节的参照就是 QQQ，不重复列
+  h += `<div class="tablewrap"><table><thead><tr><th class="l">标的</th><th class="l">标签</th><th>1w</th><th>4w</th><th>13w</th>
+    <th title="周涨跌 / 上周的周 ATR">周幅 ATR</th><th title="周收盘在当周振幅里的位置">收位</th><th title="收盘离 10 周 EMA 几倍周 ATR">距 EMA10</th>
+    <th>对 ${esc(refName)} RS 4w</th>${oneRs ? "" : "<th>对 QQQ RS 4w</th>"}<th class="l">周内</th><th class="l">13 周</th></tr></thead><tbody>`;
+  for (const m of s.members){
+    const iw = m.intraweek || {}, rr = m.rs_reference || {}, rm = m.rs_market || {};
+    const warn = (m.warnings || []);
+    const reason = esc((m.label_reasons || []).join("；"));
+    const dist = (iw.distribution_days || []).length;
+    const cols = oneRs ? 11 : 12;
+    h += `<tr class="${warn.length ? "has-warn" : ""}"><td class="l symcell">${esc(m.symbol)}${m.display && m.display !== m.symbol ? `<span class="alias">${esc(m.display)}</span>` : ""}</td>
+      <td class="l" data-tip="${reason}">${trans(m.prev_label, m.label)}</td>
+      <td>${pct(m.ret_pct["1w"])}</td><td>${pct(m.ret_pct["4w"])}</td><td>${pct(m.ret_pct["13w"])}</td>
+      <td>${m.move_atr == null ? "—" : fmt(m.move_atr)}</td><td>${pos(m.close_pos)}</td>
+      <td>${m.dist_ema10_atr == null ? "—" : fmt(m.dist_ema10_atr)}</td>
+      <td>${pct(rr.chg_4w_pct)}</td>${oneRs ? "" : `<td>${pct(rm.chg_4w_pct)}</td>`}
+      <td class="l sub">高${esc(iw.high_day || "—")} 低${esc(iw.low_day || "—")}${dist ? ` · 放量跌 ${dist}` : ""}</td>
+      <td class="l">${spark(m.spark)}</td></tr>`;
+    if (warn.length) h += `<tr class="warnrow"><td colspan="${cols}"><div class="warns">${warn.map(w => `<span>${esc(w)}</span>`).join("")}</div></td></tr>`;
+  }
+  h += `</tbody></table></div>`;
+  if (a) h += `<div class="agg"><span>广度 <b>${a.above_ema10}/${a.n}</b> 在 10 周 EMA 上方</span>
+    <span><b>${a.new_13w_high}</b> 只创 13 周新高</span><span>4 周分化 <b>${a.dispersion_4w_pct == null ? "—" : a.dispersion_4w_pct.toFixed(1) + "%"}</b></span>
+    ${a.beat_reference ? `<span>跑赢参照 1w <b>${a.beat_reference["1w"]}/${a.n}</b> · 4w <b>${a.beat_reference["4w"]}/${a.n}</b></span>` : ""}
+    <span>领涨 <b>${esc(a.leader || "—")}</b>${a.leader_changed ? `（上周 ${esc(a.prev_leader)}）` : ""}</span></div>`;
+  if (s.missing && s.missing.length) h += `<div class="sub">本周无数据：${esc(s.missing.join("、"))}</div>`;
+  h += `</div></section>`;
+}
+
+// RS 排名
+const rk = (P.rotation || {}).ranking || [];
+if (rk.length){
+  const maxAbs = Math.max(...rk.map(r => Math.abs(r.rs_4w_pct))) || 1;
+  h += `<section><h2>RS 排名 · 个股对 QQQ 4 周</h2><div class="card bars">${rk.map(r => {
+    const w = Math.abs(r.rs_4w_pct) / maxAbs * 50;
+    const style = r.rs_4w_pct >= 0 ? `left:50%;width:${w}%` : `left:${50 - w}%;width:${w}%`;
+    return `<div class="row" data-tip="${esc(r.symbol)} · ${esc(r.section)} · ${esc(r.label)}<br>RS 4 周 ${fmt(r.rs_4w_pct)}% · 本周 ${fmt(r.rs_1w_pct)}%">
+      <span class="name">${r.rank}. ${esc(r.symbol)}<small>${esc(r.section)}</small></span>
+      <span class="track"><span class="zero"></span><span class="bar ${r.rs_4w_pct >= 0 ? "pos" : "neg"}" style="${style}"></span></span>
+      <span class="val ${cls(r.rs_4w_pct)}">${fmt(r.rs_4w_pct, 1)}%</span></div>`;}).join("")}</div></section>`;
+}
+
+// 规则
+const ru = P.rules || {};
+h += `</main><footer>
+  <span>标签规则（看结果之前写定，未回测预测力）：优先级 ${esc((ru.label_order || []).join(" > "))}。
+  加速 = 收位 ≥ ${esc(ru.accel && ru.accel.close_pos)}、周幅 ≥ ${esc(ru.accel && ru.accel.move_atr)} 倍周 ATR、对 QQQ RS 创 ${esc(ru.rs_high_weeks)} 周新高；
+  冲高回落 = 周高点高于上周、收位 < ${esc(ru.reversal_close_pos)} 且收盘低于上周；过热 = 高于 10 周 EMA ≥ ${esc(ru.overheat_ema_atr)} 倍周 ATR；
+  休整 = 没创新高、守住上周低点、离 4 周高点 < ${esc(ru.pause_max_pullback_atr)} 倍周 ATR。</span>
+  <span>预警：跑输参照 = RS 4 周 < ${esc(ru.underperform_rs_pct)}%；放量下跌日 = 下跌且量 ≥ 前 20 日均量 ${esc(ru.distribution && ru.distribution.volume_mult)} 倍，一周 ≥ ${esc(ru.distribution && ru.distribution.warn_days)} 天才报。</span>
+  <span>${esc(ru.note)}。周 EMA ${esc((ru.ema||[]).join(" / "))}，周 ATR ${esc(ru.atr_weeks)}（历史不足时用已有周数）。</span>
+  <span>仅供研究与交易计划辅助，不构成投资建议。</span>
+</footer></div>`;
+
+app.innerHTML = h;
+if (rs) rs.bind(app);
+})();
+</script>
+</body>
+</html>

@@ -57,6 +57,8 @@ jta analyze MU --benchmark SOXX --json               # 给 skill 叙事层消费
 jta analyze MU --as-of 2026-06-01                    # 前向测试：只用该时点前的数据
 jta analyze MU --benchmark SOXX --live               # 盘中：现价改用最新成交价
 jta fetch MU -i 4h --tail 6                          # 检视行情
+jta weekly                                           # 周报：上一个完整交易周，写到 docs/weekly/
+jta weekly --week 2026-W41 --no-write               # 指定周，只打印
 ```
 
 现价默认取**前一交易日收盘价**：当天的关键位、位置与计划在开盘前就定死，
@@ -75,10 +77,28 @@ jta/
 ├── brooks.py      Al Brooks 价格行为层：Always In、市场周期、H/L 计数、MTR 清单、第 4 套计划 D
 ├── analyze.py     编排：行情 → 指标 → 候选 → 证据 → 每侧 2–3 个关键位（先近后深）
 ├── plans.py       L/B/C 交易计划、方案状态、左右两侧汇总
-└── report.py      文本渲染与仓位反推
+├── report.py      文本渲染与仓位反推
+└── weekly.py      周报计算层：周线结构、两层 RS（个股 / 板块 ETF、板块 ETF / QQQ）、趋势标签与板块广度
 
 skills/johnny-analysis/    改造后的 skill：只消费 JSON，不自行计算
 ```
+
+## 周报
+
+`jta weekly` 按板块看一周的趋势，不是周五日报的翻版：日线重采样成周线，看 1/4/13 周窗口，
+不读看板快照，任意一周都能回放。产出 `docs/weekly/<周>.json` 与同名 HTML，`index.html` 列出全部周报。
+
+- **两层 RS。** 关注列表里的票本来就是各板块的强势票，用它们合成的板块走势天然偏强，所以分开看：
+  板块参照 ETF / QQQ 看板块本身强不强，个股 / 板块 ETF 看它还是不是领头的那只。参照：存储 DRAM、
+  光模块与半导体设计 SOXX（光模块没有纯主题 ETF）、云计算 SKYY；单只成类的并进"其他"，只对比 QQQ。
+- **趋势标签**（优先级从高到低）：转弱 / 下行 / 冲高回落 / 过热 / 加速 / 延续 / 休整 / 整理。
+  阈值在看结果之前写定（`weekly.py` 顶部常量），**只描述状态，没有回测过预测力**。过热的 3 倍周 ATR
+  是预设值，不是 Brooks 课程原文数字。
+- **健康度预警**：价格创 13 周新高但 RS 没有（背离）、RS 4 周低于 -3%（跑输参照）、一周 2 个以上
+  放量下跌日、周线 LH 至今未被突破。
+- **叙事层**单独存在 `<周>.narrative.json`，重跑计算层不会覆盖。叙事里的数字必须能在 JSON 里找到，
+  找不到的句子用 `==…==` 标出，页面标红照常发布。
+- 历史短的标的（SKHY、SPCX、DRAM）EMA20 可能算不出，周 ATR 用已有周数，JSON 里写明。
 
 ## 关键设计决定
 

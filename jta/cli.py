@@ -377,17 +377,19 @@ def cmd_forward_report(args: argparse.Namespace) -> int:
 def cmd_weekly(args: argparse.Namespace) -> int:
     from pathlib import Path
 
-    from .weekly import build_weekly, default_week, format_weekly, parse_week
+    from .weekly import build_weekly, default_week, format_weekly, parse_week, write_site
 
     monday = parse_week(args.week) if args.week else default_week()
     payload = build_weekly(
         monday, provider=build_provider(args.source, force_refresh=args.refresh)
     )
-    blob = json.dumps(payload, ensure_ascii=False, indent=2, default=str)
-    if args.out:
-        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.out).write_text(blob, encoding="utf-8")
-    print(blob if args.json else format_weekly(payload))
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+    else:
+        print(format_weekly(payload))
+    if not args.no_write:
+        page = write_site(payload, Path(args.out_dir))
+        print(f"已写入 {page}", file=sys.stderr if args.json else sys.stdout)
     return 1 if payload["data_health"]["failed"] else 0
 
 
@@ -493,7 +495,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="ISO 周，如 2026-W41；默认取最近一个已走完的交易周")
     wk.add_argument("--source", default="auto", choices=SOURCES)
     wk.add_argument("--refresh", action="store_true", help="忽略缓存强制重抓")
-    wk.add_argument("--out", default=None, help="把 JSON 写到这个路径")
+    wk.add_argument("--out-dir", default="docs/weekly", help="输出目录，默认 docs/weekly/")
+    wk.add_argument("--no-write", action="store_true", help="只打印，不写文件")
     wk.add_argument("--json", action="store_true")
     wk.set_defaults(func=cmd_weekly)
 

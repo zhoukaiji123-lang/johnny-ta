@@ -16,8 +16,11 @@
 
 from __future__ import annotations
 
+import html as _html
+import json
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
+from pathlib import Path
 from typing import Any, Sequence
 from zoneinfo import ZoneInfo
 
@@ -65,6 +68,9 @@ RS_SLOPE_WEEKS = 4
 
 #: 52 周高点
 HIGH_52W = 52
+
+#: 热力图展示最近几周的逐周涨跌
+HEATMAP_WEEKS = 8
 
 # ---- 趋势标签阈值：看结果之前写定，不调参 ----
 #: 加速：周收盘位于当周振幅上 1/4，且周涨幅 >= 1.5 倍上周的周 ATR，且对 QQQ 的 RS 创 13 周新高
@@ -184,6 +190,7 @@ def rs_metrics(sym_w: pd.DataFrame, ref_w: pd.DataFrame | None) -> dict[str, Any
         return _pct(last, float(rs.iloc[-1 - n])) if len(rs) > n else None
 
     window = rs.iloc[-RS_HIGH_WEEKS:]
+    start = float(rs.iloc[max(0, len(rs) - 13)])
     return {
         "weeks": len(rs),
         "chg_1w_pct": chg(1),
@@ -191,8 +198,9 @@ def rs_metrics(sym_w: pd.DataFrame, ref_w: pd.DataFrame | None) -> dict[str, Any
         "chg_13w_pct": chg(13),
         # 不足 13 周时按已有周数判定，并在 weeks 里写明
         "at_13w_high": bool(last >= float(window.max()) * (1 - 1e-9)),
-        "series": [_round(v / float(rs.iloc[max(0, len(rs) - 13)]), 4)
-                   for v in rs.iloc[-13:]],
+        # 最近 13 周的 RS 线，以窗口第一周为 1
+        "series": [_round(v / start, 4) for v in rs.iloc[-13:]],
+        "series_weeks": [week_id(m) for m in rs.index[-13:]],
     }
 
 
@@ -383,6 +391,11 @@ def symbol_week(
         "rs_market": rs_metrics(w, mkt_w),
         "intraweek": _intraweek(d, monday, atr_prev),
         "spark": [_round(v) for v in cl.iloc[-13:]],
+        "weekly_returns": [
+            {"week": week_id(mo), "ret_pct": _pct(float(cl.iloc[i]), float(cl.iloc[i - 1]))}
+            for i, mo in zip(range(max(1, n - HEATMAP_WEEKS), n),
+                             w["monday"].iloc[max(1, n - HEATMAP_WEEKS):])
+        ],
     }
     m["label"], m["label_reasons"] = classify(m)
     m["warnings"] = health_warnings(m)
@@ -701,3 +714,55 @@ def format_weekly(p: dict[str, Any]) -> str:
         L.append("")
         L.append(f"数据问题：失败 {list(h['failed'])}，回退缓存 {h['stale']}")
     return "\n".join(L)
+
+
+# --------------------------------------------------------------------------- HTML
+
+TEMPLATE = Path(__file__).with_name("templates") / "weekly.html"
+
+
+def _render(payload: dict[str, Any], title: str) -> str:
+    from .chart import _json_safe
+
+    blob = json.dumps(_json_safe(payload), ensure_ascii=False, default=str).replace("</", "<\\/")
+    return (TEMPLATE.read_text(encoding="utf-8")
+            .replace("__TITLE__", _html.escape(title, quote=False))
+            .replace("__PAYLOAD__", blob))
+
+
+def _summary(p: dict[str, Any]) -> str:
+    """列表页上一行：各板块参照 ETF 的标签。"""
+    parts = [f"{s['section']} {s['reference_label']}" for s in p.get("sector_table", [])
+             if s.get("reference_label")]
+    return " · ".join(parts)
+
+
+def load_narrative(out_dir: Path, week: str) -> dict[str, Any] | None:
+    """叙事单独存放（{week}.narrative.json），重跑计算层不会覆盖它。"""
+    f = out_dir / f"{week}.narrative.json"
+    return json.loads(f.read_text(encoding="utf-8")) if f.exists() else None
+
+
+def write_site(payload: dict[str, Any], out_dir: Path) -> Path:
+    """写入本周 JSON，并用目录里所有周的 JSON 重新渲染各周页面与列表页。
+
+    全部重渲染是为了让上一周的"下一周"链接跟着更新；每周一页，量很小。
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / f"{payload['week']}.json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
+
+    weeks = sorted(f.stem for f in out_dir.glob("*-W*.json") if not f.stem.endswith(".narrative"))
+    index = []
+    for i, wk in enumerate(weeks):
+        p = json.loads((out_dir / f"{wk}.json").read_text(encoding="utf-8"))
+        p["narrative"] = load_narrative(out_dir, wk)
+        p["nav"] = {"prev": f"{weeks[i - 1]}.html" if i > 0 else None,
+                    "next": f"{weeks[i + 1]}.html" if i + 1 < len(weeks) else None}
+        (out_dir / f"{wk}.html").write_text(_render(p, f"johnny-ta 周报 {wk}"), encoding="utf-8")
+        index.append({"week": wk, "file": f"{wk}.html", "monday": p["monday"],
+                      "friday": p["friday"], "summary": _summary(p),
+                      "narrative": bool(p["narrative"])})
+    (out_dir / "index.html").write_text(
+        _render({"index": list(reversed(index))}, "johnny-ta 周报"), encoding="utf-8")
+    return out_dir / f"{payload['week']}.html"

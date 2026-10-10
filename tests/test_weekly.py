@@ -173,3 +173,30 @@ def test_underperform_warning_threshold():
             "lower_high_unbroken": None, "label": "延续", "prev_low": 90.0, "close": 100.0}
     assert not any("跑输" in w for w in health_warnings({**base, "rs_reference": {"chg_4w_pct": -2.9}}))
     assert any("跑输" in w for w in health_warnings({**base, "rs_reference": {"chg_4w_pct": -3.1}}))
+
+
+def test_write_site_links_weeks_and_merges_narrative(tmp_path):
+    import json
+    from jta.weekly import write_site
+
+    def payload(wk, monday):
+        return {"week": wk, "monday": monday, "friday": monday, "partial": False,
+                "generated_at": "2026-10-10T09:00:00-04:00",
+                "sector_table": [{"section": "存储", "reference_label": "转弱"}],
+                "sections": [], "data_health": {"failed": {}, "stale": []}}
+
+    write_site(payload("2026-W40", "2026-09-28"), tmp_path)
+    (tmp_path / "2026-W41.narrative.json").write_text(
+        json.dumps({"markdown": "## 主线\n存储 ==-99%== 走弱", "flags": [{"number": "-99%", "sentence": "x"}]}),
+        encoding="utf-8")
+    write_site(payload("2026-W41", "2026-10-05"), tmp_path)
+
+    w40 = (tmp_path / "2026-W40.html").read_text(encoding="utf-8")
+    w41 = (tmp_path / "2026-W41.html").read_text(encoding="utf-8")
+    assert '"next": "2026-W41.html"' in w40 and '"narrative": null' in w40
+    assert '"prev": "2026-W40.html"' in w41 and "==-99%==" in w41
+    idx = (tmp_path / "index.html").read_text(encoding="utf-8")
+    assert idx.index("2026-W41") < idx.index("2026-W40")   # 新的在前
+    assert "存储 转弱" in idx
+    # 叙事文件不被当成一周
+    assert sorted(f.name for f in tmp_path.glob("*.html")) == ["2026-W40.html", "2026-W41.html", "index.html"]

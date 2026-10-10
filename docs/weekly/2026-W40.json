@@ -1,0 +1,6703 @@
+{
+ "week": "2026-W40",
+ "monday": "2026-09-28",
+ "friday": "2026-10-02",
+ "partial": false,
+ "generated_at": "2026-10-10T01:54:06-04:00",
+ "market": "QQQ",
+ "regimes": {
+  "QQQ": {
+   "start": "range",
+   "end": "range",
+   "end_label": "震荡",
+   "reason": "ADX 14.1 < 20，趋势强度不足"
+  },
+  "SPY": {
+   "start": "range",
+   "end": "range",
+   "end_label": "震荡",
+   "reason": "ADX 9.6 < 20，趋势强度不足"
+  },
+  "SOXX": {
+   "start": "range",
+   "end": "range",
+   "end_label": "震荡",
+   "reason": "ADX 18.4 < 20，趋势强度不足"
+  }
+ },
+ "sector_table": [
+  {
+   "section": "存储",
+   "reference": "DRAM",
+   "reference_label": "整理",
+   "reference_prev_label": "延续",
+   "reference_ret_pct": {
+    "1w": -0.21,
+    "4w": 3.5,
+    "13w": 1.9
+   },
+   "reference_rs_market_4w_pct": -0.83,
+   "composite_ret_pct": {
+    "1w": -2.79,
+    "4w": 0.92,
+    "13w": -4.72
+   },
+   "breadth": "3/4",
+   "leader": "SKHY",
+   "laggard": "WDC",
+   "leader_changed": true
+  },
+  {
+   "section": "光模块",
+   "reference": "SOXX",
+   "reference_label": "延续",
+   "reference_prev_label": "延续",
+   "reference_ret_pct": {
+    "1w": 2.83,
+    "4w": 13.35,
+    "13w": 4.06
+   },
+   "reference_rs_market_4w_pct": 8.61,
+   "composite_ret_pct": {
+    "1w": 14.6,
+    "4w": 21.38,
+    "13w": 25.07
+   },
+   "breadth": "2/2",
+   "leader": "LITE",
+   "laggard": "COHR",
+   "leader_changed": true
+  },
+  {
+   "section": "半导体设计",
+   "reference": "SOXX",
+   "reference_label": "延续",
+   "reference_prev_label": "延续",
+   "reference_ret_pct": {
+    "1w": 2.83,
+    "4w": 13.35,
+    "13w": 4.06
+   },
+   "reference_rs_market_4w_pct": 8.61,
+   "composite_ret_pct": {
+    "1w": -0.6,
+    "4w": 18.9,
+    "13w": 6.76
+   },
+   "breadth": "2/3",
+   "leader": "AMD",
+   "laggard": "AVGO",
+   "leader_changed": true
+  },
+  {
+   "section": "云计算",
+   "reference": "SKYY",
+   "reference_label": "延续",
+   "reference_prev_label": "延续",
+   "reference_ret_pct": {
+    "1w": 2.1,
+    "4w": 4.07,
+    "13w": 24.68
+   },
+   "reference_rs_market_4w_pct": -0.28,
+   "composite_ret_pct": {
+    "1w": 0.41,
+    "4w": 5.26,
+    "13w": 16.43
+   },
+   "breadth": "3/5",
+   "leader": "NET",
+   "laggard": "NOW",
+   "leader_changed": false
+  },
+  {
+   "section": "其他",
+   "reference": null,
+   "reference_label": null,
+   "reference_prev_label": null,
+   "reference_ret_pct": null,
+   "reference_rs_market_4w_pct": null,
+   "composite_ret_pct": {
+    "1w": 0.49,
+    "4w": 12.49,
+    "13w": 43.36
+   },
+   "breadth": "4/4",
+   "leader": "MRNA",
+   "laggard": "TSLA",
+   "leader_changed": false
+  }
+ ],
+ "rotation": {
+  "basis": "个股 / QQQ 的 RS 线 4 周变化",
+  "ranking": [
+   {
+    "symbol": "AMD",
+    "section": "半导体设计",
+    "rs_4w_pct": 27.18,
+    "rs_1w_pct": -0.16,
+    "label": "延续",
+    "rank": 1
+   },
+   {
+    "symbol": "MRNA",
+    "section": "其他",
+    "rs_4w_pct": 25.08,
+    "rs_1w_pct": -5.11,
+    "label": "延续",
+    "rank": 2
+   },
+   {
+    "symbol": "NET",
+    "section": "云计算",
+    "rs_4w_pct": 19.91,
+    "rs_1w_pct": -0.66,
+    "label": "休整",
+    "rank": 3
+   },
+   {
+    "symbol": "INTC",
+    "section": "半导体设计",
+    "rs_4w_pct": 19.35,
+    "rs_1w_pct": -3.64,
+    "label": "整理",
+    "rank": 4
+   },
+   {
+    "symbol": "LITE",
+    "section": "光模块",
+    "rs_4w_pct": 18.01,
+    "rs_1w_pct": 14.49,
+    "label": "延续",
+    "rank": 5
+   },
+   {
+    "symbol": "COHR",
+    "section": "光模块",
+    "rs_4w_pct": 14.57,
+    "rs_1w_pct": 13.16,
+    "label": "延续",
+    "rank": 6
+   },
+   {
+    "symbol": "SKHY",
+    "section": "存储",
+    "rs_4w_pct": 5.63,
+    "rs_1w_pct": 1.17,
+    "label": "整理",
+    "rank": 7
+   },
+   {
+    "symbol": "SPCX",
+    "section": "其他",
+    "rs_4w_pct": 2.95,
+    "rs_1w_pct": 6.19,
+    "label": "延续",
+    "rank": 8
+   },
+   {
+    "symbol": "DELL",
+    "section": "其他",
+    "rs_4w_pct": 2.83,
+    "rs_1w_pct": -0.74,
+    "label": "整理",
+    "rank": 9
+   },
+   {
+    "symbol": "NBIS",
+    "section": "云计算",
+    "rs_4w_pct": 2.76,
+    "rs_1w_pct": 1.62,
+    "label": "延续",
+    "rank": 10
+   },
+   {
+    "symbol": "MU",
+    "section": "存储",
+    "rs_4w_pct": 1.31,
+    "rs_1w_pct": -1.36,
+    "label": "整理",
+    "rank": 11
+   },
+   {
+    "symbol": "TSLA",
+    "section": "其他",
+    "rs_4w_pct": 0.28,
+    "rs_1w_pct": -1.08,
+    "label": "整理",
+    "rank": 12
+   },
+   {
+    "symbol": "GOOGL",
+    "section": "云计算",
+    "rs_4w_pct": -2.76,
+    "rs_1w_pct": -0.8,
+    "label": "转弱",
+    "rank": 13
+   },
+   {
+    "symbol": "AVGO",
+    "section": "半导体设计",
+    "rs_4w_pct": -4.75,
+    "rs_1w_pct": -0.02,
+    "label": "下行",
+    "rank": 14
+   },
+   {
+    "symbol": "SNDK",
+    "section": "存储",
+    "rs_4w_pct": -5.29,
+    "rs_1w_pct": -3.91,
+    "label": "转弱",
+    "rank": 15
+   },
+   {
+    "symbol": "AMZN",
+    "section": "云计算",
+    "rs_4w_pct": -6.78,
+    "rs_1w_pct": 0.06,
+    "label": "转弱",
+    "rank": 16
+   },
+   {
+    "symbol": "NOW",
+    "section": "云计算",
+    "rs_4w_pct": -8.85,
+    "rs_1w_pct": -1.59,
+    "label": "转弱",
+    "rank": 17
+   },
+   {
+    "symbol": "WDC",
+    "section": "存储",
+    "rs_4w_pct": -14.85,
+    "rs_1w_pct": -9.71,
+    "label": "转弱",
+    "rank": 18
+   }
+  ]
+ },
+ "sections": [
+  {
+   "name": "指数",
+   "reference": null,
+   "members": [
+    {
+     "symbol": "QQQ",
+     "display": "QQQ",
+     "reference": "SPY",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 740.46,
+     "high": 754.54,
+     "low": 731.63,
+     "close": 749.58,
+     "prev_high": 748.35,
+     "prev_low": 727.81,
+     "prev_close": 744.5,
+     "ret_pct": {
+      "1w": 0.68,
+      "4w": 4.37,
+      "13w": 5.3
+     },
+     "atr_prev": 26.7267,
+     "atr_weeks": 14,
+     "move_atr": 0.19,
+     "close_pos": 0.784,
+     "body_ratio": 0.398,
+     "bar_type": null,
+     "higher_high": true,
+     "higher_low": true,
+     "new_13w_high": true,
+     "from_52w_high_pct": -0.66,
+     "pullback_4w_atr": 0.19,
+     "ema10": 724.5949,
+     "ema20": 708.957,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 0.93,
+     "swing_sequence": [
+      {
+       "ts": "2026-04-02T04:00:00",
+       "kind": "low",
+       "price": 554.4123,
+       "label": "LL",
+       "label_text": "更低低点",
+       "confirmed_at": "2026-04-24T04:00:00"
+      },
+      {
+       "ts": "2026-06-05T04:00:00",
+       "kind": "high",
+       "price": 747.0498,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-06-26T04:00:00"
+      },
+      {
+       "ts": "2026-07-31T04:00:00",
+       "kind": "low",
+       "price": 660.4518,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-08-21T04:00:00"
+      },
+      {
+       "ts": "2026-08-21T04:00:00",
+       "kind": "high",
+       "price": 733.8153,
+       "label": "LH",
+       "label_text": "更低高点",
+       "confirmed_at": "2026-09-11T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 521,
+      "chg_1w_pct": 0.91,
+      "chg_4w_pct": 4.18,
+      "chg_13w_pct": 1.65,
+      "at_13w_high": true,
+      "series": [
+       1.0,
+       0.9734,
+       0.9635,
+       0.9583,
+       0.973,
+       0.9799,
+       0.9695,
+       0.969,
+       0.9714,
+       0.9733,
+       0.9832,
+       1.0029,
+       1.012
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": null,
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 736.53,
+        "chg_pct": -1.07,
+        "volume_ratio": 1.26
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 737.93,
+        "chg_pct": 0.19,
+        "volume_ratio": 0.81
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 739.77,
+        "chg_pct": 0.25,
+        "volume_ratio": 0.9
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 742.03,
+        "chg_pct": 0.31,
+        "volume_ratio": 1.08
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 749.58,
+        "chg_pct": 1.02,
+        "volume_ratio": 1.03
+       }
+      ],
+      "high_day": "周五",
+      "low_day": "周一",
+      "max_drawdown_atr": 0.37,
+      "up_down_volume_ratio": 0.76,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-09-28",
+       "chg_pct": -1.07
+      }
+     },
+     "spark": [
+      724.7548,
+      694.6062,
+      683.5178,
+      687.2739,
+      722.2774,
+      730.309,
+      712.6974,
+      715.6843,
+      718.2116,
+      714.1359,
+      720.699,
+      744.5,
+      749.58
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 1.11
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -2.41
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": 0.42
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 0.35
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": -0.57
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 0.92
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 3.3
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": 0.68
+      }
+     ],
+     "label": "延续",
+     "label_reasons": [
+      "延续：收在 10 周 EMA 上方，周高点高于上周"
+     ],
+     "warnings": [],
+     "prev_label": "延续",
+     "prev_ret_4w_pct": 4.03
+    },
+    {
+     "symbol": "SPY",
+     "display": "SPY",
+     "reference": null,
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 768.35,
+     "high": 772.65,
+     "low": 758.79,
+     "close": 769.64,
+     "prev_high": 775.14,
+     "prev_low": 763.25,
+     "prev_close": 771.35,
+     "ret_pct": {
+      "1w": -0.22,
+      "4w": 0.18,
+      "13w": 3.59
+     },
+     "atr_prev": 17.6156,
+     "atr_weeks": 14,
+     "move_atr": -0.1,
+     "close_pos": 0.783,
+     "body_ratio": 0.093,
+     "bar_type": null,
+     "higher_high": false,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -1.0,
+     "pullback_4w_atr": 0.31,
+     "ema10": 762.6313,
+     "ema20": 749.7552,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 0.4,
+     "swing_sequence": [
+      {
+       "ts": "2026-04-02T04:00:00",
+       "kind": "low",
+       "price": 626.1083,
+       "label": "LL",
+       "label_text": "更低低点",
+       "confirmed_at": "2026-04-24T04:00:00"
+      },
+      {
+       "ts": "2026-06-05T04:00:00",
+       "kind": "high",
+       "price": 756.5674,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-06-26T04:00:00"
+      },
+      {
+       "ts": "2026-06-26T04:00:00",
+       "kind": "low",
+       "price": 714.805,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-07-17T04:00:00"
+      },
+      {
+       "ts": "2026-08-14T04:00:00",
+       "kind": "high",
+       "price": 777.4395,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-09-04T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": null,
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": -0.9,
+      "chg_4w_pct": -4.02,
+      "chg_13w_pct": -1.62,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       1.0273,
+       1.0378,
+       1.0435,
+       1.0278,
+       1.0205,
+       1.0314,
+       1.032,
+       1.0295,
+       1.0274,
+       1.0171,
+       0.9971,
+       0.9881
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 765.61,
+        "chg_pct": -0.74,
+        "volume_ratio": 0.98
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 764.2,
+        "chg_pct": -0.18,
+        "volume_ratio": 0.84
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 762.63,
+        "chg_pct": -0.21,
+        "volume_ratio": 1.41
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 763.99,
+        "chg_pct": 0.18,
+        "volume_ratio": 1.06
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 769.64,
+        "chg_pct": 0.74,
+        "volume_ratio": 1.01
+       }
+      ],
+      "high_day": "周五",
+      "low_day": "周四",
+      "max_drawdown_atr": 0.61,
+      "up_down_volume_ratio": 1.0,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-09-28",
+       "chg_pct": -0.74
+      }
+     },
+     "spark": [
+      753.08,
+      741.4488,
+      737.0996,
+      745.1796,
+      771.3446,
+      774.417,
+      763.8232,
+      767.4443,
+      768.2822,
+      762.3968,
+      761.69,
+      771.35,
+      769.64
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 0.4
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -1.37
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": 0.47
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 0.11
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": -0.77
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": -0.09
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 1.27
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": -0.22
+      }
+     ],
+     "label": "整理",
+     "label_reasons": [
+      "整理：未满足以上任何一条"
+     ],
+     "warnings": [],
+     "prev_label": "延续",
+     "prev_ret_4w_pct": 0.51
+    },
+    {
+     "symbol": "SOXX",
+     "display": "SOXX",
+     "reference": "QQQ",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 568.71,
+     "high": 596.44,
+     "low": 551.95,
+     "close": 588.9,
+     "prev_high": 575.69,
+     "prev_low": 541.47,
+     "prev_close": 572.68,
+     "ret_pct": {
+      "1w": 2.83,
+      "4w": 13.35,
+      "13w": 4.06
+     },
+     "atr_prev": 44.9337,
+     "atr_weeks": 14,
+     "move_atr": 0.36,
+     "close_pos": 0.831,
+     "body_ratio": 0.454,
+     "bar_type": null,
+     "higher_high": true,
+     "higher_low": true,
+     "new_13w_high": false,
+     "from_52w_high_pct": -10.16,
+     "pullback_4w_atr": 0.17,
+     "ema10": 546.5211,
+     "ema20": 526.0089,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 0.94,
+     "swing_sequence": [
+      {
+       "ts": "2026-06-26T04:00:00",
+       "kind": "high",
+       "price": 655.5214,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-07-17T04:00:00"
+      },
+      {
+       "ts": "2026-07-31T04:00:00",
+       "kind": "low",
+       "price": 463.7768,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-08-21T04:00:00"
+      },
+      {
+       "ts": "2026-08-21T04:00:00",
+       "kind": "high",
+       "price": 565.6502,
+       "label": "LH",
+       "label_text": "更低高点",
+       "confirmed_at": "2026-09-11T04:00:00"
+      },
+      {
+       "ts": "2026-09-04T04:00:00",
+       "kind": "low",
+       "price": 488.8904,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-09-25T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 521,
+      "chg_1w_pct": 2.14,
+      "chg_4w_pct": 8.61,
+      "chg_13w_pct": -1.18,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9366,
+       0.9612,
+       0.9159,
+       0.9377,
+       0.9396,
+       0.9097,
+       0.886,
+       0.9024,
+       0.9201,
+       0.9227,
+       0.9596,
+       0.9801
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": 2.14,
+      "chg_4w_pct": 8.61,
+      "chg_13w_pct": -1.18,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9366,
+       0.9612,
+       0.9159,
+       0.9377,
+       0.9396,
+       0.9097,
+       0.886,
+       0.9024,
+       0.9201,
+       0.9227,
+       0.9596,
+       0.9801
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 560.79,
+        "chg_pct": -2.08,
+        "volume_ratio": 1.02
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 567.44,
+        "chg_pct": 1.19,
+        "volume_ratio": 0.72
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 568.64,
+        "chg_pct": 0.21,
+        "volume_ratio": 0.63
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 576.33,
+        "chg_pct": 1.35,
+        "volume_ratio": 0.88
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 588.9,
+        "chg_pct": 2.18,
+        "volume_ratio": 0.99
+       }
+      ],
+      "high_day": "周五",
+      "low_day": "周一",
+      "max_drawdown_atr": 0.42,
+      "up_down_volume_ratio": 0.77,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-10-02",
+       "chg_pct": 2.18
+      }
+     },
+     "spark": [
+      580.9602,
+      521.4691,
+      526.6656,
+      504.5601,
+      542.915,
+      550.0604,
+      519.7102,
+      508.2877,
+      519.5203,
+      526.7256,
+      533.07,
+      572.68,
+      588.9
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 1.32
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -5.52
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": -2.2
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 2.21
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": 1.39
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 1.2
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 7.43
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": 2.83
+      }
+     ],
+     "label": "延续",
+     "label_reasons": [
+      "延续：收在 10 周 EMA 上方，周高点高于上周"
+     ],
+     "warnings": [],
+     "prev_label": "延续",
+     "prev_ret_4w_pct": 12.67
+    }
+   ],
+   "missing": []
+  },
+  {
+   "name": "存储",
+   "reference": "DRAM",
+   "members": [
+    {
+     "symbol": "MU",
+     "display": "MU",
+     "reference": "DRAM",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 1075.98,
+     "high": 1108.0,
+     "low": 1022.9,
+     "close": 1074.89,
+     "prev_high": 1108.72,
+     "prev_low": 1030.02,
+     "prev_close": 1082.28,
+     "ret_pct": {
+      "1w": -0.68,
+      "4w": 5.73,
+      "13w": 10.2
+     },
+     "atr_prev": 122.2694,
+     "atr_weeks": 14,
+     "move_atr": -0.06,
+     "close_pos": 0.611,
+     "body_ratio": 0.013,
+     "bar_type": null,
+     "higher_high": false,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -14.34,
+     "pullback_4w_atr": 0.28,
+     "ema10": 995.9321,
+     "ema20": 912.3041,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 0.65,
+     "swing_sequence": [
+      {
+       "ts": "2026-03-20T04:00:00",
+       "kind": "high",
+       "price": 471.0696,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-04-10T04:00:00"
+      },
+      {
+       "ts": "2026-04-02T04:00:00",
+       "kind": "low",
+       "price": 311.4421,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-04-24T04:00:00"
+      },
+      {
+       "ts": "2026-06-26T04:00:00",
+       "kind": "high",
+       "price": 1254.807,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-07-17T04:00:00"
+      },
+      {
+       "ts": "2026-07-31T04:00:00",
+       "kind": "low",
+       "price": 737.88,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-08-21T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 27,
+      "chg_1w_pct": -0.47,
+      "chg_4w_pct": 2.16,
+      "chg_13w_pct": 8.15,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       1.0366,
+       1.1144,
+       1.0518,
+       1.1164,
+       1.0912,
+       1.079,
+       1.0756,
+       1.0963,
+       1.0623,
+       1.097,
+       1.1253,
+       1.12
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": -1.36,
+      "chg_4w_pct": 1.31,
+      "chg_13w_pct": 4.65,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9045,
+       0.9972,
+       0.8863,
+       0.8992,
+       0.9847,
+       1.0039,
+       0.9647,
+       1.0475,
+       1.0107,
+       1.0431,
+       1.0758,
+       1.0613
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 1053.98,
+        "chg_pct": -2.61,
+        "volume_ratio": 0.89
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 1065.08,
+        "chg_pct": 1.05,
+        "volume_ratio": 0.79
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 1065.11,
+        "chg_pct": 0.0,
+        "volume_ratio": 1.25
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 1097.39,
+        "chg_pct": 3.03,
+        "volume_ratio": 1.83
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 1074.89,
+        "chg_pct": -2.05,
+        "volume_ratio": 1.04
+       }
+      ],
+      "high_day": "周五",
+      "low_day": "周四",
+      "max_drawdown_atr": 0.62,
+      "up_down_volume_ratio": 1.3,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-10-01",
+       "chg_pct": 3.03
+      }
+     },
+     "spark": [
+      979.3,
+      848.95,
+      920.95,
+      823.03,
+      877.57,
+      971.66,
+      966.78,
+      932.86,
+      1016.59,
+      975.26,
+      1015.8,
+      1082.28,
+      1074.89
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 10.72
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -0.5
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": -3.51
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 8.98
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": -4.07
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 4.16
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 6.54
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": -0.68
+      }
+     ],
+     "label": "整理",
+     "label_reasons": [
+      "整理：未满足以上任何一条"
+     ],
+     "warnings": [],
+     "prev_label": "延续",
+     "prev_ret_4w_pct": 16.02
+    },
+    {
+     "symbol": "SNDK",
+     "display": "SNDK",
+     "reference": "DRAM",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 86,
+     "open": 1736.64,
+     "high": 1802.0,
+     "low": 1659.02,
+     "close": 1719.99,
+     "prev_high": 1909.48,
+     "prev_low": 1726.39,
+     "prev_close": 1777.8,
+     "ret_pct": {
+      "1w": -3.25,
+      "4w": -1.15,
+      "13w": -1.43
+     },
+     "atr_prev": 285.4183,
+     "atr_weeks": 14,
+     "move_atr": -0.2,
+     "close_pos": 0.426,
+     "body_ratio": 0.116,
+     "bar_type": null,
+     "higher_high": false,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -26.95,
+     "pullback_4w_atr": 0.66,
+     "ema10": 1655.9246,
+     "ema20": 1539.4231,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": false
+     },
+     "dist_ema10_atr": 0.22,
+     "swing_sequence": [
+      {
+       "ts": "2026-03-13T04:00:00",
+       "kind": "low",
+       "price": 517.0,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-04-02T04:00:00"
+      },
+      {
+       "ts": "2026-06-26T04:00:00",
+       "kind": "high",
+       "price": 2354.3899,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-07-17T04:00:00"
+      },
+      {
+       "ts": "2026-07-31T04:00:00",
+       "kind": "low",
+       "price": 998.19,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-08-21T04:00:00"
+      },
+      {
+       "ts": "2026-08-21T04:00:00",
+       "kind": "high",
+       "price": 1827.99,
+       "label": "LH",
+       "label_text": "更低高点",
+       "confirmed_at": "2026-09-11T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 27,
+      "chg_1w_pct": -3.05,
+      "chg_4w_pct": -4.49,
+      "chg_13w_pct": -3.27,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.8456,
+       0.8885,
+       0.7936,
+       0.7883,
+       0.942,
+       0.9105,
+       0.8752,
+       0.9591,
+       0.9093,
+       0.989,
+       0.9448,
+       0.916
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 86,
+      "chg_1w_pct": -3.91,
+      "chg_4w_pct": -5.29,
+      "chg_13w_pct": -6.39,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.7378,
+       0.795,
+       0.6687,
+       0.6349,
+       0.8501,
+       0.8472,
+       0.7849,
+       0.9165,
+       0.8652,
+       0.9405,
+       0.9033,
+       0.868
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 1712.89,
+        "chg_pct": -3.65,
+        "volume_ratio": 0.63
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 1729.76,
+        "chg_pct": 0.98,
+        "volume_ratio": 0.56
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 1739.89,
+        "chg_pct": 0.59,
+        "volume_ratio": 0.62
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 1787.6899,
+        "chg_pct": 2.75,
+        "volume_ratio": 0.98
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 1719.99,
+        "chg_pct": -3.79,
+        "volume_ratio": 0.87
+       }
+      ],
+      "high_day": "周四",
+      "low_day": "周一",
+      "max_drawdown_atr": 0.36,
+      "up_down_volume_ratio": 0.95,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-10-02",
+       "chg_pct": -3.79
+      }
+     },
+     "spark": [
+      1915.92,
+      1354.8199,
+      1436.5601,
+      1214.83,
+      1212.21,
+      1641.11,
+      1596.08,
+      1484.98,
+      1740.0,
+      1633.35,
+      1791.8199,
+      1777.8,
+      1719.99
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 35.38
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -2.74
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": -6.96
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 17.17
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": -6.13
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 9.7
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": -0.78
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": -3.25
+      }
+     ],
+     "label": "转弱",
+     "label_reasons": [
+      "转弱：收盘 1719.99 跌破上周低点 1726.39"
+     ],
+     "warnings": [
+      "周收盘跌破上周低点"
+     ],
+     "prev_label": "延续",
+     "prev_ret_4w_pct": 19.72
+    },
+    {
+     "symbol": "SKHY",
+     "display": "海力士",
+     "reference": "DRAM",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 13,
+     "open": 185.8,
+     "high": 195.53,
+     "low": 179.31,
+     "close": 195.13,
+     "prev_high": 196.48,
+     "prev_low": 184.74,
+     "prev_close": 191.56,
+     "ret_pct": {
+      "1w": 1.86,
+      "4w": 10.24,
+      "13w": null
+     },
+     "atr_prev": 24.7517,
+     "atr_weeks": 12,
+     "move_atr": 0.14,
+     "close_pos": 0.975,
+     "body_ratio": 0.575,
+     "bar_type": null,
+     "higher_high": false,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -2.37,
+     "pullback_4w_atr": 0.19,
+     "ema10": 178.5228,
+     "ema20": null,
+     "ema_reliable": {
+      "ema10": false,
+      "ema20": false
+     },
+     "dist_ema10_atr": 0.67,
+     "swing_sequence": [
+      {
+       "ts": "2026-07-31T04:00:00",
+       "kind": "low",
+       "price": 124.8,
+       "label": null,
+       "label_text": null,
+       "confirmed_at": "2026-08-21T04:00:00"
+      },
+      {
+       "ts": "2026-09-11T04:00:00",
+       "kind": "high",
+       "price": 199.87,
+       "label": null,
+       "label_text": null,
+       "confirmed_at": "2026-10-02T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 13,
+      "chg_1w_pct": 2.08,
+      "chg_4w_pct": 6.51,
+      "chg_13w_pct": null,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       1.0963,
+       1.0902,
+       1.0707,
+       1.0226,
+       1.0888,
+       1.063,
+       1.0823,
+       1.1126,
+       1.2067,
+       1.1802,
+       1.161,
+       1.1851
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 13,
+      "chg_1w_pct": 1.17,
+      "chg_4w_pct": 5.63,
+      "chg_13w_pct": null,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9566,
+       0.9755,
+       0.9021,
+       0.8237,
+       0.9825,
+       0.9891,
+       0.9707,
+       1.0631,
+       1.1481,
+       1.1223,
+       1.1099,
+       1.123
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 181.92,
+        "chg_pct": -5.03,
+        "volume_ratio": 0.84
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 186.68,
+        "chg_pct": 2.62,
+        "volume_ratio": 0.67
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 184.15,
+        "chg_pct": -1.36,
+        "volume_ratio": 0.56
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 193.5,
+        "chg_pct": 5.08,
+        "volume_ratio": 0.89
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 195.13,
+        "chg_pct": 0.84,
+        "volume_ratio": 0.78
+       }
+      ],
+      "high_day": "周五",
+      "low_day": "周一",
+      "max_drawdown_atr": 0.45,
+      "up_down_volume_ratio": 1.12,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-10-01",
+       "chg_pct": 5.08
+      }
+     },
+     "spark": [
+      168.01,
+      154.03,
+      154.57,
+      143.73,
+      137.91,
+      166.33,
+      163.41,
+      161.04,
+      177.0,
+      190.07,
+      187.5,
+      191.56,
+      195.13
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 20.61
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -1.76
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": -1.45
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 9.91
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": 7.38
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": -1.35
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 2.17
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": 1.86
+      }
+     ],
+     "label": "整理",
+     "label_reasons": [
+      "整理：未满足以上任何一条"
+     ],
+     "warnings": [],
+     "prev_label": "延续",
+     "prev_ret_4w_pct": 18.95
+    },
+    {
+     "symbol": "WDC",
+     "display": "WDC",
+     "reference": "DRAM",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 449.01,
+     "high": 465.9,
+     "low": 396.57,
+     "close": 415.29,
+     "prev_high": 475.66,
+     "prev_low": 437.2,
+     "prev_close": 456.81,
+     "ret_pct": {
+      "1w": -9.09,
+      "4w": -11.13,
+      "13w": -22.93
+     },
+     "atr_prev": 80.6374,
+     "atr_weeks": 14,
+     "move_atr": -0.51,
+     "close_pos": 0.27,
+     "body_ratio": 0.486,
+     "bar_type": null,
+     "higher_high": false,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -48.06,
+     "pullback_4w_atr": 0.99,
+     "ema10": 461.0736,
+     "ema20": 460.8404,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": -0.57,
+     "swing_sequence": [
+      {
+       "ts": "2026-02-20T05:00:00",
+       "kind": "high",
+       "price": 309.5716,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-03-13T04:00:00"
+      },
+      {
+       "ts": "2026-03-13T04:00:00",
+       "kind": "low",
+       "price": 237.8616,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-04-02T04:00:00"
+      },
+      {
+       "ts": "2026-06-18T04:00:00",
+       "kind": "high",
+       "price": 799.6133,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-07-10T04:00:00"
+      },
+      {
+       "ts": "2026-08-07T04:00:00",
+       "kind": "low",
+       "price": 407.3492,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-08-28T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 27,
+      "chg_1w_pct": -8.9,
+      "chg_4w_pct": -14.14,
+      "chg_13w_pct": -24.36,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9795,
+       1.0573,
+       1.1704,
+       0.9287,
+       0.9605,
+       0.8619,
+       0.8905,
+       0.8474,
+       0.819,
+       0.8014,
+       0.7987,
+       0.7276
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": -9.71,
+      "chg_4w_pct": -14.85,
+      "chg_13w_pct": -26.81,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.8547,
+       0.9461,
+       0.9862,
+       0.748,
+       0.8667,
+       0.802,
+       0.7986,
+       0.8097,
+       0.7792,
+       0.7621,
+       0.7636,
+       0.6894
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 453.23,
+        "chg_pct": -0.78,
+        "volume_ratio": 1.15
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 453.48,
+        "chg_pct": 0.06,
+        "volume_ratio": 0.93
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 454.46,
+        "chg_pct": 0.22,
+        "volume_ratio": 1.05
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 462.56,
+        "chg_pct": 1.78,
+        "volume_ratio": 0.92
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 415.29,
+        "chg_pct": -10.22,
+        "volume_ratio": 3.65
+       }
+      ],
+      "high_day": "周二",
+      "low_day": "周五",
+      "max_drawdown_atr": 0.86,
+      "up_down_volume_ratio": 0.4,
+      "distribution_days": [
+       "2026-10-02"
+      ],
+      "biggest_day": {
+       "date": "2026-10-02",
+       "chg_pct": -10.22
+      }
+     },
+     "spark": [
+      582.4031,
+      477.0669,
+      519.6332,
+      544.6652,
+      434.1606,
+      508.6367,
+      459.2926,
+      459.3026,
+      467.31,
+      447.18,
+      441.36,
+      456.81,
+      415.29
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 17.15
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -9.7
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": 0.0
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 1.74
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": -4.31
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": -1.3
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 3.5
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": -9.09
+      }
+     ],
+     "label": "转弱",
+     "label_reasons": [
+      "转弱：收盘 415.29 跌破上周低点 437.2"
+     ],
+     "warnings": [
+      "周收盘跌破上周低点"
+     ],
+     "prev_label": "转弱",
+     "prev_ret_4w_pct": -0.54
+    }
+   ],
+   "missing": [],
+   "reference_metrics": {
+    "week": "2026-W40",
+    "week_end": "2026-10-02",
+    "sessions": 5,
+    "weeks": 27,
+    "open": 60.35,
+    "high": 62.51,
+    "low": 58.27,
+    "close": 61.78,
+    "prev_high": 63.82,
+    "prev_low": 60.17,
+    "prev_close": 61.91,
+    "ret_pct": {
+     "1w": -0.21,
+     "4w": 3.5,
+     "13w": 1.9
+    },
+    "atr_prev": 7.7834,
+    "atr_weeks": 14,
+    "move_atr": -0.02,
+    "close_pos": 0.828,
+    "body_ratio": 0.337,
+    "bar_type": null,
+    "higher_high": false,
+    "higher_low": false,
+    "new_13w_high": false,
+    "from_52w_high_pct": -24.05,
+    "pullback_4w_atr": 0.26,
+    "ema10": 58.9384,
+    "ema20": 55.7597,
+    "ema_reliable": {
+     "ema10": false,
+     "ema20": false
+    },
+    "dist_ema10_atr": 0.37,
+    "swing_sequence": [
+     {
+      "ts": "2026-06-26T04:00:00",
+      "kind": "high",
+      "price": 81.34,
+      "label": null,
+      "label_text": null,
+      "confirmed_at": "2026-07-17T04:00:00"
+     },
+     {
+      "ts": "2026-07-31T04:00:00",
+      "kind": "low",
+      "price": 44.4,
+      "label": null,
+      "label_text": null,
+      "confirmed_at": "2026-08-21T04:00:00"
+     }
+    ],
+    "lower_high_unbroken": null,
+    "rs_reference": {
+     "weeks": 27,
+     "chg_1w_pct": -0.89,
+     "chg_4w_pct": -0.83,
+     "chg_13w_pct": -3.23,
+     "at_13w_high": false,
+     "series": [
+      1.0,
+      0.8726,
+      0.8948,
+      0.8426,
+      0.8054,
+      0.9023,
+      0.9305,
+      0.8969,
+      0.9555,
+      0.9514,
+      0.9509,
+      0.956,
+      0.9476
+     ],
+     "series_weeks": [
+      "2026-W28",
+      "2026-W29",
+      "2026-W30",
+      "2026-W31",
+      "2026-W32",
+      "2026-W33",
+      "2026-W34",
+      "2026-W35",
+      "2026-W36",
+      "2026-W37",
+      "2026-W38",
+      "2026-W39",
+      "2026-W40"
+     ]
+    },
+    "rs_market": {
+     "weeks": 27,
+     "chg_1w_pct": -0.89,
+     "chg_4w_pct": -0.83,
+     "chg_13w_pct": -3.23,
+     "at_13w_high": false,
+     "series": [
+      1.0,
+      0.8726,
+      0.8948,
+      0.8426,
+      0.8054,
+      0.9023,
+      0.9305,
+      0.8969,
+      0.9555,
+      0.9514,
+      0.9509,
+      0.956,
+      0.9476
+     ],
+     "series_weeks": [
+      "2026-W28",
+      "2026-W29",
+      "2026-W30",
+      "2026-W31",
+      "2026-W32",
+      "2026-W33",
+      "2026-W34",
+      "2026-W35",
+      "2026-W36",
+      "2026-W37",
+      "2026-W38",
+      "2026-W39",
+      "2026-W40"
+     ]
+    },
+    "intraweek": {
+     "sessions": [
+      {
+       "date": "2026-09-28",
+       "weekday": "周一",
+       "close": 59.7,
+       "chg_pct": -3.57,
+       "volume_ratio": 1.0
+      },
+      {
+       "date": "2026-09-29",
+       "weekday": "周二",
+       "close": 61.29,
+       "chg_pct": 2.66,
+       "volume_ratio": 0.77
+      },
+      {
+       "date": "2026-09-30",
+       "weekday": "周三",
+       "close": 60.36,
+       "chg_pct": -1.52,
+       "volume_ratio": 0.97
+      },
+      {
+       "date": "2026-10-01",
+       "weekday": "周四",
+       "close": 62.03,
+       "chg_pct": 2.77,
+       "volume_ratio": 1.21
+      },
+      {
+       "date": "2026-10-02",
+       "weekday": "周五",
+       "close": 61.78,
+       "chg_pct": -0.4,
+       "volume_ratio": 0.93
+      }
+     ],
+     "high_day": "周五",
+     "low_day": "周一",
+     "max_drawdown_atr": 0.36,
+     "up_down_volume_ratio": 1.02,
+     "distribution_days": [],
+     "biggest_day": {
+      "date": "2026-09-28",
+      "chg_pct": -3.57
+     }
+    },
+    "spark": [
+     63.04,
+     52.72,
+     53.2,
+     50.37,
+     50.6,
+     57.32,
+     57.68,
+     55.83,
+     59.69,
+     59.1,
+     59.61,
+     61.91,
+     61.78
+    ],
+    "weekly_returns": [
+     {
+      "week": "2026-W33",
+      "ret_pct": 13.28
+     },
+     {
+      "week": "2026-W34",
+      "ret_pct": 0.63
+     },
+     {
+      "week": "2026-W35",
+      "ret_pct": -3.21
+     },
+     {
+      "week": "2026-W36",
+      "ret_pct": 6.91
+     },
+     {
+      "week": "2026-W37",
+      "ret_pct": -0.99
+     },
+     {
+      "week": "2026-W38",
+      "ret_pct": 0.86
+     },
+     {
+      "week": "2026-W39",
+      "ret_pct": 3.86
+     },
+     {
+      "week": "2026-W40",
+      "ret_pct": -0.21
+     }
+    ],
+    "label": "整理",
+    "label_reasons": [
+     "整理：未满足以上任何一条"
+    ],
+    "warnings": [],
+    "prev_label": "延续"
+   },
+   "aggregate": {
+    "n": 4,
+    "above_ema10": 3,
+    "new_13w_high": 0,
+    "labels": {
+     "转弱": [
+      "SNDK",
+      "WDC"
+     ],
+     "整理": [
+      "MU",
+      "SKHY"
+     ]
+    },
+    "composite_ret_pct": {
+     "1w": -2.79,
+     "4w": 0.92,
+     "13w": -4.72
+    },
+    "beat_reference": {
+     "1w": 1,
+     "4w": 2
+    },
+    "dispersion_4w_pct": 21.37,
+    "leader": "SKHY",
+    "laggard": "WDC",
+    "prev_leader": "SNDK",
+    "leader_changed": true
+   }
+  },
+  {
+   "name": "光模块",
+   "reference": "SOXX",
+   "members": [
+    {
+     "symbol": "LITE",
+     "display": "LITE",
+     "reference": "SOXX",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 947.8,
+     "high": 1091.61,
+     "low": 881.23,
+     "close": 1085.42,
+     "prev_high": 1002.0,
+     "prev_low": 912.0,
+     "prev_close": 941.65,
+     "ret_pct": {
+      "1w": 15.27,
+      "4w": 23.17,
+      "13w": 49.03
+     },
+     "atr_prev": 147.8361,
+     "atr_weeks": 14,
+     "move_atr": 0.97,
+     "close_pos": 0.971,
+     "body_ratio": 0.654,
+     "bar_type": "outside",
+     "higher_high": true,
+     "higher_low": false,
+     "new_13w_high": true,
+     "from_52w_high_pct": -0.57,
+     "pullback_4w_atr": 0.04,
+     "ema10": 924.7469,
+     "ema20": 868.1075,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 1.09,
+     "swing_sequence": [
+      {
+       "ts": "2025-01-24T05:00:00",
+       "kind": "high",
+       "price": 104.0,
+       "label": "EH",
+       "label_text": "等高",
+       "confirmed_at": "2025-02-14T05:00:00"
+      },
+      {
+       "ts": "2025-04-04T04:00:00",
+       "kind": "low",
+       "price": 45.65,
+       "label": "LL",
+       "label_text": "更低低点",
+       "confirmed_at": "2025-04-25T04:00:00"
+      },
+      {
+       "ts": "2026-05-15T04:00:00",
+       "kind": "high",
+       "price": 1085.6801,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-06-05T04:00:00"
+      },
+      {
+       "ts": "2026-07-31T04:00:00",
+       "kind": "low",
+       "price": 594.84,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-08-21T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 521,
+      "chg_1w_pct": 12.09,
+      "chg_4w_pct": 8.66,
+      "chg_13w_pct": 43.22,
+      "at_13w_high": true,
+      "series": [
+       1.0,
+       1.018,
+       1.0494,
+       1.025,
+       1.1877,
+       1.2196,
+       1.208,
+       1.2755,
+       1.2288,
+       1.2749,
+       1.265,
+       1.1911,
+       1.3351
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": 14.49,
+      "chg_4w_pct": 18.01,
+      "chg_13w_pct": 41.53,
+      "at_13w_high": true,
+      "series": [
+       1.0,
+       0.9534,
+       1.0087,
+       0.9387,
+       1.1137,
+       1.146,
+       1.099,
+       1.1301,
+       1.1088,
+       1.1731,
+       1.1673,
+       1.143,
+       1.3086
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 921.32,
+        "chg_pct": -2.16,
+        "volume_ratio": 1.02
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 973.49,
+        "chg_pct": 5.66,
+        "volume_ratio": 1.36
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 971.26,
+        "chg_pct": -0.23,
+        "volume_ratio": 0.87
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 1045.78,
+        "chg_pct": 7.67,
+        "volume_ratio": 1.65
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 1085.42,
+        "chg_pct": 3.79,
+        "volume_ratio": 0.98
+       }
+      ],
+      "high_day": "周五",
+      "low_day": "周一",
+      "max_drawdown_atr": 0.76,
+      "up_down_volume_ratio": 1.44,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-10-01",
+       "chg_pct": 7.67
+      }
+     },
+     "spark": [
+      802.01,
+      732.82,
+      762.99,
+      713.94,
+      890.17,
+      926.14,
+      866.71,
+      895.0,
+      881.255,
+      927.03,
+      930.91,
+      941.65,
+      1085.42
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 4.04
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -6.42
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": 3.26
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": -1.54
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": 5.19
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 0.42
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 1.15
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": 15.27
+      }
+     ],
+     "label": "延续",
+     "label_reasons": [
+      "延续：收在 10 周 EMA 上方，周高点高于上周"
+     ],
+     "warnings": [],
+     "prev_label": "延续",
+     "prev_ret_4w_pct": 5.21
+    },
+    {
+     "symbol": "COHR",
+     "display": "COHR",
+     "reference": "SOXX",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 290.08,
+     "high": 338.36,
+     "low": 275.79,
+     "close": 337.04,
+     "prev_high": 332.86,
+     "prev_low": 290.2,
+     "prev_close": 295.83,
+     "ret_pct": {
+      "1w": 13.93,
+      "4w": 19.58,
+      "13w": 1.1
+     },
+     "atr_prev": 55.7263,
+     "atr_weeks": 14,
+     "move_atr": 0.74,
+     "close_pos": 0.979,
+     "body_ratio": 0.751,
+     "bar_type": "outside",
+     "higher_high": true,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -23.4,
+     "pullback_4w_atr": 0.02,
+     "ema10": 311.8382,
+     "ema20": 310.2496,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 0.45,
+     "swing_sequence": [
+      {
+       "ts": "2026-06-05T04:00:00",
+       "kind": "high",
+       "price": 440.0,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-06-26T04:00:00"
+      },
+      {
+       "ts": "2026-07-31T04:00:00",
+       "kind": "low",
+       "price": 220.68,
+       "label": "EL",
+       "label_text": "等低",
+       "confirmed_at": "2026-08-21T04:00:00"
+      },
+      {
+       "ts": "2026-08-07T04:00:00",
+       "kind": "high",
+       "price": 391.37,
+       "label": "LH",
+       "label_text": "更低高点",
+       "confirmed_at": "2026-08-28T04:00:00"
+      },
+      {
+       "ts": "2026-09-04T04:00:00",
+       "kind": "low",
+       "price": 255.25,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-09-25T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": {
+      "ts": "2026-08-07",
+      "price": 391.37
+     },
+     "rs_reference": {
+      "weeks": 521,
+      "chg_1w_pct": 10.79,
+      "chg_4w_pct": 5.49,
+      "chg_13w_pct": -2.84,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9531,
+       0.9599,
+       0.9328,
+       1.2502,
+       1.0605,
+       0.9974,
+       0.9834,
+       0.9713,
+       1.0379,
+       1.0659,
+       0.9248,
+       1.0246
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": 13.16,
+      "chg_4w_pct": 14.57,
+      "chg_13w_pct": -3.98,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.8926,
+       0.9227,
+       0.8543,
+       1.1724,
+       0.9965,
+       0.9073,
+       0.8713,
+       0.8765,
+       0.955,
+       0.9835,
+       0.8875,
+       1.0042
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 282.45,
+        "chg_pct": -4.52,
+        "volume_ratio": 1.1
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 292.21,
+        "chg_pct": 3.46,
+        "volume_ratio": 0.89
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 287.81,
+        "chg_pct": -1.51,
+        "volume_ratio": 0.84
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 319.19,
+        "chg_pct": 10.9,
+        "volume_ratio": 1.8
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 337.04,
+        "chg_pct": 5.59,
+        "volume_ratio": 1.29
+       }
+      ],
+      "high_day": "周五",
+      "low_day": "周一",
+      "max_drawdown_atr": 0.66,
+      "up_down_volume_ratio": 1.4,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-10-01",
+       "chg_pct": 10.9
+      }
+     },
+     "spark": [
+      324.5,
+      277.6,
+      282.39,
+      262.89,
+      379.13,
+      325.83,
+      289.52,
+      279.2,
+      281.86,
+      305.37,
+      317.36,
+      295.83,
+      337.04
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": -14.06
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -11.14
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": -3.56
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 0.95
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": 8.34
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 3.93
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": -6.78
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": 13.93
+      }
+     ],
+     "label": "延续",
+     "label_reasons": [
+      "延续：收在 10 周 EMA 上方，周高点高于上周"
+     ],
+     "warnings": [
+      "周线更低高点 LH 391.37（2026-08-07 那周）至今未被突破"
+     ],
+     "prev_label": "下行",
+     "prev_ret_4w_pct": 5.96
+    }
+   ],
+   "missing": [],
+   "reference_metrics": {
+    "week": "2026-W40",
+    "week_end": "2026-10-02",
+    "sessions": 5,
+    "weeks": 521,
+    "open": 568.71,
+    "high": 596.44,
+    "low": 551.95,
+    "close": 588.9,
+    "prev_high": 575.69,
+    "prev_low": 541.47,
+    "prev_close": 572.68,
+    "ret_pct": {
+     "1w": 2.83,
+     "4w": 13.35,
+     "13w": 4.06
+    },
+    "atr_prev": 44.9337,
+    "atr_weeks": 14,
+    "move_atr": 0.36,
+    "close_pos": 0.831,
+    "body_ratio": 0.454,
+    "bar_type": null,
+    "higher_high": true,
+    "higher_low": true,
+    "new_13w_high": false,
+    "from_52w_high_pct": -10.16,
+    "pullback_4w_atr": 0.17,
+    "ema10": 546.5211,
+    "ema20": 526.0089,
+    "ema_reliable": {
+     "ema10": true,
+     "ema20": true
+    },
+    "dist_ema10_atr": 0.94,
+    "swing_sequence": [
+     {
+      "ts": "2026-06-26T04:00:00",
+      "kind": "high",
+      "price": 655.5214,
+      "label": "HH",
+      "label_text": "更高高点",
+      "confirmed_at": "2026-07-17T04:00:00"
+     },
+     {
+      "ts": "2026-07-31T04:00:00",
+      "kind": "low",
+      "price": 463.7768,
+      "label": "HL",
+      "label_text": "更高低点",
+      "confirmed_at": "2026-08-21T04:00:00"
+     },
+     {
+      "ts": "2026-08-21T04:00:00",
+      "kind": "high",
+      "price": 565.6502,
+      "label": "LH",
+      "label_text": "更低高点",
+      "confirmed_at": "2026-09-11T04:00:00"
+     },
+     {
+      "ts": "2026-09-04T04:00:00",
+      "kind": "low",
+      "price": 488.8904,
+      "label": "HL",
+      "label_text": "更高低点",
+      "confirmed_at": "2026-09-25T04:00:00"
+     }
+    ],
+    "lower_high_unbroken": null,
+    "rs_reference": {
+     "weeks": 521,
+     "chg_1w_pct": 2.14,
+     "chg_4w_pct": 8.61,
+     "chg_13w_pct": -1.18,
+     "at_13w_high": false,
+     "series": [
+      1.0,
+      0.9366,
+      0.9612,
+      0.9159,
+      0.9377,
+      0.9396,
+      0.9097,
+      0.886,
+      0.9024,
+      0.9201,
+      0.9227,
+      0.9596,
+      0.9801
+     ],
+     "series_weeks": [
+      "2026-W28",
+      "2026-W29",
+      "2026-W30",
+      "2026-W31",
+      "2026-W32",
+      "2026-W33",
+      "2026-W34",
+      "2026-W35",
+      "2026-W36",
+      "2026-W37",
+      "2026-W38",
+      "2026-W39",
+      "2026-W40"
+     ]
+    },
+    "rs_market": {
+     "weeks": 521,
+     "chg_1w_pct": 2.14,
+     "chg_4w_pct": 8.61,
+     "chg_13w_pct": -1.18,
+     "at_13w_high": false,
+     "series": [
+      1.0,
+      0.9366,
+      0.9612,
+      0.9159,
+      0.9377,
+      0.9396,
+      0.9097,
+      0.886,
+      0.9024,
+      0.9201,
+      0.9227,
+      0.9596,
+      0.9801
+     ],
+     "series_weeks": [
+      "2026-W28",
+      "2026-W29",
+      "2026-W30",
+      "2026-W31",
+      "2026-W32",
+      "2026-W33",
+      "2026-W34",
+      "2026-W35",
+      "2026-W36",
+      "2026-W37",
+      "2026-W38",
+      "2026-W39",
+      "2026-W40"
+     ]
+    },
+    "intraweek": {
+     "sessions": [
+      {
+       "date": "2026-09-28",
+       "weekday": "周一",
+       "close": 560.79,
+       "chg_pct": -2.08,
+       "volume_ratio": 1.02
+      },
+      {
+       "date": "2026-09-29",
+       "weekday": "周二",
+       "close": 567.44,
+       "chg_pct": 1.19,
+       "volume_ratio": 0.72
+      },
+      {
+       "date": "2026-09-30",
+       "weekday": "周三",
+       "close": 568.64,
+       "chg_pct": 0.21,
+       "volume_ratio": 0.63
+      },
+      {
+       "date": "2026-10-01",
+       "weekday": "周四",
+       "close": 576.33,
+       "chg_pct": 1.35,
+       "volume_ratio": 0.88
+      },
+      {
+       "date": "2026-10-02",
+       "weekday": "周五",
+       "close": 588.9,
+       "chg_pct": 2.18,
+       "volume_ratio": 0.99
+      }
+     ],
+     "high_day": "周五",
+     "low_day": "周一",
+     "max_drawdown_atr": 0.42,
+     "up_down_volume_ratio": 0.77,
+     "distribution_days": [],
+     "biggest_day": {
+      "date": "2026-10-02",
+      "chg_pct": 2.18
+     }
+    },
+    "spark": [
+     580.9602,
+     521.4691,
+     526.6656,
+     504.5601,
+     542.915,
+     550.0604,
+     519.7102,
+     508.2877,
+     519.5203,
+     526.7256,
+     533.07,
+     572.68,
+     588.9
+    ],
+    "weekly_returns": [
+     {
+      "week": "2026-W33",
+      "ret_pct": 1.32
+     },
+     {
+      "week": "2026-W34",
+      "ret_pct": -5.52
+     },
+     {
+      "week": "2026-W35",
+      "ret_pct": -2.2
+     },
+     {
+      "week": "2026-W36",
+      "ret_pct": 2.21
+     },
+     {
+      "week": "2026-W37",
+      "ret_pct": 1.39
+     },
+     {
+      "week": "2026-W38",
+      "ret_pct": 1.2
+     },
+     {
+      "week": "2026-W39",
+      "ret_pct": 7.43
+     },
+     {
+      "week": "2026-W40",
+      "ret_pct": 2.83
+     }
+    ],
+    "label": "延续",
+    "label_reasons": [
+     "延续：收在 10 周 EMA 上方，周高点高于上周"
+    ],
+    "warnings": [],
+    "prev_label": "延续"
+   },
+   "aggregate": {
+    "n": 2,
+    "above_ema10": 2,
+    "new_13w_high": 1,
+    "labels": {
+     "延续": [
+      "LITE",
+      "COHR"
+     ]
+    },
+    "composite_ret_pct": {
+     "1w": 14.6,
+     "4w": 21.38,
+     "13w": 25.07
+    },
+    "beat_reference": {
+     "1w": 2,
+     "4w": 2
+    },
+    "dispersion_4w_pct": 3.59,
+    "leader": "LITE",
+    "laggard": "COHR",
+    "prev_leader": "COHR",
+    "leader_changed": true
+   }
+  },
+  {
+   "name": "半导体设计",
+   "reference": "SOXX",
+   "members": [
+    {
+     "symbol": "AVGO",
+     "display": "AVGO",
+     "reference": "SOXX",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 352.87,
+     "high": 361.86,
+     "low": 343.29,
+     "close": 355.14,
+     "prev_high": 366.55,
+     "prev_low": 346.89,
+     "prev_close": 352.81,
+     "ret_pct": {
+      "1w": 0.66,
+      "4w": -0.59,
+      "13w": -1.29
+     },
+     "atr_prev": 34.1701,
+     "atr_weeks": 14,
+     "move_atr": 0.07,
+     "close_pos": 0.638,
+     "body_ratio": 0.122,
+     "bar_type": null,
+     "higher_high": false,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -28.01,
+     "pullback_4w_atr": 0.49,
+     "ema10": 366.5723,
+     "ema20": 371.9376,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": -0.33,
+     "swing_sequence": [
+      {
+       "ts": "2026-04-02T04:00:00",
+       "kind": "low",
+       "price": 288.9756,
+       "label": "LL",
+       "label_text": "更低低点",
+       "confirmed_at": "2026-04-24T04:00:00"
+      },
+      {
+       "ts": "2026-06-05T04:00:00",
+       "kind": "high",
+       "price": 493.3195,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-06-26T04:00:00"
+      },
+      {
+       "ts": "2026-07-02T04:00:00",
+       "kind": "low",
+       "price": 355.7821,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-07-24T04:00:00"
+      },
+      {
+       "ts": "2026-08-14T04:00:00",
+       "kind": "high",
+       "price": 431.9435,
+       "label": "LH",
+       "label_text": "更低高点",
+       "confirmed_at": "2026-09-04T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": {
+      "ts": "2026-08-14",
+      "price": 431.9435
+     },
+     "rs_reference": {
+      "weeks": 521,
+      "chg_1w_pct": -2.11,
+      "chg_4w_pct": -12.3,
+      "chg_13w_pct": -5.14,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       1.0329,
+       1.0533,
+       1.1206,
+       1.1444,
+       1.0377,
+       1.0298,
+       1.0539,
+       1.0006,
+       0.9982,
+       0.9744,
+       0.8965,
+       0.8775
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": -0.02,
+      "chg_4w_pct": -4.75,
+      "chg_13w_pct": -6.26,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9674,
+       1.0125,
+       1.0264,
+       1.0731,
+       0.9751,
+       0.9368,
+       0.9337,
+       0.903,
+       0.9185,
+       0.8991,
+       0.8603,
+       0.8601
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 349.57,
+        "chg_pct": -0.92,
+        "volume_ratio": 0.79
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 355.1,
+        "chg_pct": 1.58,
+        "volume_ratio": 0.69
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 351.19,
+        "chg_pct": -1.1,
+        "volume_ratio": 0.72
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 343.64,
+        "chg_pct": -2.15,
+        "volume_ratio": 0.89
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 355.14,
+        "chg_pct": 3.35,
+        "volume_ratio": 0.92
+       }
+      ],
+      "high_day": "周二",
+      "low_day": "周四",
+      "max_drawdown_atr": 0.54,
+      "up_down_volume_ratio": 1.0,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-10-02",
+       "chg_pct": 3.35
+      }
+     },
+     "spark": [
+      399.243,
+      370.1559,
+      381.2258,
+      388.5724,
+      426.9825,
+      392.2757,
+      367.7803,
+      368.1197,
+      357.2495,
+      361.332,
+      356.96,
+      352.81,
+      355.14
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": -8.13
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -6.24
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": 0.09
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": -2.95
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": 1.14
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": -1.21
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": -1.16
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": 0.66
+      }
+     ],
+     "label": "下行",
+     "label_reasons": [
+      "下行：收盘在 10 周 EMA 下方，且 10 周 EMA 低于 20 周 EMA"
+     ],
+     "warnings": [
+      "周线更低高点 LH 431.943（2026-08-14 那周）至今未被突破"
+     ],
+     "prev_label": "下行",
+     "prev_ret_4w_pct": -4.16
+    },
+    {
+     "symbol": "AMD",
+     "display": "AMD",
+     "reference": "SOXX",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 624.9,
+     "high": 645.46,
+     "low": 596.07,
+     "close": 633.91,
+     "prev_high": 639.0,
+     "prev_low": 582.27,
+     "prev_close": 630.63,
+     "ret_pct": {
+      "1w": 0.52,
+      "4w": 32.74,
+      "13w": 22.42
+     },
+     "atr_prev": 60.8278,
+     "atr_weeks": 14,
+     "move_atr": 0.05,
+     "close_pos": 0.766,
+     "body_ratio": 0.182,
+     "bar_type": null,
+     "higher_high": true,
+     "higher_low": true,
+     "new_13w_high": true,
+     "from_52w_high_pct": -1.79,
+     "pullback_4w_atr": 0.19,
+     "ema10": 545.2786,
+     "ema20": 497.5063,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 1.46,
+     "swing_sequence": [
+      {
+       "ts": "2026-01-23T05:00:00",
+       "kind": "high",
+       "price": 266.96,
+       "label": "EH",
+       "label_text": "等高",
+       "confirmed_at": "2026-02-13T05:00:00"
+      },
+      {
+       "ts": "2026-03-06T05:00:00",
+       "kind": "low",
+       "price": 188.22,
+       "label": "EL",
+       "label_text": "等低",
+       "confirmed_at": "2026-03-27T04:00:00"
+      },
+      {
+       "ts": "2026-07-02T04:00:00",
+       "kind": "high",
+       "price": 584.73,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-07-24T04:00:00"
+      },
+      {
+       "ts": "2026-07-31T04:00:00",
+       "kind": "low",
+       "price": 424.03,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-08-21T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 521,
+      "chg_1w_pct": -2.25,
+      "chg_4w_pct": 17.1,
+      "chg_13w_pct": 17.65,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.99,
+       1.032,
+       0.9827,
+       0.9271,
+       0.9738,
+       0.9483,
+       0.9539,
+       0.9573,
+       1.0204,
+       1.0936,
+       1.1467,
+       1.1209
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": -0.16,
+      "chg_4w_pct": 27.18,
+      "chg_13w_pct": 16.26,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9272,
+       0.992,
+       0.9,
+       0.8694,
+       0.915,
+       0.8626,
+       0.8451,
+       0.8638,
+       0.9389,
+       1.0091,
+       1.1004,
+       1.0986
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 607.87,
+        "chg_pct": -3.61,
+        "volume_ratio": 1.02
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 607.57,
+        "chg_pct": -0.05,
+        "volume_ratio": 0.75
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 611.76,
+        "chg_pct": 0.69,
+        "volume_ratio": 0.76
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 615.73,
+        "chg_pct": 0.65,
+        "volume_ratio": 0.77
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 633.91,
+        "chg_pct": 2.95,
+        "volume_ratio": 0.88
+       }
+      ],
+      "high_day": "周五",
+      "low_day": "周一",
+      "max_drawdown_atr": 0.55,
+      "up_down_volume_ratio": 0.93,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-09-28",
+       "chg_pct": -3.61
+      }
+     },
+     "spark": [
+      557.89,
+      495.76,
+      521.95,
+      476.15,
+      483.36,
+      514.39,
+      473.25,
+      465.58,
+      477.57,
+      516.13,
+      559.82,
+      630.63,
+      633.91
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 6.42
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -8.0
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": -1.62
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 2.58
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": 8.07
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 8.46
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 12.65
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": 0.52
+      }
+     ],
+     "label": "延续",
+     "label_reasons": [
+      "延续：收在 10 周 EMA 上方，周高点高于上周"
+     ],
+     "warnings": [
+      "价格创 13 周新高，但相对参照的 RS 没有创新高（背离）"
+     ],
+     "prev_label": "延续",
+     "prev_ret_4w_pct": 35.45
+    },
+    {
+     "symbol": "INTC",
+     "display": "INTC",
+     "reference": "SOXX",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 120.68,
+     "high": 126.0,
+     "low": 113.97,
+     "close": 119.33,
+     "prev_high": 127.44,
+     "prev_low": 114.93,
+     "prev_close": 123.0,
+     "ret_pct": {
+      "1w": -2.98,
+      "4w": 24.56,
+      "13w": -0.85
+     },
+     "atr_prev": 15.0639,
+     "atr_weeks": 14,
+     "move_atr": -0.24,
+     "close_pos": 0.446,
+     "body_ratio": 0.112,
+     "bar_type": null,
+     "higher_high": false,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -16.17,
+     "pullback_4w_atr": 0.54,
+     "ema10": 107.3324,
+     "ema20": 101.285,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 0.8,
+     "swing_sequence": [
+      {
+       "ts": "2026-07-02T04:00:00",
+       "kind": "high",
+       "price": 142.35,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-07-24T04:00:00"
+      },
+      {
+       "ts": "2026-07-31T04:00:00",
+       "kind": "low",
+       "price": 81.79,
+       "label": "LL",
+       "label_text": "更低低点",
+       "confirmed_at": "2026-08-21T04:00:00"
+      },
+      {
+       "ts": "2026-08-14T04:00:00",
+       "kind": "high",
+       "price": 107.57,
+       "label": "LH",
+       "label_text": "更低高点",
+       "confirmed_at": "2026-09-04T04:00:00"
+      },
+      {
+       "ts": "2026-08-28T04:00:00",
+       "kind": "low",
+       "price": 85.14,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-09-18T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 521,
+      "chg_1w_pct": -5.66,
+      "chg_4w_pct": 9.89,
+      "chg_13w_pct": -4.71,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.964,
+       0.9271,
+       0.9455,
+       0.9903,
+       0.9856,
+       0.9167,
+       0.931,
+       0.9753,
+       1.0337,
+       1.0775,
+       1.136,
+       1.0718
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": -3.64,
+      "chg_4w_pct": 19.35,
+      "chg_13w_pct": -5.84,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9028,
+       0.8912,
+       0.866,
+       0.9286,
+       0.9261,
+       0.8339,
+       0.8249,
+       0.8801,
+       0.9511,
+       0.9943,
+       1.0901,
+       1.0504
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 116.03,
+        "chg_pct": -5.67,
+        "volume_ratio": 1.06
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 115.93,
+        "chg_pct": -0.09,
+        "volume_ratio": 0.83
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 120.23,
+        "chg_pct": 3.71,
+        "volume_ratio": 0.88
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 120.0,
+        "chg_pct": -0.19,
+        "volume_ratio": 0.95
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 119.33,
+        "chg_pct": -0.56,
+        "volume_ratio": 0.86
+       }
+      ],
+      "high_day": "周五",
+      "low_day": "周二",
+      "max_drawdown_atr": 0.51,
+      "up_down_volume_ratio": 0.95,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-09-28",
+       "chg_pct": -5.67
+      }
+     },
+     "spark": [
+      109.84,
+      95.04,
+      92.32,
+      90.2,
+      101.65,
+      102.5,
+      90.07,
+      89.47,
+      95.8,
+      102.94,
+      108.6,
+      123.0,
+      119.33
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 0.84
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -12.13
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": -0.67
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 7.07
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": 7.45
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 5.5
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 13.26
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": -2.98
+      }
+     ],
+     "label": "整理",
+     "label_reasons": [
+      "整理：未满足以上任何一条"
+     ],
+     "warnings": [],
+     "prev_label": "延续",
+     "prev_ret_4w_pct": 37.48
+    }
+   ],
+   "missing": [],
+   "reference_metrics": {
+    "week": "2026-W40",
+    "week_end": "2026-10-02",
+    "sessions": 5,
+    "weeks": 521,
+    "open": 568.71,
+    "high": 596.44,
+    "low": 551.95,
+    "close": 588.9,
+    "prev_high": 575.69,
+    "prev_low": 541.47,
+    "prev_close": 572.68,
+    "ret_pct": {
+     "1w": 2.83,
+     "4w": 13.35,
+     "13w": 4.06
+    },
+    "atr_prev": 44.9337,
+    "atr_weeks": 14,
+    "move_atr": 0.36,
+    "close_pos": 0.831,
+    "body_ratio": 0.454,
+    "bar_type": null,
+    "higher_high": true,
+    "higher_low": true,
+    "new_13w_high": false,
+    "from_52w_high_pct": -10.16,
+    "pullback_4w_atr": 0.17,
+    "ema10": 546.5211,
+    "ema20": 526.0089,
+    "ema_reliable": {
+     "ema10": true,
+     "ema20": true
+    },
+    "dist_ema10_atr": 0.94,
+    "swing_sequence": [
+     {
+      "ts": "2026-06-26T04:00:00",
+      "kind": "high",
+      "price": 655.5214,
+      "label": "HH",
+      "label_text": "更高高点",
+      "confirmed_at": "2026-07-17T04:00:00"
+     },
+     {
+      "ts": "2026-07-31T04:00:00",
+      "kind": "low",
+      "price": 463.7768,
+      "label": "HL",
+      "label_text": "更高低点",
+      "confirmed_at": "2026-08-21T04:00:00"
+     },
+     {
+      "ts": "2026-08-21T04:00:00",
+      "kind": "high",
+      "price": 565.6502,
+      "label": "LH",
+      "label_text": "更低高点",
+      "confirmed_at": "2026-09-11T04:00:00"
+     },
+     {
+      "ts": "2026-09-04T04:00:00",
+      "kind": "low",
+      "price": 488.8904,
+      "label": "HL",
+      "label_text": "更高低点",
+      "confirmed_at": "2026-09-25T04:00:00"
+     }
+    ],
+    "lower_high_unbroken": null,
+    "rs_reference": {
+     "weeks": 521,
+     "chg_1w_pct": 2.14,
+     "chg_4w_pct": 8.61,
+     "chg_13w_pct": -1.18,
+     "at_13w_high": false,
+     "series": [
+      1.0,
+      0.9366,
+      0.9612,
+      0.9159,
+      0.9377,
+      0.9396,
+      0.9097,
+      0.886,
+      0.9024,
+      0.9201,
+      0.9227,
+      0.9596,
+      0.9801
+     ],
+     "series_weeks": [
+      "2026-W28",
+      "2026-W29",
+      "2026-W30",
+      "2026-W31",
+      "2026-W32",
+      "2026-W33",
+      "2026-W34",
+      "2026-W35",
+      "2026-W36",
+      "2026-W37",
+      "2026-W38",
+      "2026-W39",
+      "2026-W40"
+     ]
+    },
+    "rs_market": {
+     "weeks": 521,
+     "chg_1w_pct": 2.14,
+     "chg_4w_pct": 8.61,
+     "chg_13w_pct": -1.18,
+     "at_13w_high": false,
+     "series": [
+      1.0,
+      0.9366,
+      0.9612,
+      0.9159,
+      0.9377,
+      0.9396,
+      0.9097,
+      0.886,
+      0.9024,
+      0.9201,
+      0.9227,
+      0.9596,
+      0.9801
+     ],
+     "series_weeks": [
+      "2026-W28",
+      "2026-W29",
+      "2026-W30",
+      "2026-W31",
+      "2026-W32",
+      "2026-W33",
+      "2026-W34",
+      "2026-W35",
+      "2026-W36",
+      "2026-W37",
+      "2026-W38",
+      "2026-W39",
+      "2026-W40"
+     ]
+    },
+    "intraweek": {
+     "sessions": [
+      {
+       "date": "2026-09-28",
+       "weekday": "周一",
+       "close": 560.79,
+       "chg_pct": -2.08,
+       "volume_ratio": 1.02
+      },
+      {
+       "date": "2026-09-29",
+       "weekday": "周二",
+       "close": 567.44,
+       "chg_pct": 1.19,
+       "volume_ratio": 0.72
+      },
+      {
+       "date": "2026-09-30",
+       "weekday": "周三",
+       "close": 568.64,
+       "chg_pct": 0.21,
+       "volume_ratio": 0.63
+      },
+      {
+       "date": "2026-10-01",
+       "weekday": "周四",
+       "close": 576.33,
+       "chg_pct": 1.35,
+       "volume_ratio": 0.88
+      },
+      {
+       "date": "2026-10-02",
+       "weekday": "周五",
+       "close": 588.9,
+       "chg_pct": 2.18,
+       "volume_ratio": 0.99
+      }
+     ],
+     "high_day": "周五",
+     "low_day": "周一",
+     "max_drawdown_atr": 0.42,
+     "up_down_volume_ratio": 0.77,
+     "distribution_days": [],
+     "biggest_day": {
+      "date": "2026-10-02",
+      "chg_pct": 2.18
+     }
+    },
+    "spark": [
+     580.9602,
+     521.4691,
+     526.6656,
+     504.5601,
+     542.915,
+     550.0604,
+     519.7102,
+     508.2877,
+     519.5203,
+     526.7256,
+     533.07,
+     572.68,
+     588.9
+    ],
+    "weekly_returns": [
+     {
+      "week": "2026-W33",
+      "ret_pct": 1.32
+     },
+     {
+      "week": "2026-W34",
+      "ret_pct": -5.52
+     },
+     {
+      "week": "2026-W35",
+      "ret_pct": -2.2
+     },
+     {
+      "week": "2026-W36",
+      "ret_pct": 2.21
+     },
+     {
+      "week": "2026-W37",
+      "ret_pct": 1.39
+     },
+     {
+      "week": "2026-W38",
+      "ret_pct": 1.2
+     },
+     {
+      "week": "2026-W39",
+      "ret_pct": 7.43
+     },
+     {
+      "week": "2026-W40",
+      "ret_pct": 2.83
+     }
+    ],
+    "label": "延续",
+    "label_reasons": [
+     "延续：收在 10 周 EMA 上方，周高点高于上周"
+    ],
+    "warnings": [],
+    "prev_label": "延续"
+   },
+   "aggregate": {
+    "n": 3,
+    "above_ema10": 2,
+    "new_13w_high": 1,
+    "labels": {
+     "下行": [
+      "AVGO"
+     ],
+     "延续": [
+      "AMD"
+     ],
+     "整理": [
+      "INTC"
+     ]
+    },
+    "composite_ret_pct": {
+     "1w": -0.6,
+     "4w": 18.9,
+     "13w": 6.76
+    },
+    "beat_reference": {
+     "1w": 0,
+     "4w": 2
+    },
+    "dispersion_4w_pct": 33.33,
+    "leader": "AMD",
+    "laggard": "AVGO",
+    "prev_leader": "INTC",
+    "leader_changed": true
+   }
+  },
+  {
+   "name": "云计算",
+   "reference": "SKYY",
+   "members": [
+    {
+     "symbol": "AMZN",
+     "display": "AMZN",
+     "reference": "SKYY",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 246.63,
+     "high": 253.56,
+     "low": 244.73,
+     "close": 251.52,
+     "prev_high": 259.49,
+     "prev_low": 245.6,
+     "prev_close": 249.67,
+     "ret_pct": {
+      "1w": 0.74,
+      "4w": -2.7,
+      "13w": 3.65
+     },
+     "atr_prev": 16.0556,
+     "atr_weeks": 14,
+     "move_atr": 0.12,
+     "close_pos": 0.769,
+     "body_ratio": 0.554,
+     "bar_type": null,
+     "higher_high": false,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -12.42,
+     "pullback_4w_atr": 0.5,
+     "ema10": 254.8195,
+     "ema20": 252.2475,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": -0.21,
+     "swing_sequence": [
+      {
+       "ts": "2026-03-27T04:00:00",
+       "kind": "low",
+       "price": 199.14,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-04-17T04:00:00"
+      },
+      {
+       "ts": "2026-05-08T04:00:00",
+       "kind": "high",
+       "price": 278.56,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-05-29T04:00:00"
+      },
+      {
+       "ts": "2026-06-26T04:00:00",
+       "kind": "low",
+       "price": 225.55,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-07-17T04:00:00"
+      },
+      {
+       "ts": "2026-08-07T04:00:00",
+       "kind": "high",
+       "price": 287.2,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-08-28T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 521,
+      "chg_1w_pct": -1.33,
+      "chg_4w_pct": -6.51,
+      "chg_13w_pct": -16.87,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       1.0349,
+       1.0021,
+       1.082,
+       1.0013,
+       0.905,
+       0.9139,
+       0.9191,
+       0.9116,
+       0.9231,
+       0.8921,
+       0.8637,
+       0.8522
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": 0.06,
+      "chg_4w_pct": -6.78,
+      "chg_13w_pct": -1.57,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       1.0514,
+       1.0032,
+       1.1673,
+       1.1226,
+       1.0624,
+       1.072,
+       1.0997,
+       1.0633,
+       1.0622,
+       1.0399,
+       0.9907,
+       0.9912
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 246.15,
+        "chg_pct": -1.41,
+        "volume_ratio": 0.92
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 246.67,
+        "chg_pct": 0.21,
+        "volume_ratio": 0.98
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 249.15,
+        "chg_pct": 1.01,
+        "volume_ratio": 1.24
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 248.23,
+        "chg_pct": -0.37,
+        "volume_ratio": 0.97
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 251.52,
+        "chg_pct": 1.33,
+        "volume_ratio": 0.96
+       }
+      ],
+      "high_day": "周五",
+      "low_day": "周一",
+      "max_drawdown_atr": 0.4,
+      "up_down_volume_ratio": 1.1,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-09-28",
+       "chg_pct": -1.41
+      }
+     },
+     "spark": [
+      245.34,
+      247.23,
+      232.11,
+      271.58,
+      274.48,
+      262.65,
+      258.63,
+      266.43,
+      258.51,
+      256.78,
+      253.71,
+      249.67,
+      251.52
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": -4.31
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -1.53
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": 3.02
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": -2.97
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": -0.67
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": -1.2
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": -1.59
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": 0.74
+      }
+     ],
+     "label": "转弱",
+     "label_reasons": [
+      "转弱：收盘 251.52 落到 10 周 EMA 254.82 下方"
+     ],
+     "warnings": [],
+     "prev_label": "转弱",
+     "prev_ret_4w_pct": -6.29
+    },
+    {
+     "symbol": "GOOGL",
+     "display": "GOOGL",
+     "reference": "SKYY",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 340.7,
+     "high": 353.22,
+     "low": 335.51,
+     "close": 343.5,
+     "prev_high": 364.17,
+     "prev_low": 336.02,
+     "prev_close": 343.92,
+     "ret_pct": {
+      "1w": -0.12,
+      "4w": 1.49,
+      "13w": -4.5
+     },
+     "atr_prev": 22.8203,
+     "atr_weeks": 14,
+     "move_atr": -0.02,
+     "close_pos": 0.451,
+     "body_ratio": 0.158,
+     "bar_type": null,
+     "higher_high": false,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -15.83,
+     "pullback_4w_atr": 0.91,
+     "ema10": 345.3046,
+     "ema20": 344.9813,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": -0.08,
+     "swing_sequence": [
+      {
+       "ts": "2026-05-22T04:00:00",
+       "kind": "high",
+       "price": 408.1038,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-06-12T04:00:00"
+      },
+      {
+       "ts": "2026-07-24T04:00:00",
+       "kind": "low",
+       "price": 314.6977,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-08-14T04:00:00"
+      },
+      {
+       "ts": "2026-08-07T04:00:00",
+       "kind": "high",
+       "price": 384.233,
+       "label": "LH",
+       "label_text": "更低高点",
+       "confirmed_at": "2026-08-28T04:00:00"
+      },
+      {
+       "ts": "2026-09-11T04:00:00",
+       "kind": "low",
+       "price": 327.74,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-10-02T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": {
+      "ts": "2026-08-07",
+      "price": 384.233
+     },
+     "rs_reference": {
+      "weeks": 521,
+      "chg_1w_pct": -2.18,
+      "chg_4w_pct": -2.48,
+      "chg_13w_pct": -23.4,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.997,
+       0.9482,
+       0.9745,
+       0.8878,
+       0.8187,
+       0.8369,
+       0.8213,
+       0.8203,
+       0.8364,
+       0.8448,
+       0.8178,
+       0.7999
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": -0.8,
+      "chg_4w_pct": -2.76,
+      "chg_13w_pct": -9.3,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       1.013,
+       0.9492,
+       1.0514,
+       0.9953,
+       0.9611,
+       0.9817,
+       0.9826,
+       0.9568,
+       0.9624,
+       0.9848,
+       0.9379,
+       0.9304
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 342.75,
+        "chg_pct": -0.34,
+        "volume_ratio": 0.72
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 340.92,
+        "chg_pct": -0.53,
+        "volume_ratio": 0.79
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 344.08,
+        "chg_pct": 0.93,
+        "volume_ratio": 1.44
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 338.24,
+        "chg_pct": -1.7,
+        "volume_ratio": 1.25
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 343.5,
+        "chg_pct": 1.56,
+        "volume_ratio": 0.87
+       }
+      ],
+      "high_day": "周四",
+      "low_day": "周四",
+      "max_drawdown_atr": 0.78,
+      "up_down_volume_ratio": 1.25,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-10-01",
+       "chg_pct": -1.7
+      }
+     },
+     "spark": [
+      356.9506,
+      346.5472,
+      319.5346,
+      355.9012,
+      354.0724,
+      345.6778,
+      344.5985,
+      346.3674,
+      338.46,
+      338.5,
+      349.54,
+      343.92,
+      343.5
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": -2.37
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -0.31
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": 0.51
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": -2.28
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": 0.01
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 3.26
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": -1.61
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": -0.12
+      }
+     ],
+     "label": "转弱",
+     "label_reasons": [
+      "转弱：收盘 343.5 落到 10 周 EMA 345.305 下方"
+     ],
+     "warnings": [
+      "周线更低高点 LH 384.233（2026-08-07 那周）至今未被突破"
+     ],
+     "prev_label": "转弱",
+     "prev_ret_4w_pct": -0.71
+    },
+    {
+     "symbol": "NOW",
+     "display": "NOW",
+     "reference": "SKYY",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 129.8,
+     "high": 140.8,
+     "low": 126.75,
+     "close": 134.38,
+     "prev_high": 142.1,
+     "prev_low": 135.23,
+     "prev_close": 135.62,
+     "ret_pct": {
+      "1w": -0.91,
+      "4w": -4.87,
+      "13w": 26.39
+     },
+     "atr_prev": 13.9996,
+     "atr_weeks": 14,
+     "move_atr": -0.09,
+     "close_pos": 0.543,
+     "body_ratio": 0.326,
+     "bar_type": null,
+     "higher_high": false,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -30.36,
+     "pullback_4w_atr": 0.94,
+     "ema10": 129.6878,
+     "ema20": 123.2533,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 0.34,
+     "swing_sequence": [
+      {
+       "ts": "2026-04-10T04:00:00",
+       "kind": "low",
+       "price": 81.24,
+       "label": "LL",
+       "label_text": "更低低点",
+       "confirmed_at": "2026-05-01T04:00:00"
+      },
+      {
+       "ts": "2026-06-05T04:00:00",
+       "kind": "high",
+       "price": 139.2,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-06-26T04:00:00"
+      },
+      {
+       "ts": "2026-06-26T04:00:00",
+       "kind": "low",
+       "price": 89.39,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-07-17T04:00:00"
+      },
+      {
+       "ts": "2026-09-04T04:00:00",
+       "kind": "high",
+       "price": 149.6,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-09-25T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 521,
+      "chg_1w_pct": -2.95,
+      "chg_4w_pct": -8.59,
+      "chg_13w_pct": 1.38,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9843,
+       0.9714,
+       1.0094,
+       1.0377,
+       0.9732,
+       1.0341,
+       1.1371,
+       1.1346,
+       1.0852,
+       1.085,
+       1.0687,
+       1.0371
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": -1.59,
+      "chg_4w_pct": -8.85,
+      "chg_13w_pct": 20.03,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       1.0001,
+       0.9724,
+       1.089,
+       1.1634,
+       1.1425,
+       1.213,
+       1.3605,
+       1.3234,
+       1.2487,
+       1.2648,
+       1.2257,
+       1.2063
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 131.45,
+        "chg_pct": -3.07,
+        "volume_ratio": 0.82
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 129.94,
+        "chg_pct": -1.15,
+        "volume_ratio": 0.74
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 134.01,
+        "chg_pct": 3.13,
+        "volume_ratio": 0.7
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 137.76,
+        "chg_pct": 2.8,
+        "volume_ratio": 0.82
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 134.38,
+        "chg_pct": -2.45,
+        "volume_ratio": 0.72
+       }
+      ],
+      "high_day": "周四",
+      "low_day": "周一",
+      "max_drawdown_atr": 0.52,
+      "up_down_volume_ratio": 0.94,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-09-30",
+       "chg_pct": 3.13
+      }
+     },
+     "spark": [
+      107.71,
+      103.24,
+      98.78,
+      111.23,
+      124.88,
+      124.0,
+      128.48,
+      144.71,
+      141.26,
+      132.53,
+      135.47,
+      135.62,
+      134.38
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": -0.7
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": 3.61
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": 12.63
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": -2.38
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": -6.18
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 2.22
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 0.11
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": -0.91
+      }
+     ],
+     "label": "转弱",
+     "label_reasons": [
+      "转弱：收盘 134.38 跌破上周低点 135.23"
+     ],
+     "warnings": [
+      "周收盘跌破上周低点"
+     ],
+     "prev_label": "休整",
+     "prev_ret_4w_pct": -6.28
+    },
+    {
+     "symbol": "NET",
+     "display": "NET",
+     "reference": "SKYY",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 369,
+     "open": 339.25,
+     "high": 357.64,
+     "low": 338.67,
+     "close": 349.07,
+     "prev_high": 367.43,
+     "prev_low": 321.85,
+     "prev_close": 349.02,
+     "ret_pct": {
+      "1w": 0.01,
+      "4w": 25.15,
+      "13w": 44.0
+     },
+     "atr_prev": 34.5541,
+     "atr_weeks": 14,
+     "move_atr": 0.0,
+     "close_pos": 0.548,
+     "body_ratio": 0.518,
+     "bar_type": "inside",
+     "higher_high": false,
+     "higher_low": true,
+     "new_13w_high": false,
+     "from_52w_high_pct": -5.0,
+     "pullback_4w_atr": 0.53,
+     "ema10": 310.4307,
+     "ema20": 283.7558,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 1.12,
+     "swing_sequence": [
+      {
+       "ts": "2026-06-05T04:00:00",
+       "kind": "high",
+       "price": 276.815,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-06-26T04:00:00"
+      },
+      {
+       "ts": "2026-06-26T04:00:00",
+       "kind": "low",
+       "price": 212.32,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-07-17T04:00:00"
+      },
+      {
+       "ts": "2026-08-14T04:00:00",
+       "kind": "high",
+       "price": 332.22,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-09-04T04:00:00"
+      },
+      {
+       "ts": "2026-09-04T04:00:00",
+       "kind": "low",
+       "price": 269.3,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-09-25T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 369,
+      "chg_1w_pct": -2.04,
+      "chg_4w_pct": 20.25,
+      "chg_13w_pct": 15.5,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       1.0624,
+       1.0345,
+       1.0159,
+       1.0013,
+       0.9946,
+       0.9468,
+       0.9455,
+       0.899,
+       1.0073,
+       1.0401,
+       1.1037,
+       1.0811
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 369,
+      "chg_1w_pct": -0.66,
+      "chg_4w_pct": 19.91,
+      "chg_13w_pct": 36.75,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       1.0794,
+       1.0356,
+       1.0961,
+       1.1226,
+       1.1676,
+       1.1107,
+       1.1313,
+       1.0487,
+       1.159,
+       1.2124,
+       1.2659,
+       1.2575
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 353.99,
+        "chg_pct": 1.42,
+        "volume_ratio": 0.88
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 352.26,
+        "chg_pct": -0.49,
+        "volume_ratio": 0.67
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 347.28,
+        "chg_pct": -1.41,
+        "volume_ratio": 0.82
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 351.0,
+        "chg_pct": 1.07,
+        "volume_ratio": 0.88
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 349.07,
+        "chg_pct": -0.55,
+        "volume_ratio": 0.91
+       }
+      ],
+      "high_day": "周三",
+      "low_day": "周一",
+      "max_drawdown_atr": 0.53,
+      "up_down_volume_ratio": 1.11,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-09-28",
+       "chg_pct": 1.42
+      }
+     },
+     "spark": [
+      268.4,
+      277.66,
+      262.15,
+      278.98,
+      300.27,
+      315.78,
+      293.14,
+      299.84,
+      278.92,
+      306.53,
+      323.6,
+      349.02,
+      349.07
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 5.17
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -7.17
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": 2.29
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": -6.98
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": 9.9
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 5.57
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 7.86
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": 0.01
+      }
+     ],
+     "label": "休整",
+     "label_reasons": [
+      "休整：没创新高但守住上周低点，离 4 周高点 0.53 倍周 ATR"
+     ],
+     "warnings": [],
+     "prev_label": "延续",
+     "prev_ret_4w_pct": 16.4
+    },
+    {
+     "symbol": "NBIS",
+     "display": "NBIS",
+     "reference": "SKYY",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 102,
+     "open": 235.195,
+     "high": 250.48,
+     "low": 228.38,
+     "close": 242.81,
+     "prev_high": 249.19,
+     "prev_low": 221.3,
+     "prev_close": 237.33,
+     "ret_pct": {
+      "1w": 2.31,
+      "4w": 7.25,
+      "13w": 12.61
+     },
+     "atr_prev": 42.4101,
+     "atr_weeks": 14,
+     "move_atr": 0.13,
+     "close_pos": 0.653,
+     "body_ratio": 0.345,
+     "bar_type": null,
+     "higher_high": true,
+     "higher_low": true,
+     "new_13w_high": false,
+     "from_52w_high_pct": -19.03,
+     "pullback_4w_atr": 0.28,
+     "ema10": 225.9616,
+     "ema20": 211.9218,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 0.4,
+     "swing_sequence": [
+      {
+       "ts": "2026-02-06T05:00:00",
+       "kind": "low",
+       "price": 73.52,
+       "label": "EL",
+       "label_text": "等低",
+       "confirmed_at": "2026-02-27T05:00:00"
+      },
+      {
+       "ts": "2026-06-26T04:00:00",
+       "kind": "high",
+       "price": 299.86,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-07-17T04:00:00"
+      },
+      {
+       "ts": "2026-07-31T04:00:00",
+       "kind": "low",
+       "price": 145.8,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-08-21T04:00:00"
+      },
+      {
+       "ts": "2026-08-21T04:00:00",
+       "kind": "high",
+       "price": 280.83,
+       "label": "LH",
+       "label_text": "更低高点",
+       "confirmed_at": "2026-09-11T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": {
+      "ts": "2026-08-21",
+      "price": 280.83
+     },
+     "rs_reference": {
+      "weeks": 102,
+      "chg_1w_pct": 0.2,
+      "chg_4w_pct": 3.06,
+      "chg_13w_pct": -9.68,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.8309,
+       0.9055,
+       0.8473,
+       0.7659,
+       1.0687,
+       0.8648,
+       0.806,
+       0.8917,
+       0.9017,
+       0.8779,
+       0.9171,
+       0.9189
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 102,
+      "chg_1w_pct": 1.62,
+      "chg_4w_pct": 2.76,
+      "chg_13w_pct": 6.94,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.8442,
+       0.9064,
+       0.9142,
+       0.8587,
+       1.2546,
+       1.0145,
+       0.9644,
+       1.0401,
+       1.0375,
+       1.0234,
+       1.0518,
+       1.0688
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 231.88,
+        "chg_pct": -2.3,
+        "volume_ratio": 0.84
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 237.355,
+        "chg_pct": 2.36,
+        "volume_ratio": 0.87
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 235.88,
+        "chg_pct": -0.62,
+        "volume_ratio": 0.96
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 232.28,
+        "chg_pct": -1.53,
+        "volume_ratio": 0.8
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 242.81,
+        "chg_pct": 4.53,
+        "volume_ratio": 0.79
+       }
+      ],
+      "high_day": "周三",
+      "low_day": "周一",
+      "max_drawdown_atr": 0.52,
+      "up_down_volume_ratio": 0.96,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-10-02",
+       "chg_pct": 4.53
+      }
+     },
+     "spark": [
+      219.65,
+      177.71,
+      187.77,
+      190.41,
+      187.97,
+      277.68,
+      219.13,
+      209.18,
+      226.39,
+      224.55,
+      223.54,
+      237.33,
+      242.81
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 47.73
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -21.09
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": -4.54
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 8.23
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": -0.81
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": -0.45
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 6.17
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": 2.31
+      }
+     ],
+     "label": "延续",
+     "label_reasons": [
+      "延续：收在 10 周 EMA 上方，周高点高于上周"
+     ],
+     "warnings": [
+      "周线更低高点 LH 280.83（2026-08-21 那周）至今未被突破"
+     ],
+     "prev_label": "延续",
+     "prev_ret_4w_pct": 13.46
+    }
+   ],
+   "missing": [],
+   "reference_metrics": {
+    "week": "2026-W40",
+    "week_end": "2026-10-02",
+    "sessions": 5,
+    "weeks": 521,
+    "open": 160.34,
+    "high": 169.89,
+    "low": 159.68,
+    "close": 168.14,
+    "prev_high": 169.41,
+    "prev_low": 163.05,
+    "prev_close": 164.68,
+    "ret_pct": {
+     "1w": 2.1,
+     "4w": 4.07,
+     "13w": 24.68
+    },
+    "atr_prev": 8.8269,
+    "atr_weeks": 14,
+    "move_atr": 0.39,
+    "close_pos": 0.829,
+    "body_ratio": 0.764,
+    "bar_type": "outside",
+    "higher_high": true,
+    "higher_low": false,
+    "new_13w_high": true,
+    "from_52w_high_pct": -1.03,
+    "pullback_4w_atr": 0.2,
+    "ema10": 158.7709,
+    "ema20": 149.927,
+    "ema_reliable": {
+     "ema10": true,
+     "ema20": true
+    },
+    "dist_ema10_atr": 1.06,
+    "swing_sequence": [
+     {
+      "ts": "2026-07-10T04:00:00",
+      "kind": "high",
+      "price": 143.65,
+      "label": "LH",
+      "label_text": "更低高点",
+      "confirmed_at": "2026-07-31T04:00:00"
+     },
+     {
+      "ts": "2026-07-24T04:00:00",
+      "kind": "low",
+      "price": 129.37,
+      "label": "HL",
+      "label_text": "更高低点",
+      "confirmed_at": "2026-08-14T04:00:00"
+     },
+     {
+      "ts": "2026-08-14T04:00:00",
+      "kind": "high",
+      "price": 169.05,
+      "label": "HH",
+      "label_text": "更高高点",
+      "confirmed_at": "2026-09-04T04:00:00"
+     },
+     {
+      "ts": "2026-09-11T04:00:00",
+      "kind": "low",
+      "price": 156.31,
+      "label": "HL",
+      "label_text": "更高低点",
+      "confirmed_at": "2026-10-02T04:00:00"
+     }
+    ],
+    "lower_high_unbroken": null,
+    "rs_reference": {
+     "weeks": 521,
+     "chg_1w_pct": 1.41,
+     "chg_4w_pct": -0.28,
+     "chg_13w_pct": 18.4,
+     "at_13w_high": false,
+     "series": [
+      1.0,
+      1.016,
+      1.0011,
+      1.0789,
+      1.1212,
+      1.1739,
+      1.1731,
+      1.1965,
+      1.1664,
+      1.1507,
+      1.1657,
+      1.147,
+      1.1631
+     ],
+     "series_weeks": [
+      "2026-W28",
+      "2026-W29",
+      "2026-W30",
+      "2026-W31",
+      "2026-W32",
+      "2026-W33",
+      "2026-W34",
+      "2026-W35",
+      "2026-W36",
+      "2026-W37",
+      "2026-W38",
+      "2026-W39",
+      "2026-W40"
+     ]
+    },
+    "rs_market": {
+     "weeks": 521,
+     "chg_1w_pct": 1.41,
+     "chg_4w_pct": -0.28,
+     "chg_13w_pct": 18.4,
+     "at_13w_high": false,
+     "series": [
+      1.0,
+      1.016,
+      1.0011,
+      1.0789,
+      1.1212,
+      1.1739,
+      1.1731,
+      1.1965,
+      1.1664,
+      1.1507,
+      1.1657,
+      1.147,
+      1.1631
+     ],
+     "series_weeks": [
+      "2026-W28",
+      "2026-W29",
+      "2026-W30",
+      "2026-W31",
+      "2026-W32",
+      "2026-W33",
+      "2026-W34",
+      "2026-W35",
+      "2026-W36",
+      "2026-W37",
+      "2026-W38",
+      "2026-W39",
+      "2026-W40"
+     ]
+    },
+    "intraweek": {
+     "sessions": [
+      {
+       "date": "2026-09-28",
+       "weekday": "周一",
+       "close": 162.46,
+       "chg_pct": -1.35,
+       "volume_ratio": 1.03
+      },
+      {
+       "date": "2026-09-29",
+       "weekday": "周二",
+       "close": 162.75,
+       "chg_pct": 0.18,
+       "volume_ratio": 0.85
+      },
+      {
+       "date": "2026-09-30",
+       "weekday": "周三",
+       "close": 163.99,
+       "chg_pct": 0.76,
+       "volume_ratio": 0.54
+      },
+      {
+       "date": "2026-10-01",
+       "weekday": "周四",
+       "close": 166.96,
+       "chg_pct": 1.81,
+       "volume_ratio": 0.79
+      },
+      {
+       "date": "2026-10-02",
+       "weekday": "周五",
+       "close": 168.14,
+       "chg_pct": 0.71,
+       "volume_ratio": 0.47
+      }
+     ],
+     "high_day": "周五",
+     "low_day": "周一",
+     "max_drawdown_atr": 0.4,
+     "up_down_volume_ratio": 0.61,
+     "distribution_days": [],
+     "biggest_day": {
+      "date": "2026-10-01",
+      "chg_pct": 1.81
+     }
+    },
+    "spark": [
+     139.77,
+     136.1,
+     131.96,
+     143.0,
+     156.17,
+     165.34,
+     161.23,
+     165.14,
+     161.56,
+     158.47,
+     162.02,
+     164.68,
+     168.14
+    ],
+    "weekly_returns": [
+     {
+      "week": "2026-W33",
+      "ret_pct": 5.87
+     },
+     {
+      "week": "2026-W34",
+      "ret_pct": -2.49
+     },
+     {
+      "week": "2026-W35",
+      "ret_pct": 2.43
+     },
+     {
+      "week": "2026-W36",
+      "ret_pct": -2.17
+     },
+     {
+      "week": "2026-W37",
+      "ret_pct": -1.91
+     },
+     {
+      "week": "2026-W38",
+      "ret_pct": 2.24
+     },
+     {
+      "week": "2026-W39",
+      "ret_pct": 1.64
+     },
+     {
+      "week": "2026-W40",
+      "ret_pct": 2.1
+     }
+    ],
+    "label": "延续",
+    "label_reasons": [
+     "延续：收在 10 周 EMA 上方，周高点高于上周"
+    ],
+    "warnings": [
+     "价格创 13 周新高，但相对参照的 RS 没有创新高（背离）"
+    ],
+    "prev_label": "延续"
+   },
+   "aggregate": {
+    "n": 5,
+    "above_ema10": 3,
+    "new_13w_high": 0,
+    "labels": {
+     "转弱": [
+      "AMZN",
+      "GOOGL",
+      "NOW"
+     ],
+     "延续": [
+      "NBIS"
+     ],
+     "休整": [
+      "NET"
+     ]
+    },
+    "composite_ret_pct": {
+     "1w": 0.41,
+     "4w": 5.26,
+     "13w": 16.43
+    },
+    "beat_reference": {
+     "1w": 1,
+     "4w": 2
+    },
+    "dispersion_4w_pct": 30.02,
+    "leader": "NET",
+    "laggard": "NOW",
+    "prev_leader": "NET",
+    "leader_changed": false
+   }
+  },
+  {
+   "name": "其他",
+   "reference": null,
+   "members": [
+    {
+     "symbol": "DELL",
+     "display": "DELL",
+     "reference": "QQQ",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 551.74,
+     "high": 568.0,
+     "low": 520.18,
+     "close": 562.52,
+     "prev_high": 592.44,
+     "prev_low": 530.45,
+     "prev_close": 562.89,
+     "ret_pct": {
+      "1w": -0.07,
+      "4w": 7.32,
+      "13w": 42.89
+     },
+     "atr_prev": 61.3596,
+     "atr_weeks": 14,
+     "move_atr": -0.01,
+     "close_pos": 0.885,
+     "body_ratio": 0.225,
+     "bar_type": null,
+     "higher_high": false,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -5.54,
+     "pullback_4w_atr": 0.54,
+     "ema10": 510.6285,
+     "ema20": 445.1823,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 0.85,
+     "swing_sequence": [
+      {
+       "ts": "2025-12-12T05:00:00",
+       "kind": "high",
+       "price": 141.0498,
+       "label": "LH",
+       "label_text": "更低高点",
+       "confirmed_at": "2026-01-02T05:00:00"
+      },
+      {
+       "ts": "2026-01-23T05:00:00",
+       "kind": "low",
+       "price": 109.6987,
+       "label": "EL",
+       "label_text": "等低",
+       "confirmed_at": "2026-02-13T05:00:00"
+      },
+      {
+       "ts": "2026-06-05T04:00:00",
+       "kind": "high",
+       "price": 468.6955,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-06-26T04:00:00"
+      },
+      {
+       "ts": "2026-07-31T04:00:00",
+       "kind": "low",
+       "price": 358.88,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-08-21T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 521,
+      "chg_1w_pct": -0.74,
+      "chg_4w_pct": 2.83,
+      "chg_13w_pct": 35.7,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9507,
+       1.0683,
+       0.9844,
+       1.0485,
+       1.1216,
+       1.0352,
+       1.0639,
+       1.218,
+       1.3258,
+       1.3155,
+       1.2618,
+       1.2525
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": -0.74,
+      "chg_4w_pct": 2.83,
+      "chg_13w_pct": 35.7,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9507,
+       1.0683,
+       0.9844,
+       1.0485,
+       1.1216,
+       1.0352,
+       1.0639,
+       1.218,
+       1.3258,
+       1.3155,
+       1.2618,
+       1.2525
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 543.43,
+        "chg_pct": -3.46,
+        "volume_ratio": 0.61
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 539.59,
+        "chg_pct": -0.71,
+        "volume_ratio": 0.5
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 537.95,
+        "chg_pct": -0.3,
+        "volume_ratio": 0.43
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 541.74,
+        "chg_pct": 0.7,
+        "volume_ratio": 0.62
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 562.52,
+        "chg_pct": 3.84,
+        "volume_ratio": 0.59
+       }
+      ],
+      "high_day": "周五",
+      "low_day": "周四",
+      "max_drawdown_atr": 0.6,
+      "up_down_volume_ratio": 1.04,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-10-02",
+       "chg_pct": 3.84
+      }
+     },
+     "spark": [
+      434.2524,
+      395.6861,
+      437.5,
+      405.37,
+      453.77,
+      490.81,
+      442.08,
+      456.24,
+      524.14,
+      567.29,
+      568.06,
+      562.89,
+      562.52
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 8.16
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -9.93
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": 3.2
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 14.88
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": 8.23
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 0.14
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": -0.91
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": -0.07
+      }
+     ],
+     "label": "整理",
+     "label_reasons": [
+      "整理：未满足以上任何一条"
+     ],
+     "warnings": [],
+     "prev_label": "休整",
+     "prev_ret_4w_pct": 23.38
+    },
+    {
+     "symbol": "TSLA",
+     "display": "TSLA",
+     "reference": "QQQ",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 521,
+     "open": 368.06,
+     "high": 374.6,
+     "low": 345.88,
+     "close": 370.59,
+     "prev_high": 386.83,
+     "prev_low": 367.67,
+     "prev_close": 372.11,
+     "ret_pct": {
+      "1w": -0.41,
+      "4w": 4.66,
+      "13w": -5.81
+     },
+     "atr_prev": 32.7334,
+     "atr_weeks": 14,
+     "move_atr": -0.05,
+     "close_pos": 0.86,
+     "body_ratio": 0.088,
+     "bar_type": null,
+     "higher_high": false,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -25.71,
+     "pullback_4w_atr": 0.5,
+     "ema10": 363.2557,
+     "ema20": 369.4451,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 0.22,
+     "swing_sequence": [
+      {
+       "ts": "2026-05-15T04:00:00",
+       "kind": "high",
+       "price": 453.4,
+       "label": "LH",
+       "label_text": "更低高点",
+       "confirmed_at": "2026-06-05T04:00:00"
+      },
+      {
+       "ts": "2026-06-26T04:00:00",
+       "kind": "low",
+       "price": 368.6,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-07-17T04:00:00"
+      },
+      {
+       "ts": "2026-07-02T04:00:00",
+       "kind": "high",
+       "price": 432.86,
+       "label": "LH",
+       "label_text": "更低高点",
+       "confirmed_at": "2026-07-24T04:00:00"
+      },
+      {
+       "ts": "2026-07-31T04:00:00",
+       "kind": "low",
+       "price": 297.38,
+       "label": "LL",
+       "label_text": "更低低点",
+       "confirmed_at": "2026-08-21T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": {
+      "ts": "2026-07-02",
+      "price": 432.86
+     },
+     "rs_reference": {
+      "weeks": 521,
+      "chg_1w_pct": -1.08,
+      "chg_4w_pct": 0.28,
+      "chg_13w_pct": -10.55,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9745,
+       0.814,
+       0.8048,
+       0.8086,
+       0.833,
+       0.9049,
+       0.8661,
+       0.8763,
+       0.9095,
+       0.8984,
+       0.8884,
+       0.8787
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 521,
+      "chg_1w_pct": -1.08,
+      "chg_4w_pct": 0.28,
+      "chg_13w_pct": -10.55,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9745,
+       0.814,
+       0.8048,
+       0.8086,
+       0.833,
+       0.9049,
+       0.8661,
+       0.8763,
+       0.9095,
+       0.8984,
+       0.8884,
+       0.8787
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 357.45,
+        "chg_pct": -3.94,
+        "volume_ratio": 0.99
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 352.84,
+        "chg_pct": -1.29,
+        "volume_ratio": 0.81
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 354.81,
+        "chg_pct": 0.56,
+        "volume_ratio": 1.02
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 354.11,
+        "chg_pct": -0.2,
+        "volume_ratio": 0.8
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 370.59,
+        "chg_pct": 4.65,
+        "volume_ratio": 1.44
+       }
+      ],
+      "high_day": "周五",
+      "low_day": "周三",
+      "max_drawdown_atr": 0.72,
+      "up_down_volume_ratio": 1.38,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-10-02",
+       "chg_pct": 4.65
+      }
+     },
+     "spark": [
+      407.76,
+      380.84,
+      313.03,
+      311.21,
+      328.58,
+      342.27,
+      362.86,
+      348.75,
+      354.08,
+      365.44,
+      364.27,
+      372.11,
+      370.59
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 4.17
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": 6.02
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": -3.89
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 1.53
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": 3.21
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": -0.32
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 2.15
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": -0.41
+      }
+     ],
+     "label": "整理",
+     "label_reasons": [
+      "整理：未满足以上任何一条"
+     ],
+     "warnings": [
+      "周线更低高点 LH 432.86（2026-07-02 那周）至今未被突破"
+     ],
+     "prev_label": "整理",
+     "prev_ret_4w_pct": 6.7
+    },
+    {
+     "symbol": "SPCX",
+     "display": "SPCX",
+     "reference": "QQQ",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 17,
+     "open": 148.49,
+     "high": 159.84,
+     "low": 145.36,
+     "close": 158.96,
+     "prev_high": 158.13,
+     "prev_low": 145.88,
+     "prev_close": 148.68,
+     "ret_pct": {
+      "1w": 6.91,
+      "4w": 7.44,
+      "13w": -1.88
+     },
+     "atr_prev": 22.0848,
+     "atr_weeks": 14,
+     "move_atr": 0.47,
+     "close_pos": 0.939,
+     "body_ratio": 0.723,
+     "bar_type": "outside",
+     "higher_high": true,
+     "higher_low": false,
+     "new_13w_high": false,
+     "from_52w_high_pct": -29.55,
+     "pullback_4w_atr": 0.04,
+     "ema10": 147.6326,
+     "ema20": null,
+     "ema_reliable": {
+      "ema10": false,
+      "ema20": false
+     },
+     "dist_ema10_atr": 0.51,
+     "swing_sequence": [
+      {
+       "ts": "2026-08-07T04:00:00",
+       "kind": "low",
+       "price": 104.83,
+       "label": null,
+       "label_text": null,
+       "confirmed_at": "2026-08-28T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 17,
+      "chg_1w_pct": 6.19,
+      "chg_4w_pct": 2.95,
+      "chg_13w_pct": -6.81,
+      "at_13w_high": true,
+      "series": [
+       1.0,
+       0.8904,
+       0.8397,
+       0.7865,
+       0.9192,
+       0.9562,
+       0.9586,
+       0.9862,
+       1.0275,
+       1.0561,
+       1.0569,
+       0.9961,
+       1.0578
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 17,
+      "chg_1w_pct": 6.19,
+      "chg_4w_pct": 2.95,
+      "chg_13w_pct": -6.81,
+      "at_13w_high": true,
+      "series": [
+       1.0,
+       0.8904,
+       0.8397,
+       0.7865,
+       0.9192,
+       0.9562,
+       0.9586,
+       0.9862,
+       1.0275,
+       1.0561,
+       1.0569,
+       0.9961,
+       1.0578
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 145.47,
+        "chg_pct": -2.16,
+        "volume_ratio": 0.93
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 149.24,
+        "chg_pct": 2.59,
+        "volume_ratio": 0.88
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 150.86,
+        "chg_pct": 1.09,
+        "volume_ratio": 0.87
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 148.07,
+        "chg_pct": -1.85,
+        "volume_ratio": 0.74
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 158.96,
+        "chg_pct": 7.35,
+        "volume_ratio": 1.27
+       }
+      ],
+      "high_day": "周五",
+      "low_day": "周一",
+      "max_drawdown_atr": 0.48,
+      "up_down_volume_ratio": 1.22,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-10-02",
+       "chg_pct": 7.35
+      }
+     },
+     "spark": [
+      145.3,
+      123.99,
+      115.07,
+      108.37,
+      133.11,
+      140.0,
+      136.97,
+      141.5,
+      147.95,
+      151.21,
+      152.71,
+      148.68,
+      158.96
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 5.18
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": -2.16
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": 3.31
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 4.56
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": 2.2
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 0.99
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": -2.64
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": 6.91
+      }
+     ],
+     "label": "延续",
+     "label_reasons": [
+      "延续：收在 10 周 EMA 上方，周高点高于上周"
+     ],
+     "warnings": [],
+     "prev_label": "冲高回落",
+     "prev_ret_4w_pct": 5.07
+    },
+    {
+     "symbol": "MRNA",
+     "display": "MRNA",
+     "reference": "QQQ",
+     "week": "2026-W40",
+     "week_end": "2026-10-02",
+     "sessions": 5,
+     "weeks": 409,
+     "open": 195.155,
+     "high": 208.903,
+     "low": 183.28,
+     "close": 190.01,
+     "prev_high": 202.67,
+     "prev_low": 159.06,
+     "prev_close": 198.88,
+     "ret_pct": {
+      "1w": -4.46,
+      "4w": 30.55,
+      "13w": 138.23
+     },
+     "atr_prev": 20.2244,
+     "atr_weeks": 14,
+     "move_atr": -0.44,
+     "close_pos": 0.263,
+     "body_ratio": 0.201,
+     "bar_type": null,
+     "higher_high": true,
+     "higher_low": true,
+     "new_13w_high": true,
+     "from_52w_high_pct": -9.04,
+     "pullback_4w_atr": 0.93,
+     "ema10": 140.8368,
+     "ema20": 110.1449,
+     "ema_reliable": {
+      "ema10": true,
+      "ema20": true
+     },
+     "dist_ema10_atr": 2.43,
+     "swing_sequence": [
+      {
+       "ts": "2026-06-05T04:00:00",
+       "kind": "low",
+       "price": 43.9,
+       "label": "EL",
+       "label_text": "等低",
+       "confirmed_at": "2026-06-26T04:00:00"
+      },
+      {
+       "ts": "2026-07-10T04:00:00",
+       "kind": "high",
+       "price": 85.6,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-07-31T04:00:00"
+      },
+      {
+       "ts": "2026-08-07T04:00:00",
+       "kind": "low",
+       "price": 52.66,
+       "label": "HL",
+       "label_text": "更高低点",
+       "confirmed_at": "2026-08-28T04:00:00"
+      },
+      {
+       "ts": "2026-08-21T04:00:00",
+       "kind": "high",
+       "price": 176.66,
+       "label": "HH",
+       "label_text": "更高高点",
+       "confirmed_at": "2026-09-11T04:00:00"
+      }
+     ],
+     "lower_high_unbroken": null,
+     "rs_reference": {
+      "weeks": 409,
+      "chg_1w_pct": -5.11,
+      "chg_4w_pct": 25.08,
+      "chg_13w_pct": 126.24,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9448,
+       0.8398,
+       0.8468,
+       0.8697,
+       0.9204,
+       2.1618,
+       2.0469,
+       2.1514,
+       2.1402,
+       2.269,
+       2.8359,
+       2.691
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "rs_market": {
+      "weeks": 409,
+      "chg_1w_pct": -5.11,
+      "chg_4w_pct": 25.08,
+      "chg_13w_pct": 126.24,
+      "at_13w_high": false,
+      "series": [
+       1.0,
+       0.9448,
+       0.8398,
+       0.8468,
+       0.8697,
+       0.9204,
+       2.1618,
+       2.0469,
+       2.1514,
+       2.1402,
+       2.269,
+       2.8359,
+       2.691
+      ],
+      "series_weeks": [
+       "2026-W28",
+       "2026-W29",
+       "2026-W30",
+       "2026-W31",
+       "2026-W32",
+       "2026-W33",
+       "2026-W34",
+       "2026-W35",
+       "2026-W36",
+       "2026-W37",
+       "2026-W38",
+       "2026-W39",
+       "2026-W40"
+      ]
+     },
+     "intraweek": {
+      "sessions": [
+       {
+        "date": "2026-09-28",
+        "weekday": "周一",
+        "close": 197.28,
+        "chg_pct": -0.8,
+        "volume_ratio": 0.84
+       },
+       {
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "close": 203.46,
+        "chg_pct": 3.13,
+        "volume_ratio": 0.87
+       },
+       {
+        "date": "2026-09-30",
+        "weekday": "周三",
+        "close": 192.57,
+        "chg_pct": -5.35,
+        "volume_ratio": 1.37
+       },
+       {
+        "date": "2026-10-01",
+        "weekday": "周四",
+        "close": 188.94,
+        "chg_pct": -1.89,
+        "volume_ratio": 1.05
+       },
+       {
+        "date": "2026-10-02",
+        "weekday": "周五",
+        "close": 190.01,
+        "chg_pct": 0.57,
+        "volume_ratio": 0.7
+       }
+      ],
+      "high_day": "周二",
+      "low_day": "周五",
+      "max_drawdown_atr": 1.27,
+      "up_down_volume_ratio": 0.71,
+      "distribution_days": [],
+      "biggest_day": {
+       "date": "2026-09-30",
+       "chg_pct": -5.35
+      }
+     },
+     "spark": [
+      68.27,
+      61.82,
+      54.07,
+      54.82,
+      59.17,
+      63.32,
+      145.13,
+      137.99,
+      145.55,
+      143.97,
+      154.04,
+      198.88,
+      190.01
+     ],
+     "weekly_returns": [
+      {
+       "week": "2026-W33",
+       "ret_pct": 7.01
+      },
+      {
+       "week": "2026-W34",
+       "ret_pct": 129.2
+      },
+      {
+       "week": "2026-W35",
+       "ret_pct": -4.92
+      },
+      {
+       "week": "2026-W36",
+       "ret_pct": 5.48
+      },
+      {
+       "week": "2026-W37",
+       "ret_pct": -1.09
+      },
+      {
+       "week": "2026-W38",
+       "ret_pct": 6.99
+      },
+      {
+       "week": "2026-W39",
+       "ret_pct": 29.11
+      },
+      {
+       "week": "2026-W40",
+       "ret_pct": -4.46
+      }
+     ],
+     "label": "延续",
+     "label_reasons": [
+      "延续：收在 10 周 EMA 上方，周高点高于上周"
+     ],
+     "warnings": [
+      "价格创 13 周新高，但相对参照的 RS 没有创新高（背离）"
+     ],
+     "prev_label": "过热",
+     "prev_ret_4w_pct": 44.13
+    }
+   ],
+   "missing": [],
+   "aggregate": {
+    "n": 4,
+    "above_ema10": 4,
+    "new_13w_high": 1,
+    "labels": {
+     "延续": [
+      "SPCX",
+      "MRNA"
+     ],
+     "整理": [
+      "DELL",
+      "TSLA"
+     ]
+    },
+    "composite_ret_pct": {
+     "1w": 0.49,
+     "4w": 12.49,
+     "13w": 43.36
+    },
+    "beat_reference": null,
+    "dispersion_4w_pct": 25.89,
+    "leader": "MRNA",
+    "laggard": "TSLA",
+    "prev_leader": "MRNA",
+    "leader_changed": false
+   }
+  }
+ ],
+ "data_health": {
+  "failed": {},
+  "stale": []
+ },
+ "rules": {
+  "lookback_weeks": [
+   1,
+   4,
+   13
+  ],
+  "ema": [
+   10,
+   20
+  ],
+  "atr_weeks": 14,
+  "rs_high_weeks": 13,
+  "rs_slope_weeks": 4,
+  "accel": {
+   "close_pos": 0.75,
+   "move_atr": 1.5
+  },
+  "pause_max_pullback_atr": 1.0,
+  "overheat_ema_atr": 3.0,
+  "reversal_close_pos": 0.25,
+  "underperform_rs_pct": -3.0,
+  "distribution": {
+   "volume_mult": 1.5,
+   "warn_days": 2
+  },
+  "label_order": [
+   "转弱",
+   "下行",
+   "冲高回落",
+   "过热",
+   "加速",
+   "延续",
+   "休整",
+   "整理",
+   "历史不足"
+  ],
+  "note": "标签只描述状态，阈值事先写定，未回测预测力；成员是精选强势票，板块合成值天然偏强"
+ }
+}
