@@ -91,8 +91,8 @@ h3{margin:0;font-size:16px;font-weight:600;display:flex;flex-wrap:wrap;align-ite
 .flagbox{border-left:2px solid var(--bad);background:var(--bad-soft);padding:8px 12px;font-size:13px;color:var(--bad)}
 .flagbox ul{margin:4px 0 0;padding-left:18px}
 .muted{color:var(--muted);font-size:13.5px}
-.pred{border:1px solid var(--rule);border-left:2px solid var(--accent);border-radius:3px;padding:12px 14px;
-      margin:14px 0 10px;background:var(--sunk);display:flex;flex-direction:column;gap:10px}
+.pred{border:1px solid var(--rule);border-left:2px solid var(--accent);border-radius:3px;padding:14px 16px;
+      background:var(--surface);display:flex;flex-direction:column;gap:10px}
 .pred .head{font-size:12px;letter-spacing:.06em;color:var(--muted);font-weight:600}
 .pred .item{display:flex;flex-direction:column;gap:3px;padding-bottom:9px;border-bottom:1px solid var(--rule-faint)}
 .pred .item:last-child{border-bottom:none;padding-bottom:0}
@@ -337,6 +337,7 @@ let h = `<header class="masthead"><div class="shell">
   <span class="spacer"></span>
   <nav class="nav">${nav.prev ? `<a href="${esc(nav.prev)}">← 上一周</a>` : '<span class="off">← 上一周</span>'}
     ${nav.next ? `<a href="${esc(nav.next)}">下一周 →</a>` : '<span class="off">下一周 →</span>'}
+    ${(P.narrative && (P.narrative.predictions || []).length) ? '<a href="#predict">下周预测</a>' : ""}
     <a href="index.html">全部周报</a><a href="../index.html">每日看板</a></nav>
 </div></header>`;
 if (P.partial) h += `<div class="alert warn"><div class="shell">未完成周：本周还没收完，数字会变</div></div>`;
@@ -348,15 +349,14 @@ if (failed.length || (health.stale || []).length)
 
 h += `<div class="shell"><main>`;
 
-// 叙事
+// 预测放在最前面：上周预测回看 → 下周预测 → 本周回顾
 const nr = P.narrative;
-h += `<section><h2>本周回顾</h2><div class="card story">`;
 const DIR = {up:"看涨", down:"看跌", flat:"震荡"}, CONF = {low:"低", mid:"中", high:"高"};
 const DIR_TONE = {up:"good", down:"bad", flat:""};
 const sc = P.scorecard;
 if (sc && sc.last_week){
   const rows = sc.last_week.rows || [];
-  h += `<div class="pred score"><span class="head">上周预测回看 · ${esc(sc.last_week.made_in)} 的预测，按本周涨跌判定</span><div class="tablewrap"><table>
+  h += `<section id="scorecard"><h2>上周预测回看</h2><div class="pred score"><span class="head">${esc(sc.last_week.made_in)} 的预测，按本周代表标的的涨跌由代码判定</span><div class="tablewrap"><table>
     <thead><tr><th class="l">板块</th><th class="l">代表</th><th class="l">预测</th><th class="l">信心</th><th>本周涨跌</th><th>周幅 ATR</th><th class="l">实际</th><th class="l">结果</th></tr></thead><tbody>${
     rows.map(r => `<tr><td class="l">${esc(r.section)}</td><td class="l num">${esc(r.target)}</td>
       <td class="l"><span class="chip ${DIR_TONE[r.direction]}">${esc(DIR[r.direction])}</span></td><td class="l">${esc(CONF[r.confidence] || "—")}</td>
@@ -365,26 +365,29 @@ if (sc && sc.last_week){
       <td class="l">${r.status !== "已判定" ? "—" : r.hit ? '<span class="hit">✓ 命中</span>' : '<span class="miss">✗ 未中</span>'}</td></tr>`).join("")}</tbody></table></div>`;
   const c = sc.cumulative || {};
   if (c.n) h += `<span class="meta">累计 ${c.n} 条：命中 ${c.hits}（${c.hit_pct}%）；同期基准：照抄上周方向 ${c.momentum_hits}（${c.momentum_pct}%），一律看涨 ${c.all_up_hits}（${c.all_up_pct}%）。${esc(sc.note)}。</span>`;
-  h += `</div>`;
+  h += `</div></section>`;
 }
+const preds = (nr && nr.predictions) || [];
+if (preds.length){
+  const fa = (P.rules && P.rules.prediction && P.rules.prediction.flat_atr);
+  h += `<section id="predict"><h2>下周预测</h2><div class="pred"><span class="head">LLM 判断，未经回测；按代表标的下周涨跌记分，±${esc(fa)} 倍周 ATR 以内算震荡</span>${
+    preds.map(pr => { const inv = pr.invalidation || {};
+      return `<div class="item"><div class="top"><span class="sec">${esc(pr.section)}</span>
+        <span class="tgt">${esc(((P.rules && P.rules.prediction && P.rules.prediction.targets[pr.section]) || []).join("+"))}</span>
+        <span class="chip ${DIR_TONE[pr.direction]}">${esc(DIR[pr.direction])}</span><span class="meta">信心 ${esc(CONF[pr.confidence])}</span></div>
+        <div class="why">${inline(pr.rationale || "")}</div>
+        <div class="meta">失效：${inline(pr.invalidation_text || `${inv.symbol} 收盘${inv.side === "above" ? "高于" : "低于"} ${inv.price}`)}</div>
+        ${(pr.events || []).length ? `<div class="meta">日程：${pr.events.map(inline).join("；")}</div>` : ""}</div>`; }).join("")}</div>
+    <p class="sub">依据里的 [来源 n] 见「本周回顾」末尾的来源列表。</p></section>`;
+}
+
+h += `<section id="review"><h2>本周回顾</h2><div class="card story">`;
 if (nr && nr.markdown){
   const flags = nr.flags || [];
   if (flags.length) h += `<div class="flagbox">数字校验：${flags.length} 处数字在计算层 JSON 里找不到，已在正文标红<ul>${
     flags.map(f => `<li>${f.where ? esc(f.where) + " · " : ""}${esc(f.number)}：${esc(f.sentence)}</li>`).join("")}</ul></div>`;
   if (P.narrative_stale) h += `<div class="flagbox">计算层在叙事写完之后重跑过、数字有变化，正文可能和下面的表格对不上；需要重写叙事。</div>`;
   h += markdown(nr.markdown);
-  const preds = nr.predictions || [];
-  if (preds.length){
-    const fa = (P.rules && P.rules.prediction && P.rules.prediction.flat_atr);
-    h += `<div class="pred"><span class="head">下周预测 · LLM 判断，未经回测；按代表标的下周涨跌记分，±${esc(fa)} 倍周 ATR 以内算震荡</span>${
-      preds.map(pr => { const inv = pr.invalidation || {};
-        return `<div class="item"><div class="top"><span class="sec">${esc(pr.section)}</span>
-          <span class="tgt">${esc(((P.rules && P.rules.prediction && P.rules.prediction.targets[pr.section]) || []).join("+"))}</span>
-          <span class="chip ${DIR_TONE[pr.direction]}">${esc(DIR[pr.direction])}</span><span class="meta">信心 ${esc(CONF[pr.confidence])}</span></div>
-          <div class="why">${inline(pr.rationale || "")}</div>
-          <div class="meta">失效：${inline(pr.invalidation_text || `${inv.symbol} 收盘${inv.side === "above" ? "高于" : "低于"} ${inv.price}`)}</div>
-          ${(pr.events || []).length ? `<div class="meta">日程：${pr.events.map(inline).join("；")}</div>` : ""}</div>`; }).join("")}</div>`;
-  }
   const src = nr.sources || [];
   if (src.length) h += `<h4>来源</h4><ol class="sources">${src.map(x => `<li id="src-${esc(x.id)}">${
     /^https?:\/\//.test(x.url || "") ? `<a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.title || x.url)}</a>` : esc(x.title || "")}
