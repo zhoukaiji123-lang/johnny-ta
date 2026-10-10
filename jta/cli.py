@@ -381,7 +381,8 @@ def cmd_weekly(args: argparse.Namespace) -> int:
 
     monday = parse_week(args.week) if args.week else default_week()
     payload = build_weekly(
-        monday, provider=build_provider(args.source, force_refresh=args.refresh)
+        monday, provider=build_provider(args.source, force_refresh=args.refresh),
+        history_dir=Path(args.out_dir),
     )
     if args.json:
         print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
@@ -429,12 +430,20 @@ def cmd_weekly_narrative(args: argparse.Namespace) -> int:
     from .weekly import write_site
 
     payload, out_dir = _load_week(args)
+    from .narrative import PredictionError
+
     md = Path(args.draft).read_text(encoding="utf-8")
     sources = json.loads(Path(args.sources).read_text(encoding="utf-8")) if args.sources else []
-    doc = save_narrative(out_dir, payload, md, sources=sources, model=args.model)
+    preds = json.loads(Path(args.predictions).read_text(encoding="utf-8")) if args.predictions else []
+    try:
+        doc = save_narrative(out_dir, payload, md, sources=sources, model=args.model,
+                             predictions=preds)
+    except PredictionError as exc:
+        print(f"错误: 预测格式不对，未写入：{exc}", file=sys.stderr)
+        return 2
     page = write_site(payload, out_dir)
-    print(json.dumps({"page": str(page), "flags": doc["flags"],
-                      "sources": len(doc["sources"])}, ensure_ascii=False, indent=2))
+    print(json.dumps({"page": str(page), "flags": doc["flags"], "sources": len(doc["sources"]),
+                      "predictions": len(doc["predictions"])}, ensure_ascii=False, indent=2))
     return 0
 
 
@@ -557,6 +566,8 @@ def main(argv: list[str] | None = None) -> int:
     wr.add_argument("--draft", required=True, help="叙事 markdown 文件")
     wr.add_argument("--sources", default=None, help="来源 JSON：[{id,title,publisher,date,url,facts}]")
     wr.add_argument("--model", default=None, help="写叙事的模型名，显示在页面上")
+    wr.add_argument("--predictions", default=None,
+                    help="下周预测 JSON：[{section,direction,confidence,rationale,invalidation,events}]")
     wr.add_argument("--out-dir", default="docs/weekly")
     wr.set_defaults(func=cmd_weekly_narrative)
 

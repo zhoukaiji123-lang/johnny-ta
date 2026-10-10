@@ -81,6 +81,18 @@ FOCUS_MAX = 8
 #: 标签的强弱方向。休整 / 整理 / 过热这类中性状态之间的来回不算翻转
 LABEL_TONE = {"加速": 1, "延续": 1, "转弱": -1, "下行": -1, "冲高回落": -1}
 
+# ---- 下周预测：叙事层（LLM）给方向，计算层按下一周的实际涨跌记分 ----
+#: 每个板块用哪个标的代表；光模块不用 SOXX（已代表半导体设计），用两只成员等权合成；
+#: "其他"各只不同质，不做预测
+PREDICTION_TARGETS: dict[str, tuple[str, ...]] = {
+    "指数": ("QQQ",), "存储": ("DRAM",), "光模块": ("LITE", "COHR"),
+    "半导体设计": ("SOXX",), "云计算": ("SKYY",),
+}
+#: 周涨跌在 ±0.3 倍上周周 ATR 以内算震荡（看结果之前写定）
+PREDICTION_FLAT_ATR = 0.3
+DIRECTION_LABELS = {"up": "看涨", "down": "看跌", "flat": "震荡"}
+CONFIDENCE_LABELS = {"low": "低", "mid": "中", "high": "高"}
+
 # ---- 趋势标签阈值：看结果之前写定，不调参 ----
 #: 加速：周收盘位于当周振幅上 1/4，且周涨幅 >= 1.5 倍上周的周 ATR，且对 QQQ 的 RS 创 13 周新高
 ACCEL_CLOSE_POS = 0.75
@@ -622,13 +634,130 @@ def regimes(data: dict[str, pd.DataFrame], monday: date) -> dict[str, Any]:
     return out
 
 
+def _symbol_metrics(payload: dict[str, Any], sym: str) -> dict[str, Any] | None:
+    """在周报 JSON 里找一个标的的周线指标：板块参照或成员都算。"""
+    for sec in payload.get("sections", []):
+        ref = sec.get("reference_metrics")
+        if sec.get("reference") == sym and ref:
+            return ref
+        for m in sec.get("members", []):
+            if m["symbol"] == sym:
+                return m
+    return None
+
+
+def target_move(payload: dict[str, Any], section: str) -> dict[str, Any] | None:
+    """预测对象这一周的涨跌：多只时取等权平均。缺任何一只就返回 None。"""
+    syms = PREDICTION_TARGETS.get(section)
+    if not syms:
+        return None
+    rets, moves = [], []
+    for sym in syms:
+        m = _symbol_metrics(payload, sym)
+        if not m or m["ret_pct"].get("1w") is None or m.get("move_atr") is None:
+            return None
+        rets.append(m["ret_pct"]["1w"])
+        moves.append(m["move_atr"])
+    move = float(np.mean(moves))
+    return {"target": "+".join(syms), "ret_pct": _round(np.mean(rets), 2),
+            "move_atr": _round(move, 2), "direction": realized_direction(move)}
+
+
+def realized_direction(move_atr: float) -> str:
+    if abs(move_atr) < PREDICTION_FLAT_ATR:
+        return "flat"
+    return "up" if move_atr > 0 else "down"
+
+
+def score_predictions(
+    predictions: list[dict[str, Any]], made_on: dict[str, Any], outcome: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """一周的预测对一周的结果。made_on 是做预测那一周的 JSON（动量基准用它的方向）。"""
+    rows = []
+    for pr in predictions:
+        sec = pr["section"]
+        res = target_move(outcome, sec)
+        base = target_move(made_on, sec)
+        row = {"section": sec, "target": "+".join(PREDICTION_TARGETS.get(sec, ())),
+               "direction": pr["direction"], "confidence": pr.get("confidence")}
+        if res is None:
+            row["status"] = "无数据"
+        else:
+            row.update({
+                "status": "已判定",
+                "actual": res["direction"], "ret_pct": res["ret_pct"], "move_atr": res["move_atr"],
+                "hit": pr["direction"] == res["direction"],
+                "momentum": base["direction"] if base else None,
+                "momentum_hit": bool(base) and base["direction"] == res["direction"],
+                "all_up_hit": res["direction"] == "up",
+            })
+        rows.append(row)
+    return rows
+
+
+def scorecard(history_dir: Path, payload: dict[str, Any]) -> dict[str, Any] | None:
+    """上一周预测的判定，加上至今全部已判定预测的累计命中率与两个基准。
+
+    只读磁盘上的周报 JSON 与叙事；当前这一周的结果用传入的 payload。
+    """
+    from .narrative import load_predictions
+
+    cur = payload["week"]
+    weeks = sorted(f.stem for f in history_dir.glob("*-W*.json")
+                   if not f.stem.endswith((".narrative", ".news", ".sources")))
+    allrows: list[dict[str, Any]] = []
+    last: dict[str, Any] | None = None
+    for wk in weeks + ([cur] if cur not in weeks else []):
+        if wk >= cur:
+            break
+        preds = load_predictions(history_dir, wk)
+        if not preds:
+            continue
+        nxt = week_id(parse_week(wk) + timedelta(days=7))
+        if nxt == cur:
+            outcome = payload
+        elif (history_dir / f"{nxt}.json").exists():
+            outcome = json.loads((history_dir / f"{nxt}.json").read_text(encoding="utf-8"))
+        else:
+            continue
+        made_on = json.loads((history_dir / f"{wk}.json").read_text(encoding="utf-8"))
+        rows = score_predictions(preds, made_on, outcome)
+        allrows += [r for r in rows if r["status"] == "已判定"]
+        if nxt == cur:
+            last = {"made_in": wk, "rows": rows}
+    if not allrows and not last:
+        return None
+    n = len(allrows)
+    by_conf = {}
+    for c in CONFIDENCE_LABELS:
+        sub = [r for r in allrows if r.get("confidence") == c]
+        if sub:
+            by_conf[c] = {"n": len(sub), "hits": sum(r["hit"] for r in sub)}
+    return {
+        "last_week": last,
+        "cumulative": {
+            "n": n,
+            "hits": sum(r["hit"] for r in allrows),
+            "momentum_hits": sum(r["momentum_hit"] for r in allrows),
+            "all_up_hits": sum(r["all_up_hit"] for r in allrows),
+            "hit_pct": _round(100 * sum(r["hit"] for r in allrows) / n, 1) if n else None,
+            "momentum_pct": _round(100 * sum(r["momentum_hit"] for r in allrows) / n, 1) if n else None,
+            "all_up_pct": _round(100 * sum(r["all_up_hit"] for r in allrows) / n, 1) if n else None,
+            "by_confidence": by_conf,
+        },
+        "note": "样本很少时命中率没有意义；三选一随机猜的期望约 33%",
+    }
+
+
 def build_weekly(
     monday: date,
     *,
     provider: Any,
     universe: Universe | None = None,
     now: datetime | None = None,
+    history_dir: Path | None = None,
 ) -> dict[str, Any]:
+    """history_dir 给出时，读上一周的预测并按本周结果记分（scorecard）。"""
     universe = universe or build_universe()
     data: dict[str, pd.DataFrame] = {}
     failed: dict[str, str] = {}
@@ -647,7 +776,7 @@ def build_weekly(
     partial = now < week_close_time(monday)
     sections = [_section(n, s, monday, data) for n, s in universe.sections.items()]
     rot = rotation(sections)
-    return {
+    payload = {
         "week": week_id(monday),
         "monday": monday.isoformat(),
         "friday": (monday + timedelta(days=4)).isoformat(),
@@ -674,9 +803,14 @@ def build_weekly(
             "label_order": LABEL_ORDER,
             "focus": {"move_atr": FOCUS_MOVE_ATR, "min_warnings": FOCUS_MIN_WARNINGS,
                       "rank_edge": FOCUS_RANK_EDGE, "max": FOCUS_MAX},
+            "prediction": {"targets": {k: list(v) for k, v in PREDICTION_TARGETS.items()},
+                           "flat_atr": PREDICTION_FLAT_ATR},
             "note": "标签只描述状态，阈值事先写定，未回测预测力；成员是精选强势票，板块合成值天然偏强",
         },
     }
+    if history_dir is not None:
+        payload["scorecard"] = scorecard(Path(history_dir), payload)
+    return payload
 
 
 # --------------------------------------------------------------------------- 文本
@@ -791,7 +925,8 @@ def write_site(payload: dict[str, Any], out_dir: Path) -> Path:
     (out_dir / f"{payload['week']}.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
 
-    weeks = sorted(f.stem for f in out_dir.glob("*-W*.json") if not f.stem.endswith(".narrative"))
+    weeks = sorted(f.stem for f in out_dir.glob("*-W*.json")
+                   if not f.stem.endswith((".narrative", ".news", ".sources")))
     index = []
     for i, wk in enumerate(weeks):
         p = json.loads((out_dir / f"{wk}.json").read_text(encoding="utf-8"))

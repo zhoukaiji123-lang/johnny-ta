@@ -95,3 +95,105 @@ def test_save_narrative_and_fingerprint(tmp_path):
     changed = json.loads(json.dumps(PAYLOAD))
     changed["sections"][0]["members"][0]["close"] = 1030.0
     assert data_fingerprint(changed) != data_fingerprint(PAYLOAD)
+
+
+# ---------------------------------------------------------------- 下周预测
+
+import pytest
+
+from jta.narrative import PredictionError, validate_predictions
+from jta.weekly import realized_direction, score_predictions, scorecard, target_move
+
+
+def _wk(week, monday, moves):
+    """moves: {symbol: (ret_pct_1w, move_atr)}；DRAM/SOXX/SKYY 作参照，其余作成员。"""
+    refs = {"DRAM": "存储", "SOXX": "半导体设计", "SKYY": "云计算"}
+    secs = [{"name": "指数", "reference": None, "members": []}]
+    for sym, sec in refs.items():
+        if sym in moves:
+            r, a = moves[sym]
+            secs.append({"name": sec, "reference": sym, "members": [],
+                         "reference_metrics": {"ret_pct": {"1w": r}, "move_atr": a, "close": 57.19}})
+    lit = {"name": "光模块", "reference": "SOXX", "members": []}
+    for sym in ("QQQ", "LITE", "COHR"):
+        if sym in moves:
+            r, a = moves[sym]
+            m = {"symbol": sym, "ret_pct": {"1w": r}, "move_atr": a, "close": 100.0}
+            (secs[0] if sym == "QQQ" else lit)["members"].append(m)
+    secs.append(lit)
+    return {"week": week, "monday": monday, "friday": monday, "generated_at": "x",
+            "sections": secs, "rules": {}}
+
+
+def test_validate_predictions_accepts_good_and_rejects_bad():
+    p = _wk("2026-W41", "2026-10-05", {"DRAM": (-7.4, -1.0)})
+    good = [{"section": "存储", "direction": "down", "confidence": "mid",
+             "rationale": "DRAM 本周跌 7.4%。", "invalidation": {"symbol": "DRAM", "side": "above", "price": 57.19}}]
+    out, flags = validate_predictions(good, p)
+    assert flags == [] and out[0]["direction"] == "down"
+
+    with pytest.raises(PredictionError, match="板块只能是"):
+        validate_predictions([{**good[0], "section": "其他"}], p)
+    with pytest.raises(PredictionError, match="direction"):
+        validate_predictions([{**good[0], "direction": "bullish"}], p)
+    with pytest.raises(PredictionError, match="不在周报 JSON 里"):
+        validate_predictions([{**good[0], "invalidation": {"symbol": "DRAM", "side": "above", "price": 60}}], p)
+    with pytest.raises(PredictionError, match="只能有一条"):
+        validate_predictions(good + good, p)
+
+
+def test_prediction_rationale_numbers_are_flagged():
+    p = _wk("2026-W41", "2026-10-05", {"DRAM": (-7.4, -1.0)})
+    pr = [{"section": "存储", "direction": "down", "confidence": "low",
+           "rationale": "DRAM 跌 7.4%，HBM 价格跌 33%。",
+           "invalidation": {"symbol": "DRAM", "side": "above", "price": 57.19}}]
+    out, flags = validate_predictions(pr, p)
+    assert [f["number"] for f in flags] == ["33"] and flags[0]["where"].startswith("预测 #1")
+    assert out[0]["rationale"] == "==DRAM 跌 7.4%，HBM 价格跌 33%。=="   # 按句号分句，整句标红
+
+
+def test_target_move_and_direction():
+    p = _wk("2026-W42", "2026-10-12", {"LITE": (4.0, 0.5), "COHR": (-1.0, -0.1), "SKYY": (0.2, 0.1)})
+    m = target_move(p, "光模块")
+    assert m["target"] == "LITE+COHR" and m["ret_pct"] == 1.5 and m["move_atr"] == 0.2
+    assert m["direction"] == "flat"                    # 0.2 < 0.3
+    assert target_move(p, "云计算")["direction"] == "flat"
+    assert target_move(p, "存储") is None              # 缺数据
+    assert realized_direction(0.3) == "up" and realized_direction(-0.31) == "down"
+
+
+def test_scorecard_scores_last_week_and_accumulates(tmp_path):
+    w40 = _wk("2026-W40", "2026-09-28", {"DRAM": (2.0, 0.4), "SKYY": (1.0, 0.5)})
+    w41 = _wk("2026-W41", "2026-10-05", {"DRAM": (-7.4, -1.0), "SKYY": (4.0, 0.9)})
+    w42 = _wk("2026-W42", "2026-10-12", {"DRAM": (3.0, 0.6), "SKYY": (-0.1, -0.05)})
+    for p in (w40, w41):
+        (tmp_path / f"{p['week']}.json").write_text(json.dumps(p), encoding="utf-8")
+    preds40 = [{"section": "存储", "direction": "up", "confidence": "high"},
+               {"section": "云计算", "direction": "up", "confidence": "low"}]
+    preds41 = [{"section": "存储", "direction": "down", "confidence": "mid"},
+               {"section": "云计算", "direction": "flat", "confidence": "mid"}]
+    for wk, pr in (("2026-W40", preds40), ("2026-W41", preds41)):
+        (tmp_path / f"{wk}.narrative.json").write_text(json.dumps({"predictions": pr}), encoding="utf-8")
+
+    sc = scorecard(tmp_path, w42)
+    last = sc["last_week"]
+    assert last["made_in"] == "2026-W41"
+    rows = {r["section"]: r for r in last["rows"]}
+    assert rows["存储"]["actual"] == "up" and rows["存储"]["hit"] is False
+    assert rows["存储"]["momentum"] == "down" and rows["存储"]["momentum_hit"] is False
+    assert rows["云计算"]["actual"] == "flat" and rows["云计算"]["hit"] is True
+    # W40 的两条按 W41 判定：存储 up→down 未中，云计算 up→up 命中
+    c = sc["cumulative"]
+    assert c["n"] == 4 and c["hits"] == 2 and c["all_up_hits"] == 2
+    assert c["by_confidence"]["mid"] == {"n": 2, "hits": 1}
+
+
+def test_scorecard_none_without_predictions(tmp_path):
+    assert scorecard(tmp_path, _wk("2026-W41", "2026-10-05", {})) is None
+
+
+def test_save_narrative_rejects_bad_predictions_without_writing(tmp_path):
+    p = _wk("2026-W41", "2026-10-05", {"DRAM": (-7.4, -1.0)})
+    with pytest.raises(PredictionError):
+        save_narrative(tmp_path, p, "正文", predictions=[{"section": "火星"}])
+    assert not (tmp_path / "2026-W41.narrative.json").exists()

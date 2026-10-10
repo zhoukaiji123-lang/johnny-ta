@@ -176,6 +176,74 @@ def data_fingerprint(payload: dict[str, Any]) -> str:
 
 
 
+class PredictionError(ValueError):
+    """预测格式不对（板块、方向、失效价位来源）。这类错误必须改正，不能标红了事。"""
+
+
+def validate_predictions(
+    predictions: list[dict[str, Any]], payload: dict[str, Any],
+    sources: list[dict[str, Any]] | None = None,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """校验下周预测。返回（标注后的预测，数字未通过的 flags）；格式错误直接抛 PredictionError。
+
+    - 板块必须在 PREDICTION_TARGETS 里，一个板块只能有一条；
+    - 方向 up / down / flat，信心 low / mid / high；
+    - 失效条件的价位必须原样出现在周报 JSON 里（不能自己推一个价位）；
+    - 依据与日程里的数字和正文一样走数字校验，找不到出处的标红。
+    """
+    from .weekly import CONFIDENCE_LABELS, DIRECTION_LABELS, PREDICTION_TARGETS
+
+    errors: list[str] = []
+    seen: set[str] = set()
+    pool = allowed_numbers(payload, sources)
+    out, flags = [], []
+    for i, pr in enumerate(predictions):
+        where = f"预测 #{i + 1}（{pr.get('section')}）"
+        sec = pr.get("section")
+        if sec not in PREDICTION_TARGETS:
+            errors.append(f"{where}：板块只能是 {'、'.join(PREDICTION_TARGETS)}")
+            continue
+        if sec in seen:
+            errors.append(f"{where}：同一板块只能有一条预测")
+        seen.add(sec)
+        if pr.get("direction") not in DIRECTION_LABELS:
+            errors.append(f"{where}：direction 只能是 up / down / flat")
+        if pr.get("confidence") not in CONFIDENCE_LABELS:
+            errors.append(f"{where}：confidence 只能是 low / mid / high")
+        inv = pr.get("invalidation") or {}
+        price = inv.get("price")
+        if inv.get("side") not in ("above", "below") or not inv.get("symbol") or price is None:
+            errors.append(f"{where}：invalidation 需要 symbol、side（above / below）和 price")
+        else:
+            raw = str(price)
+            n = Number(float(raw), len(raw.split(".")[1]) if "." in raw else 0, "plain", raw)
+            if not _matches(n, pool["plain"]):
+                errors.append(f"{where}：失效价位 {raw} 不在周报 JSON 里，只能用现成的价位")
+        item = dict(pr)
+        for field in ("rationale", "invalidation_text"):
+            if item.get(field):
+                item[field], f = validate(item[field], payload, sources)
+                flags += [{**x, "where": where} for x in f]
+        if item.get("events"):
+            evs = []
+            for ev in item["events"]:
+                ev2, f = validate(ev, payload, sources)
+                flags += [{**x, "where": where} for x in f]
+                evs.append(ev2)
+            item["events"] = evs
+        out.append(item)
+    if errors:
+        raise PredictionError("；".join(errors))
+    return out, flags
+
+
+def load_predictions(out_dir: Path, week: str) -> list[dict[str, Any]]:
+    f = out_dir / f"{week}.narrative.json"
+    if not f.exists():
+        return []
+    return json.loads(f.read_text(encoding="utf-8")).get("predictions") or []
+
+
 def save_narrative(
     out_dir: Path,
     payload: dict[str, Any],
@@ -183,12 +251,16 @@ def save_narrative(
     *,
     sources: list[dict[str, Any]] | None = None,
     model: str | None = None,
+    predictions: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    # 先校验预测：格式错误时什么都不写
+    preds, pflags = validate_predictions(predictions or [], payload, sources)
     marked, flags = validate(markdown, payload, sources)
     doc = {
         "week": payload["week"],
         "markdown": marked,
-        "flags": flags,
+        "flags": flags + pflags,
+        "predictions": preds,
         "sources": sources or [],
         "model": model,
         "written_at": datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %H:%M %Z"),
