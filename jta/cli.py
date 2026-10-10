@@ -374,6 +374,23 @@ def cmd_forward_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_weekly(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from .weekly import build_weekly, default_week, format_weekly, parse_week
+
+    monday = parse_week(args.week) if args.week else default_week()
+    payload = build_weekly(
+        monday, provider=build_provider(args.source, force_refresh=args.refresh)
+    )
+    blob = json.dumps(payload, ensure_ascii=False, indent=2, default=str)
+    if args.out:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(blob, encoding="utf-8")
+    print(blob if args.json else format_weekly(payload))
+    return 1 if payload["data_health"]["failed"] else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="jta", description="Johnny TA 计算层")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -470,6 +487,15 @@ def main(argv: list[str] | None = None) -> int:
     bt.add_argument("--selection", default=None, choices=SELECTION_MODES,
                     help="关键位筛选口径，覆盖 analyze.SELECTION_MODE")
     bt.set_defaults(func=cmd_backtest)
+
+    wk = sub.add_parser("weekly", help="周报计算层：按板块看一周的趋势")
+    wk.add_argument("--week", default=None,
+                    help="ISO 周，如 2026-W41；默认取最近一个已走完的交易周")
+    wk.add_argument("--source", default="auto", choices=SOURCES)
+    wk.add_argument("--refresh", action="store_true", help="忽略缓存强制重抓")
+    wk.add_argument("--out", default=None, help="把 JSON 写到这个路径")
+    wk.add_argument("--json", action="store_true")
+    wk.set_defaults(func=cmd_weekly)
 
     fr = sub.add_parser("forward-report", help="从已保存的记录重新汇总")
     fr.add_argument("path")
