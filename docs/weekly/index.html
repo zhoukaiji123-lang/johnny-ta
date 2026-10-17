@@ -58,7 +58,8 @@ a{color:var(--accent)}
 .wordmark{font-family:var(--font-num);font-size:21px;font-weight:600;letter-spacing:-.02em}
 .vintage{font-family:var(--font-num);font-size:12.5px;color:var(--muted)}
 .spacer{flex:1 1 auto}
-.nav{display:flex;gap:14px;font-size:13px}
+.nav{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px}
+.nav a,.nav span{white-space:nowrap}
 .nav a{text-decoration:none}
 .nav a:hover{text-decoration:underline}
 .nav .off{color:var(--muted);opacity:.5}
@@ -188,7 +189,7 @@ footer{border-top:1px solid var(--rule-faint);margin-top:44px;padding-top:16px;
 <body>
 <div id="app"></div>
 <div id="tip" role="tooltip"></div>
-<script id="payload" type="application/json">{"index": [{"week": "2026-W41", "file": "2026-W41.html", "monday": "2026-10-05", "friday": "2026-10-09", "summary": "存储 转弱 · 光模块 休整 · 半导体设计 休整 · 云计算 延续", "narrative": true}, {"week": "2026-W40", "file": "2026-W40.html", "monday": "2026-09-28", "friday": "2026-10-02", "summary": "存储 整理 · 光模块 延续 · 半导体设计 延续 · 云计算 延续", "narrative": false}]}</script>
+<script id="payload" type="application/json">{"index": [{"week": "2026-W42", "file": "2026-W42.html", "monday": "2026-10-12", "friday": "2026-10-16", "summary": "存储 转弱 · 光模块 转弱 · 半导体设计 转弱 · 云计算 转弱", "narrative": true}, {"week": "2026-W41", "file": "2026-W41.html", "monday": "2026-10-05", "friday": "2026-10-09", "summary": "存储 转弱 · 光模块 休整 · 半导体设计 休整 · 云计算 延续", "narrative": true}, {"week": "2026-W40", "file": "2026-W40.html", "monday": "2026-09-28", "friday": "2026-10-02", "summary": "存储 整理 · 光模块 延续 · 半导体设计 延续 · 云计算 延续", "narrative": false}]}</script>
 <script>
 (function(){
 "use strict";
@@ -357,12 +358,13 @@ const sc = P.scorecard;
 if (sc && sc.last_week){
   const rows = sc.last_week.rows || [];
   h += `<section id="scorecard"><h2>上周预测回看</h2><div class="pred score"><span class="head">${esc(sc.last_week.made_in)} 的预测，按本周代表标的的涨跌由代码判定</span><div class="tablewrap"><table>
-    <thead><tr><th class="l">板块</th><th class="l">代表</th><th class="l">预测</th><th class="l">信心</th><th>本周涨跌</th><th>周幅 ATR</th><th class="l">实际</th><th class="l">结果</th></tr></thead><tbody>${
-    rows.map(r => `<tr><td class="l">${esc(r.section)}</td><td class="l num">${esc(r.target)}</td>
-      <td class="l"><span class="chip ${DIR_TONE[r.direction]}">${esc(DIR[r.direction])}</span></td><td class="l">${esc(CONF[r.confidence] || "—")}</td>
-      <td>${pct(r.ret_pct, 2)}</td><td>${r.move_atr == null ? "—" : fmt(r.move_atr)}</td>
+    <thead><tr><th class="l">板块</th><th class="l">预测</th><th class="l">实际</th><th class="l">结果</th><th>本周涨跌</th><th>周幅 ATR</th><th class="l">代表</th><th class="l">信心</th></tr></thead><tbody>${
+    rows.map(r => `<tr><td class="l">${esc(r.section)}</td>
+      <td class="l"><span class="chip ${DIR_TONE[r.direction]}">${esc(DIR[r.direction])}</span></td>
       <td class="l">${r.actual ? esc(DIR[r.actual]) : esc(r.status)}</td>
-      <td class="l">${r.status !== "已判定" ? "—" : r.hit ? '<span class="hit">✓ 命中</span>' : '<span class="miss">✗ 未中</span>'}</td></tr>`).join("")}</tbody></table></div>`;
+      <td class="l">${r.status !== "已判定" ? "—" : r.hit ? '<span class="hit">✓ 命中</span>' : '<span class="miss">✗ 未中</span>'}</td>
+      <td>${pct(r.ret_pct, 2)}</td><td>${r.move_atr == null ? "—" : fmt(r.move_atr)}</td>
+      <td class="l num">${esc(r.target)}</td><td class="l">${esc(CONF[r.confidence] || "—")}</td></tr>`).join("")}</tbody></table></div>`;
   const c = sc.cumulative || {};
   if (c.n) h += `<span class="meta">累计 ${c.n} 条：命中 ${c.hits}（${c.hit_pct}%）；同期基准：照抄上周方向 ${c.momentum_hits}（${c.momentum_pct}%），一律看涨 ${c.all_up_hits}（${c.all_up_pct}%）。${esc(sc.note)}。</span>`;
   h += `</div></section>`;

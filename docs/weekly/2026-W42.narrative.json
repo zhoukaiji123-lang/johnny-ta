@@ -1,0 +1,286 @@
+{
+ "week": "2026-W42",
+ "markdown": "### 上周预测回看\nW41 的 5 条预测中了 2 条：存储（DRAM 看跌，实际跌 18.78%）和半导体设计（SOXX 看跌，实际跌 11.8%）。没中的 3 条错在同一个地方——我把这周当成了\"分化\"，结果是全面下跌。指数判震荡，QQQ 跌 5.52%、周幅 -1.6 倍周 ATR；光模块看涨，LITE+COHR 合成跌 25.41%；云计算看涨、信心中，SKYY 跌 9.37%，周收盘 158.51 跌破了当时写的失效位 168.02。累计 5 条命中 2 条（40%），照抄上周方向也是 2 条（40%），一律看涨 0 条。样本只有一周，这个命中率没有任何意义。\n\n### 本周主线\nAI 链条全面杀跌，没有一个板块守住。三个板块参照 DRAM、SOXX、SKYY 本周全部是「转弱」，成员里只有 NOW 和 MRNA 没有转弱。跌幅按链条从硬到软排开：光模块合成跌 25.4%，DRAM 跌 18.8%，SOXX 跌 11.8%，SKYY 跌 9.4%。同期消息的主线是\"利率与 AI 融资\"：周三 CPI 高于预期，加息押注升温（[来源 1](https://www.xtb.com/en/market-analysis/us-cpi-above-expectations)），之后市场开始担心更高利率会卡住 AI 融资（[来源 3](https://www.kitco.com/news/off-the-wire/2026-10-15/nasdaq-slides-near-one-month-low-ai-rout-deepens)）。\n\n### 大盘\n日线大盘开关仍是「震荡」，但 SOXX 的 ADX 已经到 19.8，离 20 只差一点。周线上 QQQ 从「延续」变成「转弱」：跌 5.5%，收盘 709.8 跌破上周低点 743.23，落到 10 周 EMA 725.8731 下方，周三、周五两天放量下跌。SPY 跌 2.0%，同样跌破上周低点，标签也是「转弱」，但对 QQQ 的 RS（相对强弱）4 周 +1.7%，说明跌的主要是科技。SOXX 跌 11.8%，收在当周振幅 0.9% 的位置，三个放量下跌日。\n\n同期消息：9 月 CPI 同比 3.7%、高于预期的 3.6%，核心 CPI 升到 2.6%（[来源 1](https://www.xtb.com/en/market-analysis/us-cpi-above-expectations)）；当天纳斯达克跌 1.88%，是 7 月以来最大单日跌幅（[来源 2](https://www.staradvertiser.com/2026/10/14/breaking-news/nasdaq-suffers-biggest-daily-drop-since-july-as-inflation-heats-up/)）。周五纳斯达克结束 4 周连涨（[来源 5](https://finance.yahoo.com/markets/stocks/articles/nasdaq-falls-end-four-week-205455687.html)），WSJ 称这是 6 月以来最差的一周（[来源 4](https://finance.yahoo.com/m/a4107d17-7b4a-3c07-a2c0-b78ac507957c/new-cracks-in-ai-trade-push.html)）。\n\n### 存储\n最惨的板块之一。DRAM 跌 18.8%，4 周跌 22.1%，收盘 46.45 跌破上周低点 56.46，对 QQQ 的 RS 4 周 -20.9%。4 只成员全部「转弱」，没有一只在 10 周 EMA 上方，成员等权跌 17.0%。\n\nMU 仍是板块里的领头，跌 14.6%，但相对 DRAM 的 RS 4 周 +11.1% 还在 13 周新高；问题是对 QQQ 的 RS 4 周已经是 -12.1%，强只是相对板块而言。SKHY 跌 19.3%、SNDK 跌 17.9%、WDC 跌 16.4%，WDC 离 52 周高点 -58.5%。\n\n同期消息：一边是中国存储的担忧——高盛认为对中国存储芯片的担忧过度，但 SK 海力士、闪迪、美光照样下跌（[来源 11](https://finance.yahoo.com/markets/stocks/articles/sk-hynix-sandisk-micron-drop-133052094.html)），周末又有马斯克关于中国内存的警示引发供给过剩讨论（[来源 12](https://finance.yahoo.com/technology/articles/elon-musk-china-ram-warning-033004982.html)）；另一边是迈克尔·戴尔警告内存短缺可能持续四年（[来源 13](https://finance.yahoo.com/technology/ai/articles/michael-dell-warns-memory-shortage-173021227.html)）。供需两种说法同时存在，价格选择了往下。\n\n### 光模块\n本周跌得最狠。LITE 跌 25.3%，周一单日跌 9.78%，收盘 824.13 跌破上周低点 1027.0，相对 SOXX 的 RS 本周 -15.3%；COHR 跌 25.5%，周三单日跌 9.19%，相对 SOXX 的 RS 4 周 -20.7%，8 月那周的 LH（更低高点）391.37 还压着。两只都从「延续」变成「转弱」。上周 LITE 还是全列表 RS 第 2，这周掉到第 10。\n\n同期消息：资金从 AI 与科技股转向防御板块，光模块是跌得最重的一批，而过去一周 Lumentum、Coherent 都没有发布新闻稿（[来源 14](https://247wallst.com/investing/2026/10/15/optical-stocks-extend-slide-as-money-rotates-into-defensives-applied-optoelectronics-falls-6-coherent-drops-7-lumentum-slips-5/)）；B. Riley 把 Coherent 目标价从 345 美元下调到 297 美元（[来源 15](https://finance.yahoo.com/markets/stocks/articles/b-riley-adjusts-price-target-123738576.html)）。\n\n### 半导体设计\nSOXX 从「休整」变成「转弱」，收盘 493.39 跌破上周低点 555.81，离 10 周 EMA 538.7768 已经 -1.02 倍周 ATR。三只成员全部「转弱」：AMD 跌 13.1%，收盘 528.75 跌破上周低点 606.0；INTC 跌 14.2%；AVGO 跌 9.1%，但本周相对 SOXX 的 RS +3.1%，是三只里跌得最少的。\n\n同期消息：TSMC 第三季度营收 467.2 亿美元、同比增长 41.2%（[来源 6](https://pr.tsmc.com/english/news/3346)），净利润超出预期，但盘前仍然下跌（[来源 7](https://www.techloy.com/tsmc-stock-q3-earnings/)）。博通 CEO 陈福阳周一在新加坡说，资金可能取代芯片与电力，成为 AI 基建扩张的主要限制（[来源 8](https://www.tradingpedia.com/2026/10/13/broadcom-ceo-capital-not-chips-is-main-ai-hurdle/)），周五博通下跌 4%（[来源 9](https://finance.yahoo.com/markets/stocks/articles/broadcom-falls-4-ceo-hock-180208266.html)）；同一天高通案判决又让 Arm 与 AMD 各跌 5%（[来源 10](https://finance.yahoo.com/markets/stocks/articles/arm-amd-fall-5-qualcomm-181037954.html)）。\n\n### 云计算\nSKYY 从「延续」变成「转弱」，跌 9.4%，而且是外包周：周高点 175.81 高于上周，却收在当周振幅 6% 处，冲高回落的条件也同时满足。收盘 158.51 离 10 周 EMA 161.1213 只差 -0.3 倍周 ATR，比芯片板块离得近。\n\n成员分化很大，4 周分化 30.8%。NOW 是全列表唯一逆势的票：本周涨 0.8%，周四单日涨 6.14%，创 13 周新高，相对 SKYY 的 RS 4 周 +7.1% 也创 13 周新高，领涨从 NET 换成 NOW。AMZN（-4.7%）和 GOOGL（-3.2%）跌得比 SKYY 少，本周相对 SKYY 的 RS 分别 +5.1%、+6.9%。NET 跌 17.9%，NBIS 跌 25.2%、周五单日跌 12.18%，相对 SKYY 的 RS 4 周 -24.3%。\n\n同期消息：投资者质疑 AI 基建支出能否产生足够现金流偿债，neocloud（新兴 GPU 云厂商）股领跌（[来源 16](https://www.roic.ai/news/ai-neocloud-stocks-slide-as-financing-fears-mount-10-15-2026)）；CoreWeave 的债券收益率升到纪录高位（[来源 3](https://www.kitco.com/news/off-the-wire/2026-10-15/nasdaq-slides-near-one-month-low-ai-rout-deepens)），高盛也专门解释了这类股票被重挫的原因（[来源 17](https://finance.yahoo.com/markets/stocks/article/why-coreweave-nebius-and-other-neocloud-stocks-are-being-pounded-goldman-sachs-explains-125730269.html)）。大型云厂商和软件跌得少，重资产、靠借钱扩张的 neocloud 跌得多。\n\n### 其他\nDELL 跌 22.9%，周幅 -2.25 倍周 ATR，周三单日跌 11.27%，WSJ 称这是它多年来最差的一周（[来源 18](https://finance.yahoo.com/m/d927a474-a236-3eb4-8632-297077616df7/dell-stock-closes-its-worst.html)）。MRNA 本周跌 3.1%，标签从「过热」回到「延续」，仍是全列表 RS 第 1（4 周 +43.7%）。TSLA 跌 7.3%、SPCX 跌 10.2%，都转弱。\n\n### 强势股健康度\n- **全部跌破上周低点**：除 NOW 和 MRNA，其余成员周收盘都跌破了上周低点。\n- **相对板块还在领头的**：MU（相对 DRAM 的 RS 创 13 周新高）、NOW（相对 SKYY 的 RS 创 13 周新高）、MRNA（相对 QQQ 的 RS 创 13 周新高）。\n- **放量下跌**：NBIS、DELL 本周各有 2 个放量下跌日，QQQ 也有 2 个、SOXX 有 3 个。\n- **还没突破的周线 LH**：MU 1108.55、SNDK 1909.48、GOOGL 364.17、COHR 391.37、AVGO 431.943、NBIS 280.83、TSLA 432.86。\n\n### 下周关注\n- **财报**：SPCX（10 月 21 日）、TSLA（10 月 22 日）、WDC（10 月 23 日）。再往后一周是 SKHY（10 月 28 日）和 FOMC 议息（10 月 28 日，[来源 19](https://fedratecalc.com/us-economic-calendar/october-2026/)），市场对加息的押注会贯穿下周。\n- **结构位**：QQQ 10 周 EMA 725.8731、本周低点 707.23；SOXX 10 周 EMA 538.7768；SKYY 10 周 EMA 161.1213、本周低点 157.35；MU 上周低点 1011.2609；DRAM 本周低点 46.3。\n- **RS**：NOW 和 MU 的相对强势能不能在下一周维持；AMZN、GOOGL 本周相对 SKYY 转强，是跌得少还是真有资金流入，要看下周。\n",
+ "flags": [],
+ "predictions": [
+  {
+   "section": "指数",
+   "direction": "down",
+   "confidence": "low",
+   "rationale": "QQQ 本周跌 5.5%、收在当周振幅 6% 处，收盘 709.8 落到 10 周 EMA 725.8731 下方，两个放量下跌日。CPI 高于预期后加息押注升温（[来源 1](https://www.xtb.com/en/market-analysis/us-cpi-above-expectations)），FOMC 在 10 月 28 日（[来源 19](https://fedratecalc.com/us-economic-calendar/october-2026/)），下周市场大概率还在消化利率与 AI 融资的担忧。反方向风险：连跌一周、收在最低点附近，超跌反抽也很常见，所以信心低。",
+   "invalidation": {
+    "symbol": "QQQ",
+    "side": "above",
+    "price": 725.8731
+   },
+   "invalidation_text": "QQQ 周收盘收回 10 周 EMA 725.8731",
+   "events": [
+    "FOMC 在 10 月 28 日，不在下周",
+    "成员财报：SPCX 10 月 21 日、TSLA 10 月 22 日"
+   ]
+  },
+  {
+   "section": "存储",
+   "direction": "down",
+   "confidence": "low",
+   "rationale": "DRAM 本周跌 18.8%、4 只成员全部转弱且都在 10 周 EMA 下方，三个放量下跌日。中国存储供给的担忧还在发酵（[来源 11](https://finance.yahoo.com/markets/stocks/articles/sk-hynix-sandisk-micron-drop-133052094.html)、[来源 12](https://finance.yahoo.com/technology/articles/elon-musk-china-ram-warning-033004982.html)），WDC 10 月 23 日的财报是下周唯一的成员事件。反方向风险：4 周已跌 22.1%，跌幅极大，财报若释放供需偏紧的信号，反弹会很猛。",
+   "invalidation": {
+    "symbol": "DRAM",
+    "side": "above",
+    "price": 55.81
+   },
+   "invalidation_text": "DRAM 周收盘站上本周高点 55.81",
+   "events": [
+    "WDC 10 月 23 日财报"
+   ]
+  },
+  {
+   "section": "光模块",
+   "direction": "down",
+   "confidence": "low",
+   "rationale": "LITE、COHR 本周都跌超 25%，全都跌破上周低点，期间两家没有发布任何新闻稿，下跌是资金轮动出 AI 硬件推动的（[来源 14](https://247wallst.com/investing/2026/10/15/optical-stocks-extend-slide-as-money-rotates-into-defensives-applied-optoelectronics-falls-6-coherent-drops-7-lumentum-slips-5/)）。轮动没有停的迹象之前，判继续偏弱。反方向风险：这是本周跌得最狠的板块，一旦轮动回流，反弹幅度也会最大。",
+   "invalidation": {
+    "symbol": "LITE",
+    "side": "above",
+    "price": 933.0227
+   },
+   "invalidation_text": "LITE 周收盘收回 10 周 EMA 933.0227",
+   "events": [
+    "下周没有成员财报，COHR 11 月 5 日、LITE 11 月 6 日"
+   ]
+  },
+  {
+   "section": "半导体设计",
+   "direction": "down",
+   "confidence": "low",
+   "rationale": "SOXX 收盘 493.39 跌破上周低点 555.81，离 10 周 EMA 已经 -1.02 倍周 ATR，三个放量下跌日；TSMC 业绩超预期也没能止跌（[来源 7](https://www.techloy.com/tsmc-stock-q3-earnings/)），博通 CEO 的资金警告还压在 AI 芯片股上（[来源 9](https://finance.yahoo.com/markets/stocks/articles/broadcom-falls-4-ceo-hock-180208266.html)）。日线 ADX 已到 19.8，再往上就可能从震荡切到下行。反方向风险同上，连跌后的反抽。",
+   "invalidation": {
+    "symbol": "SOXX",
+    "side": "above",
+    "price": 538.7768
+   },
+   "invalidation_text": "SOXX 周收盘收回 10 周 EMA 538.7768",
+   "events": [
+    "下周没有成员财报，INTC 10 月 30 日、AMD 11 月 4 日"
+   ]
+  },
+  {
+   "section": "云计算",
+   "direction": "flat",
+   "confidence": "low",
+   "rationale": "SKYY 跌 9.4%，但收盘 158.51 离 10 周 EMA 161.1213 只差 -0.3 倍周 ATR，是三个板块参照里离均线最近的。内部分化：NOW 逆势创新高，AMZN、GOOGL 本周相对 SKYY 转强，而 NBIS、NET 这类重资产的继续承压（[来源 16](https://www.roic.ai/news/ai-neocloud-stocks-slide-as-financing-fears-mount-10-15-2026)）。强弱相互抵消，判震荡。反方向风险：AI 融资担忧如果扩散到大型云厂商，会走成单边下跌。",
+   "invalidation": {
+    "symbol": "SKYY",
+    "side": "below",
+    "price": 157.35
+   },
+   "invalidation_text": "SKYY 周收盘跌破本周低点 157.35（向下），或站上上周低点 168.02（向上）",
+   "events": [
+    "下周没有成员财报，GOOGL、NOW 10 月 29 日，AMZN、NET 之后"
+   ]
+  }
+ ],
+ "sources": [
+  {
+   "id": "1",
+   "title": "US CPI above expectations",
+   "publisher": "XTB",
+   "date": "2026-10-14",
+   "url": "https://www.xtb.com/en/market-analysis/us-cpi-above-expectations",
+   "facts": [
+    "9 月 CPI 同比 3.7%，高于预期的 3.6%",
+    "核心 CPI 同比升到 2.6%，预期 2.5%",
+    "交易员加大了美联储加息的押注"
+   ]
+  },
+  {
+   "id": "2",
+   "title": "Nasdaq suffers biggest daily drop since July as inflation heats up",
+   "publisher": "Honolulu Star-Advertiser (AP)",
+   "date": "2026-10-14",
+   "url": "https://www.staradvertiser.com/2026/10/14/breaking-news/nasdaq-suffers-biggest-daily-drop-since-july-as-inflation-heats-up/",
+   "facts": [
+    "10 月 14 日纳斯达克下跌 1.88%，是 7 月以来最大单日跌幅"
+   ]
+  },
+  {
+   "id": "3",
+   "title": "Nasdaq slides to near one-month low as AI rout deepens",
+   "publisher": "Kitco (Reuters)",
+   "date": "2026-10-15",
+   "url": "https://www.kitco.com/news/off-the-wire/2026-10-15/nasdaq-slides-near-one-month-low-ai-rout-deepens",
+   "facts": [
+    "市场担心更高利率会打击 AI 融资",
+    "CoreWeave 继周三下跌 15% 后再跌 8.5%，其债券收益率升至纪录高位"
+   ]
+  },
+  {
+   "id": "4",
+   "title": "New Cracks in AI Trade Push Wall Street to Worst Week Since June",
+   "publisher": "The Wall Street Journal",
+   "date": "2026-10-16",
+   "url": "https://finance.yahoo.com/m/a4107d17-7b4a-3c07-a2c0-b78ac507957c/new-cracks-in-ai-trade-push.html",
+   "facts": [
+    "AI 交易出现新裂痕，华尔街录得 6 月以来最差的一周"
+   ]
+  },
+  {
+   "id": "5",
+   "title": "Update: Nasdaq Falls to End Four-Week Winning Streak Amid Tech Sell-Off",
+   "publisher": "MT Newswires",
+   "date": "2026-10-16",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/nasdaq-falls-end-four-week-205455687.html",
+   "facts": [
+    "科技股抛售中纳斯达克结束 4 周连涨"
+   ]
+  },
+  {
+   "id": "6",
+   "title": "TSMC Reports Third Quarter EPS of NT$29.43",
+   "publisher": "TSMC",
+   "date": "2026-10-15",
+   "url": "https://pr.tsmc.com/english/news/3346",
+   "facts": [
+    "TSMC 第三季度营收 467.2 亿美元，同比增长 41.2%",
+    "毛利率 66.4%"
+   ]
+  },
+  {
+   "id": "7",
+   "title": "TSMC stock Q3 earnings",
+   "publisher": "Techloy",
+   "date": "2026-10-15",
+   "url": "https://www.techloy.com/tsmc-stock-q3-earnings/",
+   "facts": [
+    "TSMC 第三季度净利润同比增长 68.7%，超过分析师预期",
+    "业绩超预期后美股盘前仍下跌 1.9%"
+   ]
+  },
+  {
+   "id": "8",
+   "title": "Broadcom CEO: capital, not chips, is main AI hurdle",
+   "publisher": "Tradingpedia",
+   "date": "2026-10-13",
+   "url": "https://www.tradingpedia.com/2026/10/13/broadcom-ceo-capital-not-chips-is-main-ai-hurdle/",
+   "facts": [
+    "博通 CEO 陈福阳 10 月 12 日在新加坡表示，资金可能取代芯片与电力，成为 AI 基建扩张的主要限制",
+    "他把许多 AI 投资者比作赌徒"
+   ]
+  },
+  {
+   "id": "9",
+   "title": "Broadcom Falls 4% as CEO Hock Tan's Capital Warning Hangs Over AI Chips; Marvell Drops 4%",
+   "publisher": "24/7 Wall St.",
+   "date": "2026-10-16",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/broadcom-falls-4-ceo-hock-180208266.html",
+   "facts": [
+    "陈福阳的资金警告压在 AI 芯片股上，博通下跌 4%"
+   ]
+  },
+  {
+   "id": "10",
+   "title": "Arm and AMD Fall 5% as Qualcomm Verdict Adds to Chip Selloff; Taiwan Semiconductor Slips",
+   "publisher": "24/7 Wall St.",
+   "date": "2026-10-16",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/arm-amd-fall-5-qualcomm-181037954.html",
+   "facts": [
+    "高通案判决加剧芯片股抛售，Arm 与 AMD 下跌 5%"
+   ]
+  },
+  {
+   "id": "11",
+   "title": "SK Hynix, SanDisk, and Micron Drop 3% Despite Goldman Sachs Calling China Chip Fears Overdone",
+   "publisher": "24/7 Wall St.",
+   "date": "2026-10-16",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/sk-hynix-sandisk-micron-drop-133052094.html",
+   "facts": [
+    "高盛认为对中国存储芯片的担忧过度，SK 海力士、闪迪、美光仍下跌 3%"
+   ]
+  },
+  {
+   "id": "12",
+   "title": "Elon Musk's China RAM Warning Raises Questions for Samsung, SK Hynix as South Korea Faces Potential Memory Chip Oversupply",
+   "publisher": "Benzinga",
+   "date": "2026-10-17",
+   "url": "https://finance.yahoo.com/technology/articles/elon-musk-china-ram-warning-033004982.html",
+   "facts": [
+    "马斯克关于中国内存的警示，引发对三星、SK 海力士和韩国存储供给过剩的讨论"
+   ]
+  },
+  {
+   "id": "13",
+   "title": "Michael Dell Warns Memory Shortage Could Be a 'Four-Year Problem'",
+   "publisher": "Benzinga",
+   "date": "2026-10-16",
+   "url": "https://finance.yahoo.com/technology/ai/articles/michael-dell-warns-memory-shortage-173021227.html",
+   "facts": [
+    "迈克尔·戴尔警告内存短缺可能持续四年"
+   ]
+  },
+  {
+   "id": "14",
+   "title": "Optical stocks extend slide as money rotates into defensives",
+   "publisher": "24/7 Wall St.",
+   "date": "2026-10-15",
+   "url": "https://247wallst.com/investing/2026/10/15/optical-stocks-extend-slide-as-money-rotates-into-defensives-applied-optoelectronics-falls-6-coherent-drops-7-lumentum-slips-5/",
+   "facts": [
+    "资金从 AI 与科技股转向防御板块，光模块股是跌得最重的一批",
+    "过去一周 Lumentum、Coherent 没有发布任何新闻稿"
+   ]
+  },
+  {
+   "id": "15",
+   "title": "B. Riley Adjusts Price Target on Coherent to $297 From $345, Maintains Neutral Rating",
+   "publisher": "MT Newswires",
+   "date": "2026-10-15",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/b-riley-adjusts-price-target-123738576.html",
+   "facts": [
+    "B. Riley 把 Coherent 目标价从 345 美元下调到 297 美元，维持中性"
+   ]
+  },
+  {
+   "id": "16",
+   "title": "AI neocloud stocks slide as financing fears mount (10/15/2026)",
+   "publisher": "ROIC.AI",
+   "date": "2026-10-15",
+   "url": "https://www.roic.ai/news/ai-neocloud-stocks-slide-as-financing-fears-mount-10-15-2026",
+   "facts": [
+    "投资者质疑 AI 基建支出能否产生足够现金流偿债，neocloud 股下跌"
+   ]
+  },
+  {
+   "id": "17",
+   "title": "Why CoreWeave, Nebius, and other neocloud stocks are being pounded: Goldman Sachs explains",
+   "publisher": "Yahoo Finance",
+   "date": "2026-10-16",
+   "url": "https://finance.yahoo.com/markets/stocks/article/why-coreweave-nebius-and-other-neocloud-stocks-are-being-pounded-goldman-sachs-explains-125730269.html",
+   "facts": [
+    "高盛解释 CoreWeave、Nebius 等 neocloud 股遭重挫的原因"
+   ]
+  },
+  {
+   "id": "18",
+   "title": "Dell Stock Closes Its Worst Week in Years",
+   "publisher": "The Wall Street Journal",
+   "date": "2026-10-16",
+   "url": "https://finance.yahoo.com/m/d927a474-a236-3eb4-8632-297077616df7/dell-stock-closes-its-worst.html",
+   "facts": [
+    "戴尔股价录得多年来最差的一周"
+   ]
+  },
+  {
+   "id": "19",
+   "title": "US Economic Calendar — October 2026",
+   "publisher": "FedRateCalc",
+   "date": "2026-10-17",
+   "url": "https://fedratecalc.com/us-economic-calendar/october-2026/",
+   "facts": [
+    "FOMC 议息决议在 10 月 28 日"
+   ]
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "written_at": "2026-10-17 16:45 CST",
+ "data_generated_at": "2026-10-17T04:42:22-04:00",
+ "data_fingerprint": "b2063695a6c5fd90"
+}
