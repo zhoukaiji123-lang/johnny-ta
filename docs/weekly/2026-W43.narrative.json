@@ -1,0 +1,244 @@
+{
+ "week": "2026-W43",
+ "markdown": "### 上周预测回看\nW42 的 5 条又是中了 2 条：光模块（看跌，LITE+COHR 合成跌 9.2%）和半导体设计（看跌，SOXX 跌 3.08%）。指数和存储判看跌，结果都落在震荡带里：QQQ 跌 0.76%、周幅 -0.2 倍周 ATR，DRAM 涨 1.31%、+0.08 倍周 ATR。云计算判震荡，SKYY 涨了 5.58%、+0.93 倍周 ATR。云计算已经连续两周判错方向：上上周看涨它跌，上周判震荡它涨。累计 10 条命中 4 条（40%），照抄上周方向同样是 4 条（40%），一律看涨 1 条（10%）。两周下来，我的判断没有比\"照抄上周方向\"多出任何东西。\n\n### 本周主线\n前三天反弹，周四一天抹平。周一费城半导体指数结束了 8 连跌（[来源 1](https://virginiabusiness.com/nasdaq-climbs-chip-ai-stocks-rebound-after-selloff/)），SOXX 周一、周三分别涨 1.73%、2.07%；周四 SOXX 单日跌 6.79%、QQQ 跌 2.86%，大多数成员的本周最大单日波动都出现在这一天（[来源 2](https://finance.yahoo.com/m/3fcfb543-ac86-37e6-985b-4470aefc661a/nasdaq-on-track-for-worst-day.html)）。板块之间的差别在于周四之后：云计算周五接着涨，SKYY 全周涨 5.6%，对 QQQ 的 RS（相对强弱）本周 +6.4%；芯片链没能收回周四的跌幅，SOXX 全周跌 3.1%、4 周跌 16.5%。\n\n### 大盘\n日线大盘开关出现一个要说明的变化：QQQ 和 SOXX 从「震荡」切换成「向上」。规则是收盘仍在 SMA200 上方、SMA50 高于 SMA200，且 ADX 超过 20；这周 QQQ 的 ADX 升到 25.0，SOXX 升到 26.2。ADX 只衡量趋势强度、不分方向，这次升高发生在两周下跌之后，所以这里的「向上」不代表价格在涨。SPY 的 ADX 是 14.5，仍是「震荡」。\n\n周线上 QQQ 维持「转弱」，跌 0.8%，收盘 704.4 跌破上周低点 707.23，收在当周振幅 12% 处，周四放量下跌。SPY 跌 0.4%，收盘 759.97 也跌破上周低点 760.64，但对 QQQ 的 RS 4 周 +4.1%，抗跌的仍是非科技部分。\n\n### 存储\nDRAM 本周涨 1.3%，但收盘 47.06 仍在 10 周 EMA 54.7081 下方，标签还是「转弱」，4 周跌 24.0%。走势和大盘同一个形状：周一涨 4.05%、周三涨 3.02%，周四跌 7.08%，周五又涨 3.02%。\n\n成员几乎原地踏步，等权 -0.2%，4 只都在 10 周 EMA 下方。MU 跌 0.15%，相对 DRAM 的 RS 4 周 +6.7%，仍是领头，但已经不在 13 周新高上了。WDC 涨 3.5%，前三天连涨，周四盘中跌 6.43%，盘后公布财报（[来源 6](https://www.westerndigital.com/ar-sa/company/newsroom/press-releases/2026/2026-10-08-wd-to-announce-first-quarter-fiscal-year-2027-financial-results)），周五再跌 2.97%，标签从「转弱」变成「下行」。SNDK 跌 4.7%，收盘 1238.03 跌破上周低点 1276，是板块里最弱的。\n\n同期消息：周末有黄仁勋认为存储看空者判断错了的报道（[来源 5](https://finance.yahoo.com/markets/stocks/articles/memory-stocks-plummetting-jensen-huang-031550860.html)），但本周的价格没有给出方向。\n\n### 光模块\n连续第三周下跌。LITE 跌 8.3%，周四单日跌 11.54%，收盘 756.17 跌破上周低点 800；COHR 跌 10.1%，周四单日跌 12.51% 而且放量，收盘 209.29 跌破上周低点 231.6，同时满足「下行」的条件，离 52 周高点 -52.4%。两只相对 SOXX 本周都跑输，LITE 的 RS -5.3%、COHR 的 RS -7.3%。\n\n同期消息：周四财报季前科技股抛售加深，光模块股领跌（[来源 3](https://finance.yahoo.com/markets/stocks/articles/optics-stocks-tumble-tech-selloff-171005784.html)）；周五超微上调预期，被解读为 AI 平台需求增加（[来源 4](https://finance.yahoo.com/technology/ai/articles/credo-soars-7-super-micro-173044690.html)），但没有带动光模块回升。\n\n### 半导体设计\nSOXX 收盘 478.2 跌破上周低点 492.83，离 10 周 EMA 527.7628 是 -1.07 倍周 ATR。领涨从 AMD 换成 AVGO：AVGO 跌 2.2%，相对 SOXX 的 RS 4 周 +9.2%；AMD 跌 2.3%，收盘 516.79 跌破上周低点 526.83；INTC 跌 3.2%，4 周跌 29.3%，在全列表 RS 排第 16。三只都在 10 周 EMA 下方，标签全是「转弱」，AVGO 还满足「下行」。\n\n### 云计算\n本周最强的板块。SKYY 从「转弱」变成「休整」：涨 5.6%，内包周，收在当周振幅 91% 处，守住了上周低点，收盘 167.36 回到 10 周 EMA 162.2556 上方，对 QQQ 的 RS 4 周 +7.4%。\n\n成员分化到了极致，4 周分化 50.3%。NOW 连涨五天，本周涨 12.0%，周幅 +1.23 倍周 ATR，收在振幅 97% 处，相对 SKYY 的 RS 4 周 +15.3% 创 13 周新高，全列表 RS 第 1。NET 涨 9.9%，周五单日涨 7.29%，从「转弱」变成「整理」。另一头，GOOGL 跌 6.0%，收在当周最低点（收位 0.1%），同时满足「下行」；AMZN 周一涨 4.98% 之后回落，冲高回落的条件也满足；NBIS 跌 4.1%，相对 SKYY 的 RS 4 周 -34.2%，全列表垫底。\n\n同期消息：周五云计算股反弹扩散（[来源 7](https://finance.yahoo.com/markets/stocks/articles/fastly-jumps-8-cloud-rebound-165110835.html)）。NOW 本周的连涨没有找到对应的消息。\n\n### 其他\nMRNA 从「延续」变成「转弱」：周三创出 13 周新高 254.48，周四单日跌 17.57%、量是平时的 2.81 倍，收盘 200.1 跌破上周低点 204.7，价格创新高而 RS 没跟上，形成背离。同期消息：周四 Moderna 癌症疫苗数据提前泄露，引发恐慌性抛售（[来源 8](https://finance.yahoo.com/m/2a199606-9e57-39fa-9284-295f44b30acf/moderna%E2%80%99s-cancer-vaccine-leak.html)）；周末公布的三期数据显示复发风险降低 42%（[来源 9](https://finance.yahoo.com/healthcare/articles/moderna-melanoma-therapy-cuts-recurrence-220203924.html)）。TSLA 周四公布财报，全周涨 4.9%，相对 QQQ 的 RS 创 13 周新高，从「转弱」回到「整理」。\n\n### 强势股健康度\n- **背离**：MRNA，价格创 13 周新高，RS 没有跟上。\n- **相对板块还在领头的**：NOW（相对 SKYY 的 RS 创 13 周新高）、AVGO（相对 SOXX 的 RS 4 周 +9.2%）、MU（相对 DRAM 的 RS 4 周 +6.7%），但 AVGO、MU 的价格都在 10 周 EMA 下方。\n- **周四放量下跌**：QQQ、SOXX、DRAM、COHR、NET、SPCX、MRNA。\n- **还没突破的周线 LH（更低高点）**：MU 1108.55、SNDK 1909.48、COHR 391.37、AVGO 431.943、GOOGL 364.17、NBIS 280.83、TSLA 432.86。\n\n### 下周关注\n- **宏观**：FOMC 在 10 月 27 日至 28 日（[来源 12](https://www.chase.com/personal/investments/learning-and-insights/article/will-the-federal-reserve-hike-rates-at-october-2026-fomc-meeting)），机构多数预期按兵不动，但也有观点认为之后还会继续加息（[来源 11](https://www.fxstreet.com/news/federal-reserve-more-hikes-ahead-after-october-pause-uob-202610081303)）；下周也是中期选举前的最后一周（[来源 15](https://finance.yahoo.com/m/b904d5d8-a280-30dd-aad7-171770150cc5/stock-market-action-plan%3A-a.html)）。\n- **财报**：成员里 SKHY（10 月 28 日）、GOOGL 与 NOW（10 月 29 日）、AMZN（10 月 30 日）；INTC 和 SNDK 在 yfinance 记为 10 月 30 日，媒体写的是 10 月 29 日（[来源 13](https://finance.yahoo.com/markets/stocks/articles/intel-stock-121-number-watch-184248016.html)、[来源 14](https://finance.yahoo.com/technology/ai/articles/ai-storage-boom-over-why-152627065.html)）。一周之内三只云计算成员和两只存储成员出财报（[来源 10](https://finance.yahoo.com/markets/stocks/articles/expect-markets-week-googl-msft-152700674.html)）。\n- **结构位**：QQQ 10 周 EMA 721.9689、本周低点 701.16；SOXX 本周高点 513.12、低点 472.21；SKYY 本周低点 159.57、上周高点 175.81；DRAM 10 周 EMA 54.7081。\n- **RS**：NOW 财报前的强势能否延续；AVGO 能不能把相对 SOXX 的强势变成价格站回 10 周 EMA。\n",
+ "flags": [],
+ "predictions": [
+  {
+   "section": "指数",
+   "direction": "down",
+   "confidence": "low",
+   "rationale": "QQQ 连续两周收在 10 周 EMA 721.9689 下方，本周收盘 704.4 又跌破上周低点 707.23，周四放量下跌。下周 FOMC 与大型科技股财报扎堆（[来源 10](https://finance.yahoo.com/markets/stocks/articles/expect-markets-week-googl-msft-152700674.html)），加息担忧还没解除（[来源 11](https://www.fxstreet.com/news/federal-reserve-more-hikes-ahead-after-october-pause-uob-202610081303)）。反方向风险：大型科技股财报一旦超预期，指数很容易单周大涨，所以信心低。",
+   "invalidation": {
+    "symbol": "QQQ",
+    "side": "above",
+    "price": 721.9689
+   },
+   "invalidation_text": "QQQ 周收盘收回 10 周 EMA 721.9689",
+   "events": [
+    "FOMC 10 月 27 日至 28 日",
+    "GOOGL、NOW 10 月 29 日，AMZN 10 月 30 日财报"
+   ]
+  },
+  {
+   "section": "存储",
+   "direction": "flat",
+   "confidence": "low",
+   "rationale": "DRAM 本周涨 1.3%，成员等权 -0.2%，周四暴跌后周五又反弹，多空在 47.06 附近来回拉锯；而且 DRAM 的周 ATR 很大，震荡带也宽。下周 SKHY、SNDK 出财报，财报方向决定这一周会不会走出震荡带——这是最大的反方向风险。",
+   "invalidation": {
+    "symbol": "DRAM",
+    "side": "below",
+    "price": 45.3
+   },
+   "invalidation_text": "DRAM 周收盘跌破本周低点 45.3（向下），或站上本周高点 49.88（向上）",
+   "events": [
+    "SKHY 10 月 28 日财报",
+    "SNDK 10 月 29 日或 30 日财报"
+   ]
+  },
+  {
+   "section": "光模块",
+   "direction": "down",
+   "confidence": "low",
+   "rationale": "光模块合成连续第三周下跌，LITE、COHR 本周收盘都跌破上周低点，COHR 还满足「下行」；周五超微上调预期（[来源 4](https://finance.yahoo.com/technology/ai/articles/credo-soars-7-super-micro-173044690.html)）也没能带动这两只。两家财报都要到 11 月，下周没有能扭转的成员事件。反方向风险：跌幅已经很深，大型科技股若在财报里上调资本开支，光模块会是弹性最大的一环。",
+   "invalidation": {
+    "symbol": "LITE",
+    "side": "above",
+    "price": 878.9
+   },
+   "invalidation_text": "LITE 周收盘站上本周高点 878.9",
+   "events": [
+    "下周没有成员财报，COHR 11 月 5 日、LITE 11 月 6 日"
+   ]
+  },
+  {
+   "section": "半导体设计",
+   "direction": "down",
+   "confidence": "low",
+   "rationale": "SOXX 4 周跌 16.5%，本周收盘 478.2 跌破上周低点 492.83，离 10 周 EMA -1.07 倍周 ATR，三只成员都在 10 周 EMA 下方。周一到周三的反弹被周四一天跌回，说明反弹还没有承接。反方向风险：INTC 下周出财报，加上大型科技股的资本开支指引，都可能让芯片股单周反弹。",
+   "invalidation": {
+    "symbol": "SOXX",
+    "side": "above",
+    "price": 513.12
+   },
+   "invalidation_text": "SOXX 周收盘站上本周高点 513.12",
+   "events": [
+    "INTC 10 月 29 日或 30 日财报",
+    "AMD 11 月 4 日"
+   ]
+  },
+  {
+   "section": "云计算",
+   "direction": "up",
+   "confidence": "low",
+   "rationale": "SKYY 是本周唯一回到 10 周 EMA 上方的板块参照，收在当周振幅 91% 处，对 QQQ 的 RS 4 周 +7.4%；周五云计算股反弹扩散（[来源 7](https://finance.yahoo.com/markets/stocks/articles/fastly-jumps-8-cloud-rebound-165110835.html)）。但我连续两周把云计算判错，而下周 GOOGL、NOW、AMZN 三只成员同周出财报，单周方向基本取决于财报，信心只能给低。",
+   "invalidation": {
+    "symbol": "SKYY",
+    "side": "below",
+    "price": 159.57
+   },
+   "invalidation_text": "SKYY 周收盘跌破本周低点 159.57",
+   "events": [
+    "GOOGL、NOW 10 月 29 日财报",
+    "AMZN 10 月 30 日财报"
+   ]
+  }
+ ],
+ "sources": [
+  {
+   "id": "1",
+   "title": "Nasdaq climbs as chip, AI stocks rebound after selloff",
+   "publisher": "Virginia Business (Reuters)",
+   "date": "2026-10-19",
+   "url": "https://virginiabusiness.com/nasdaq-climbs-chip-ai-stocks-rebound-after-selloff/",
+   "facts": [
+    "10 月 19 日纳斯达克领涨",
+    "费城半导体指数结束 8 连跌，期间累计下跌约 15.7%，是 2008 年 10 月以来最长的连跌"
+   ]
+  },
+  {
+   "id": "2",
+   "title": "Nasdaq on Track for Worst Day Since June as Chip Stocks Dive",
+   "publisher": "Barron's",
+   "date": "2026-10-22",
+   "url": "https://finance.yahoo.com/m/3fcfb543-ac86-37e6-985b-4470aefc661a/nasdaq-on-track-for-worst-day.html",
+   "facts": [
+    "芯片股大跌，纳斯达克有望录得 6 月以来最差单日表现"
+   ]
+  },
+  {
+   "id": "3",
+   "title": "Optics Stocks Tumble as Tech Selloff Deepens Ahead of Earnings: Coherent Tumbles 12%, Applied Optoelectronics Drops 10%, Lumentum Falls 9%",
+   "publisher": "24/7 Wall St.",
+   "date": "2026-10-22",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/optics-stocks-tumble-tech-selloff-171005784.html",
+   "facts": [
+    "财报季前科技股抛售加深，光模块股领跌"
+   ]
+  },
+  {
+   "id": "4",
+   "title": "Credo Soars 7% as Super Micro's $4 Billion Forecast Hike Signals Increased Demand for AI Platforms",
+   "publisher": "TIKR",
+   "date": "2026-10-23",
+   "url": "https://finance.yahoo.com/technology/ai/articles/credo-soars-7-super-micro-173044690.html",
+   "facts": [
+    "超微上调预期 40 亿美元，被解读为 AI 平台需求增加"
+   ]
+  },
+  {
+   "id": "5",
+   "title": "Memory Stocks Are Plummetting. Jensen Huang Says the Bears Have It Wrong.",
+   "publisher": "Motley Fool",
+   "date": "2026-10-24",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/memory-stocks-plummetting-jensen-huang-031550860.html",
+   "facts": [
+    "存储股大跌，黄仁勋认为看空者判断错了"
+   ]
+  },
+  {
+   "id": "6",
+   "title": "WD to Announce First Quarter Fiscal Year 2027 Financial Results on October 22, 2026",
+   "publisher": "Western Digital",
+   "date": "2026-10-08",
+   "url": "https://www.westerndigital.com/ar-sa/company/newsroom/press-releases/2026/2026-10-08-wd-to-announce-first-quarter-fiscal-year-2027-financial-results",
+   "facts": [
+    "WD 于 10 月 22 日美股收盘后公布财报"
+   ]
+  },
+  {
+   "id": "7",
+   "title": "Fastly Jumps 8% as Cloud Rebound Broadens; Nebius Ticks Up, CoreWeave Slips",
+   "publisher": "24/7 Wall St.",
+   "date": "2026-10-23",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/fastly-jumps-8-cloud-rebound-165110835.html",
+   "facts": [
+    "云计算股反弹扩散，Nebius 小涨、CoreWeave 下跌"
+   ]
+  },
+  {
+   "id": "8",
+   "title": "Moderna's Cancer-Vaccine Leak Spurs Panic Selling. Wall Street Wanted a Cure.",
+   "publisher": "Barron's",
+   "date": "2026-10-23",
+   "url": "https://finance.yahoo.com/m/2a199606-9e57-39fa-9284-295f44b30acf/moderna%E2%80%99s-cancer-vaccine-leak.html",
+   "facts": [
+    "Moderna 癌症疫苗数据提前泄露，引发恐慌性抛售"
+   ]
+  },
+  {
+   "id": "9",
+   "title": "Moderna Melanoma Therapy Cuts Recurrence Risk 42% in Phase 3 Trial",
+   "publisher": "MarketBeat",
+   "date": "2026-10-24",
+   "url": "https://finance.yahoo.com/healthcare/articles/moderna-melanoma-therapy-cuts-recurrence-220203924.html",
+   "facts": [
+    "Moderna 黑色素瘤疗法在三期试验中把复发风险降低 42%"
+   ]
+  },
+  {
+   "id": "10",
+   "title": "What To Expect In Markets This Week: GOOGL, MSFT, AMZN, INTC, HOOD, LLY Earnings, Fed Meeting And More",
+   "publisher": "Stocktwits",
+   "date": "2026-10-25",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/expect-markets-week-googl-msft-152700674.html",
+   "facts": [
+    "下周有 Alphabet、微软、亚马逊、英特尔等财报，以及美联储议息会议"
+   ]
+  },
+  {
+   "id": "11",
+   "title": "Federal Reserve: More hikes ahead after October pause - UOB",
+   "publisher": "FXStreet",
+   "date": "2026-10-08",
+   "url": "https://www.fxstreet.com/news/federal-reserve-more-hikes-ahead-after-october-pause-uob-202610081303",
+   "facts": [
+    "大华银行认为美联储 10 月会暂停，之后还会继续加息"
+   ]
+  },
+  {
+   "id": "12",
+   "title": "Will the Federal Reserve hike rates at the October 2026 FOMC meeting?",
+   "publisher": "J.P. Morgan Wealth Management",
+   "date": "2026-10-20",
+   "url": "https://www.chase.com/personal/investments/learning-and-insights/article/will-the-federal-reserve-hike-rates-at-october-2026-fomc-meeting",
+   "facts": [
+    "FOMC 会议在 10 月 27 日至 28 日",
+    "摩根大通财富管理的基准情形是 10 月按兵不动"
+   ]
+  },
+  {
+   "id": "13",
+   "title": "Intel Stock Is Up 121% This Year. Here's the Number to Watch on October 29",
+   "publisher": "TIKR",
+   "date": "2026-10-24",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/intel-stock-121-number-watch-184248016.html",
+   "facts": [
+    "文章称英特尔 10 月 29 日公布财报"
+   ]
+  },
+  {
+   "id": "14",
+   "title": "Is the AI Storage Boom Over? Why SanDisk's Oct. 29 Earnings Could Prove the Doubters Wrong",
+   "publisher": "24/7 Wall St.",
+   "date": "2026-10-25",
+   "url": "https://finance.yahoo.com/technology/ai/articles/ai-storage-boom-over-why-152627065.html",
+   "facts": [
+    "文章称闪迪 10 月 29 日公布财报"
+   ]
+  },
+  {
+   "id": "15",
+   "title": "Stock Market Action Plan: A Preelection Week Primer",
+   "publisher": "Investor's Business Daily",
+   "date": "2026-10-24",
+   "url": "https://finance.yahoo.com/m/b904d5d8-a280-30dd-aad7-171770150cc5/stock-market-action-plan%3A-a.html",
+   "facts": [
+    "下周是美国中期选举前的最后一周"
+   ]
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "written_at": "2026-10-25 23:45 CST",
+ "data_generated_at": "2026-10-25T11:41:05-04:00",
+ "data_fingerprint": "8333cc02d2b94cba"
+}

@@ -1,0 +1,254 @@
+{
+ "week": "2026-W44",
+ "markdown": "### 上周预测回看\nW43 的 5 条中了 2 条：指数（看跌，QQQ 跌 1.97%、-0.51 倍周 ATR）和存储（震荡，DRAM 涨 2.02%、+0.13 倍周 ATR）。光模块看跌，合成涨 5.83%、+0.28 倍周 ATR，刚好落在震荡带里；半导体设计看跌，SOXX 跌 1.4%，但只有 -0.15 倍周 ATR，也算震荡。云计算看涨，SKYY 跌 4.54%、-0.8 倍周 ATR——这已经是云计算连续第三周判错。累计 15 条命中 6 条（40%），照抄上周方向 5 条（33.3%），一律看涨 1 条（6.7%），第一次略高于照抄上周方向，但样本还远远不够。\n\n### 本周主线\n又是\"前三天涨、后两天跌\"，这次砸盘的是财报。周一到周三 SOXX 连涨三天，涨幅分别是 2.85%、3.91%、2.13%；周四、周五大型科技股财报出来后，NOW 跌 33.9%、GOOGL 跌 12.6%、INTC 跌 24.4%，周五 QQQ 单日跌 3.47%、SOXX 跌 8.24%。上周最强的云计算这周成了重灾区：5 只成员全部「转弱」、没有一只在 10 周 EMA 上方，成员等权跌 13.3%。\n\n### 大盘\n大盘开关这周出现了真正的切换：SOXX 从「向上」变成「向下」，收盘 471.51 跌破 SMA200 475.97。上周提过，QQQ、SOXX 的「向上」主要是 ADX 被下跌推高造成的；这周 SOXX 跌破 SMA200，规则判到了「向下」。QQQ 仍是「向上」（ADX 27.2），SPY 仍是「震荡」（ADX 15.0）。\n\n周线上 QQQ 跌 2.0%，收盘 690.49 跌破上周低点 701.16，周五放量下跌，量是平时的 2.32 倍。SPY 只跌 0.6%，对 QQQ 的 RS（相对强弱）4 周 +6.6%。SOXX 是外包周、冲高回落：周高点 523.93 高于上周，收在当周振幅 18% 处，4 周跌 19.9%。\n\n同期消息：周三 FOMC 维持利率不变（[来源 1](https://investinglive.com/central-banks/fomc-decision-oct-28/)），投票是 10 比 2，目标区间 3.75%-4.00%，市场在为 12 月加息定价（[来源 2](https://admiralmarkets.com/analytics/traders-blog/fomc-october-2026-fed-holds-rates)）。\n\n### 存储\nDRAM 涨 2.0%，但标签从「转弱」变成「下行」：收盘在 10 周 EMA 53.4902 下方，10 周 EMA 也已低于 20 周 EMA。走势是周三单日涨 7.13%，周四、周五连跌 4.38%、7.23%。\n\n领涨从 MU 换成 WDC：WDC 涨 6.5%，相对 DRAM 的 RS 4 周 +13.4%。SKHY 涨 8.9%，周三单日涨 13.3%、量是平时的 2.55 倍，同期 SK 海力士公布第三季度营收约 104.6 万亿韩元、营业利润约 83.3 万亿韩元，均创季度纪录，并称 DRAM 与 HBM 实际上已售罄至 2029 年（[来源 8](https://www.koreatimes.co.kr/business/companies/20261028/sk-hynix-logs-record-q3-operating-profit-of-628-bil)）；但周五 SKHY 又跌 7.95%。SNDK 跌 7.0%，周五单日跌 13.47%，收盘 1150.89 跌破上周低点 1228.89，同时满足「下行」。\n\n### 光模块\nLITE 涨 11.2%，周一单日涨 8.19%，相对 SOXX 的 RS 本周 +12.8%，同期有 Marvell 洽谈收购 Lumentum 的报道（[来源 9](https://finance.yahoo.com/m/4dcc41b1-1cb8-395f-b86f-c08b38260525/lumentum-jumps%2C-fades-on.html)）；但周五跌 8.57%，收盘 840.7 仍在 10 周 EMA 889.9281 下方。COHR 只涨 0.5%，周五单日跌 11.34%，标签从「转弱」变成「下行」，4 周跌 37.6%，全列表 RS 排第 17。\n\n同期消息：周五对云厂商资本开支的担忧打压 AI 光模块股（[来源 10](https://finance.yahoo.com/markets/stocks/articles/applied-optoelectronics-plunges-15-coherent-165726137.html)）；B. Riley 把 Coherent 目标价从 297 美元再下调到 262 美元（[来源 11](https://finance.yahoo.com/markets/stocks/articles/b-riley-adjusts-coherent-price-130930538.html)）。\n\n### 半导体设计\n成员等权跌 8.4%，分化 36.7%。INTC 是本周最大的雷：跌 24.4%，周五单日跌 28.58%、量是平时的 4.62 倍，收盘 65.76 跌破上周低点 84.65，4 周跌 44.9%，全列表 RS 垫底；同期英特尔给出的指引疲弱，尽管服务器芯片需求强劲（[来源 7](https://finance.yahoo.com/markets/stocks/articles/intel-sinks-27-week-weak-175639824.html)）。AMD 跌 2.3%，冲高回落：周高点 579.18 高于上周，收在当周振幅 14% 处，周五单日跌 10.88%。AVGO 涨 1.4%，相对 SOXX 的 RS 4 周 +14.7%，继续领涨，但标签是「下行」，LH（更低高点）380.84 压着。\n\n### 云计算\nSKYY 从「休整」变成「转弱」，跌 4.5%，外包周、冲高回落：周高点 173.02 高于上周，收在当周振幅 14% 处，收盘 159.77 落到 10 周 EMA 161.8037 下方。\n\n成员全线转弱，领涨从 NOW 换成 AMZN。NOW 跌 33.9%，周四单日跌 26.95%、量是平时的 6.09 倍，本周 3 个放量下跌日，收盘 105.12 跌破上周低点 140.7——上周它还是全列表 RS 第 1，这周掉到第 11。GOOGL 跌 12.6%，周四单日跌 12.64%、量是平时的 5.46 倍，收盘 279.84 离 10 周 EMA 已经 -2.26 倍周 ATR；同期 Alphabet 第三季度 EPS 低于预期（[来源 3](https://www.xtb.com/en/market-analysis/alphabet-disappoints-wall-street-despite-record-results-shares-plunge-over-8-and-test-300)），并表示 2027 年资本开支将显著上升（[来源 4](https://primexbt.com/news/alphabet-shares-fall-10-after-q3-miss-as-2026-capex-holds-and-2027-spending-set/)），市值创纪录蒸发 5050 亿美元（[来源 5](https://finance.yahoo.com/markets/stocks/articles/alphabet-gets-kicked-4-trillion-123500792.html)）。NET 跌 13.8%，周五单日跌 9.54%。AMZN 只跌 3.1%，相对 SKYY 的 RS 4 周 +0.6%，成了领头，同期财报的市场反应好坏参半（[来源 6](https://finance.yahoo.com/markets/stocks/articles/amzn-q3-deep-dive-cloud-043500791.html)）。NBIS 跌 2.9%，neocloud 股本月跌幅超过 30%（[来源 12](https://finance.yahoo.com/markets/stocks/articles/neocloud-stocks-sunk-more-30-164000043.html)）。\n\nNOW 本周的暴跌没有找到对应的报道。\n\n### 其他\nTSLA 涨 7.4%，创 13 周新高，相对 QQQ 的 RS 也创 13 周新高，全列表 RS 第 2。MRNA 涨 10.8%，从「转弱」回到「整理」，仍是 RS 第 1（4 周 +26.7%），同期是 ESMO 数据公布后的一周（[来源 13](https://finance.yahoo.com/healthcare/articles/week-charts-esmo-winners-losers-160000715.html)）。DELL 跌 7.0%，周五单日跌 10.77%；SPCX 跌 8.7%，收在当周振幅 1.3% 处。\n\n### 强势股健康度\n- **周五放量下跌**：QQQ、SOXX、SNDK、SKHY、LITE、COHR、AVGO、AMD、INTC、NET、DELL，GOOGL、AMZN 本周各 2 个放量下跌日，NOW 3 个。\n- **相对强势还在的**：TSLA、MRNA（相对 QQQ 的 RS 创 13 周新高），WDC（相对 DRAM 的 RS 4 周 +13.4%），AVGO（相对 SOXX 的 RS 4 周 +14.7%）。\n- **还没突破的周线 LH**：MU 1108.55、SNDK 1909.48、COHR 341.76、AVGO 380.84、GOOGL 364.17、NBIS 280.83、TSLA 432.86。COHR、AVGO 的 LH 是 10 月 9 日那周新形成的。\n\n### 下周关注\n- **宏观**：中期选举在下周，大跌之后还有大型科技股财报（[来源 14](https://finance.yahoo.com/markets/article/a-big-sell-off-collides-with-more-big-tech-earnings-and-a-midterm-election-what-to-watch-this-week-110000657.html)），下周还有就业报告（[来源 15](https://finance.yahoo.com/markets/stocks/articles/expect-markets-week-aapl-pltr-140616189.html)）；下一次 FOMC 在 12 月 9 日（[来源 2](https://admiralmarkets.com/analytics/traders-blog/fomc-october-2026-fed-holds-rates)）。\n- **财报**：AMD（11 月 4 日）、COHR（11 月 5 日）、LITE 与 NET 与 MRNA（11 月 6 日）。\n- **结构位**：QQQ 10 周 EMA 716.2455、本周低点 683.45；SOXX 10 周 EMA 517.535、本周低点 460.1；SKYY 10 周 EMA 161.8037、本周高点 173.02；DRAM 10 周 EMA 53.4902。\n- **RS**：TSLA、MRNA 的相对强势能否在大盘下跌中维持；AMZN 成为云计算领头后，相对 SKYY 的 RS 能不能继续走高。\n",
+ "flags": [],
+ "predictions": [
+  {
+   "section": "指数",
+   "direction": "down",
+   "confidence": "low",
+   "rationale": "QQQ 收盘 690.49 跌破上周低点，离 10 周 EMA -0.95 倍周 ATR，周五放量下跌（量是平时的 2.32 倍），SOXX 已经跌破 SMA200。下周遇上中期选举，大跌后还有大型科技股财报（[来源 14](https://finance.yahoo.com/markets/article/a-big-sell-off-collides-with-more-big-tech-earnings-and-a-midterm-election-what-to-watch-this-week-110000657.html)）。反方向风险：AI 股市值已蒸发 5 万亿美元，而历史上年末是表现最好的一段（[来源 16](https://finance.yahoo.com/markets/article/ai-stocks-just-lost-5-trillion--but-history-says-the-stock-markets-sweetest-stretch-starts-now-110000768.html)），超跌后的季节性反弹不能排除。",
+   "invalidation": {
+    "symbol": "QQQ",
+    "side": "above",
+    "price": 716.2455
+   },
+   "invalidation_text": "QQQ 周收盘收回 10 周 EMA 716.2455",
+   "events": [
+    "中期选举",
+    "就业报告"
+   ]
+  },
+  {
+   "section": "存储",
+   "direction": "flat",
+   "confidence": "low",
+   "rationale": "DRAM 连续两周落在震荡带里（上周 +1.31%、本周 +2.02%），周 ATR 很大、震荡带也宽；SK 海力士的纪录财报（[来源 8](https://www.koreatimes.co.kr/business/companies/20261028/sk-hynix-logs-record-q3-operating-profit-of-628-bil)）和周五的回吐相互抵消。下周没有成员财报。反方向风险：DRAM 已经是「下行」，大盘若继续杀跌，它会跟着跌出震荡带。",
+   "invalidation": {
+    "symbol": "DRAM",
+    "side": "below",
+    "price": 46.96
+   },
+   "invalidation_text": "DRAM 周收盘跌破本周低点 46.96（向下），或站上本周高点 54.12（向上）",
+   "events": [
+    "下周没有成员财报，MU 12 月 24 日"
+   ]
+  },
+  {
+   "section": "光模块",
+   "direction": "down",
+   "confidence": "low",
+   "rationale": "两只都在 10 周 EMA 下方，COHR 已经是「下行」，周五对云厂商资本开支的担忧再次打压光模块（[来源 10](https://finance.yahoo.com/markets/stocks/articles/applied-optoelectronics-plunges-15-coherent-165726137.html)）。反方向风险很大：COHR 11 月 5 日、LITE 11 月 6 日同周出财报，再加上 Marvell 收购 Lumentum 的传闻（[来源 9](https://finance.yahoo.com/m/4dcc41b1-1cb8-395f-b86f-c08b38260525/lumentum-jumps%2C-fades-on.html)），这一周的方向基本取决于财报和收购消息。",
+   "invalidation": {
+    "symbol": "LITE",
+    "side": "above",
+    "price": 978.4
+   },
+   "invalidation_text": "LITE 周收盘站上本周高点 978.4",
+   "events": [
+    "COHR 11 月 5 日财报",
+    "LITE 11 月 6 日财报"
+   ]
+  },
+  {
+   "section": "半导体设计",
+   "direction": "down",
+   "confidence": "low",
+   "rationale": "SOXX 跌破 SMA200，大盘开关切到「向下」；本周是外包周、冲高回落，周五单日跌 8.24%，三只成员都在 10 周 EMA 下方。英特尔的疲弱指引（[来源 7](https://finance.yahoo.com/markets/stocks/articles/intel-sinks-27-week-weak-175639824.html)）还在发酵。反方向风险：AMD 11 月 4 日出财报，4 周已跌 19.9%，超跌反弹随时可能出现。",
+   "invalidation": {
+    "symbol": "SOXX",
+    "side": "above",
+    "price": 517.535
+   },
+   "invalidation_text": "SOXX 周收盘收回 10 周 EMA 517.535",
+   "events": [
+    "AMD 11 月 4 日财报"
+   ]
+  },
+  {
+   "section": "云计算",
+   "direction": "down",
+   "confidence": "low",
+   "rationale": "SKYY 冲高回落、落到 10 周 EMA 下方，5 只成员全部「转弱」、没有一只在 10 周 EMA 上方，GOOGL、NOW 财报后放量暴跌，Alphabet 还表示 2027 年资本开支将显著上升（[来源 4](https://primexbt.com/news/alphabet-shares-fall-10-after-q3-miss-as-2026-capex-holds-and-2027-spending-set/)）。我已经连续三周把云计算判错，这次只按结构判、信心给低。反方向风险：SKYY 离 10 周 EMA 只有 -0.21 倍周 ATR，收回来只需要一次反弹；NET 11 月 6 日出财报。",
+   "invalidation": {
+    "symbol": "SKYY",
+    "side": "above",
+    "price": 161.8037
+   },
+   "invalidation_text": "SKYY 周收盘收回 10 周 EMA 161.8037",
+   "events": [
+    "NET 11 月 6 日财报"
+   ]
+  }
+ ],
+ "sources": [
+  {
+   "id": "1",
+   "title": "FOMC decision Oct 28: Rates left unchanged",
+   "publisher": "investingLive",
+   "date": "2026-10-28",
+   "url": "https://investinglive.com/central-banks/fomc-decision-oct-28/",
+   "facts": [
+    "10 月 28 日 FOMC 维持利率不变"
+   ]
+  },
+  {
+   "id": "2",
+   "title": "FOMC October 2026: Fed Holds Rates in a 10-2 Vote as Markets Price a December Hike",
+   "publisher": "Admiral Markets",
+   "date": "2026-10-28",
+   "url": "https://admiralmarkets.com/analytics/traders-blog/fomc-october-2026-fed-holds-rates",
+   "facts": [
+    "美联储以 10 比 2 的投票维持 3.75%-4.00% 的目标区间",
+    "市场在为 12 月加息定价",
+    "下一次议息在 12 月 9 日"
+   ]
+  },
+  {
+   "id": "3",
+   "title": "Alphabet disappoints Wall Street despite record results, shares plunge over 8% and test 300",
+   "publisher": "XTB",
+   "date": "2026-10-28",
+   "url": "https://www.xtb.com/en/market-analysis/alphabet-disappoints-wall-street-despite-record-results-shares-plunge-over-8-and-test-300",
+   "facts": [
+    "Alphabet 第三季度 EPS 低于预期，盘后下跌 8.25%"
+   ]
+  },
+  {
+   "id": "4",
+   "title": "Alphabet shares fall 10% after Q3 miss as 2026 capex holds and 2027 spending set to rise",
+   "publisher": "PrimeXBT",
+   "date": "2026-10-29",
+   "url": "https://primexbt.com/news/alphabet-shares-fall-10-after-q3-miss-as-2026-capex-holds-and-2027-spending-set/",
+   "facts": [
+    "Alphabet 维持 2026 年资本开支指引，并表示 2027 年开支将显著上升"
+   ]
+  },
+  {
+   "id": "5",
+   "title": "Alphabet Gets Kicked Out of the $4 Trillion Club After Its Record $505 Billion Drop",
+   "publisher": "Motley Fool",
+   "date": "2026-11-01",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/alphabet-gets-kicked-4-trillion-123500792.html",
+   "facts": [
+    "Alphabet 市值创纪录蒸发 5050 亿美元，跌出 4 万亿美元俱乐部"
+   ]
+  },
+  {
+   "id": "6",
+   "title": "AMZN Q3 deep dive: cloud surge and AI investments drive mixed market reception",
+   "publisher": "StockStory",
+   "date": "2026-11-01",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/amzn-q3-deep-dive-cloud-043500791.html",
+   "facts": [
+    "亚马逊第三季度云业务增长强劲，市场反应好坏参半"
+   ]
+  },
+  {
+   "id": "7",
+   "title": "Intel Sinks 27% in a Week on a Weak Outlook, Despite \"Extraordinary Demand\" for Its Server Chips",
+   "publisher": "TIKR",
+   "date": "2026-10-31",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/intel-sinks-27-week-weak-175639824.html",
+   "facts": [
+    "英特尔指引疲弱，尽管服务器芯片需求强劲，股价一周下跌 27%"
+   ]
+  },
+  {
+   "id": "8",
+   "title": "SK hynix logs record Q3 operating profit",
+   "publisher": "The Korea Times",
+   "date": "2026-10-28",
+   "url": "https://www.koreatimes.co.kr/business/companies/20261028/sk-hynix-logs-record-q3-operating-profit-of-628-bil",
+   "facts": [
+    "SK 海力士第三季度营收约 104.6 万亿韩元、营业利润约 83.3 万亿韩元，均创季度纪录",
+    "公司表示 DRAM 与 HBM 实际上已售罄至 2029 年"
+   ]
+  },
+  {
+   "id": "9",
+   "title": "Lumentum Jumps, Fades On Marvell Buyout Report",
+   "publisher": "Investor's Business Daily",
+   "date": "2026-10-29",
+   "url": "https://finance.yahoo.com/m/4dcc41b1-1cb8-395f-b86f-c08b38260525/lumentum-jumps%2C-fades-on.html",
+   "facts": [
+    "有报道称 Marvell 洽谈收购 Lumentum，Lumentum 冲高后回落"
+   ]
+  },
+  {
+   "id": "10",
+   "title": "Applied Optoelectronics Plunges 15%, Coherent Tumbles 13% as Hyperscaler Spending Fears Hit AI Optics Stocks; Lumentum and Marvell Sink 10%",
+   "publisher": "24/7 Wall St.",
+   "date": "2026-10-30",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/applied-optoelectronics-plunges-15-coherent-165726137.html",
+   "facts": [
+    "对云厂商资本开支的担忧打压 AI 光模块股"
+   ]
+  },
+  {
+   "id": "11",
+   "title": "B. Riley Adjusts Coherent Price Target to $262 From $297, Maintains Neutral Rating",
+   "publisher": "MT Newswires",
+   "date": "2026-10-30",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/b-riley-adjusts-coherent-price-130930538.html",
+   "facts": [
+    "B. Riley 把 Coherent 目标价从 297 美元下调到 262 美元，维持中性"
+   ]
+  },
+  {
+   "id": "12",
+   "title": "Neocloud Stocks Have Sunk by More Than 30% This Month. What Does That Mean for Anthropic's IPO?",
+   "publisher": "Motley Fool",
+   "date": "2026-10-29",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/neocloud-stocks-sunk-more-30-164000043.html",
+   "facts": [
+    "neocloud 股本月跌幅超过 30%"
+   ]
+  },
+  {
+   "id": "13",
+   "title": "This week in charts: ESMO's winners and losers",
+   "publisher": "BioPharma Dive",
+   "date": "2026-10-30",
+   "url": "https://finance.yahoo.com/healthcare/articles/week-charts-esmo-winners-losers-160000715.html",
+   "facts": [
+    "ESMO 大会数据公布后各家药企股价有赢有输"
+   ]
+  },
+  {
+   "id": "14",
+   "title": "A big sell-off collides with more Big Tech earnings and a midterm election: What to watch this week",
+   "publisher": "Yahoo Finance",
+   "date": "2026-11-01",
+   "url": "https://finance.yahoo.com/markets/article/a-big-sell-off-collides-with-more-big-tech-earnings-and-a-midterm-election-what-to-watch-this-week-110000657.html",
+   "facts": [
+    "下周大跌之后还有更多大型科技股财报，同时遇上中期选举"
+   ]
+  },
+  {
+   "id": "15",
+   "title": "What To Expect In Markets This Week: AAPL, PLTR, AMD, SMCI, SHOP, Earnings, Jobs Report And More",
+   "publisher": "Stocktwits",
+   "date": "2026-11-01",
+   "url": "https://finance.yahoo.com/markets/stocks/articles/expect-markets-week-aapl-pltr-140616189.html",
+   "facts": [
+    "下周有 AMD 等公司财报和就业报告"
+   ]
+  },
+  {
+   "id": "16",
+   "title": "AI stocks just lost $5 trillion — but history says the stock market's sweetest stretch starts now",
+   "publisher": "Yahoo Finance",
+   "date": "2026-11-01",
+   "url": "https://finance.yahoo.com/markets/article/ai-stocks-just-lost-5-trillion--but-history-says-the-stock-markets-sweetest-stretch-starts-now-110000768.html",
+   "facts": [
+    "AI 股市值蒸发 5 万亿美元",
+    "历史上年末是股市表现最好的一段"
+   ]
+  }
+ ],
+ "model": "claude-opus-5-5",
+ "written_at": "2026-11-01 23:13 CST",
+ "data_generated_at": "2026-11-01T10:10:44-05:00",
+ "data_fingerprint": "445e2b8688c33377"
+}
