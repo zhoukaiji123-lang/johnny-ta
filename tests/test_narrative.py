@@ -83,6 +83,9 @@ def test_existing_marks_are_reset():
 def test_extract_kinds():
     kinds = {n.raw.strip(): n.kind for n in extract_numbers("涨 4.3%，周幅 1.2 倍 ATR，价格 1029")}
     assert kinds == {"4.3": "pct", "1.2": "atr", "1029": "plain"}
+    # 成交量倍数不是 ATR 倍数
+    vol = {n.raw.strip(): n.kind for n in extract_numbers("量是平时的 2.81 倍，离均线 0.5 倍周 ATR")}
+    assert vol == {"2.81": "plain", "0.5": "atr"}
 
 
 def test_save_narrative_and_fingerprint(tmp_path):

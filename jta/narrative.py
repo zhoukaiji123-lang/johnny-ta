@@ -38,7 +38,8 @@ _DATE_RE = re.compile("|".join(_DATE_PATTERNS))
 _LINK_RE = re.compile(r"\[([^\]]*)\]\((https?://[^\s)]+)\)")
 # 前面紧挨 ASCII 字母数字的不算（EMA10、H2）；中文字符后紧跟数字照常抽取
 _NUM_RE = re.compile(r"(?<![A-Za-z0-9_.])([+\-−]?)(\d+(?:,\d{3})*(?:\.\d+)?)")
-_ATR_HINT = re.compile(r"^\s*(?:倍|x|×)?\s*(?:周\s*)?ATR|^\s*倍")
+# 只有"倍"后面紧跟 ATR 才算 ATR 倍数；"量是平时的 2.81 倍"这类成交量倍数按普通数字匹配
+_ATR_HINT = re.compile(r"^\s*(?:倍|x|×)?\s*(?:周\s*)?ATR")
 _SENT_SPLIT = re.compile(r"(?<=[。！？；])")
 
 
