@@ -245,7 +245,10 @@ def render_text(r: dict[str, Any], account: float | None = None, risk_pct: float
             lines.append(f"  {ev.get('note', '')}")
         ne = ev.get("next_earnings")
         if ne:
-            lines.append(f"  下次财报 {ne['date']}（{ne['sessions_away']} 个交易日后）")
+            lines.append(
+                "  下次财报 未知" if ne.get("already_reported")
+                else f"  下次财报 {ne['date']}（{ne['sessions_away']} 个交易日后）"
+            )
         moves = ev.get("historical_earnings_moves") or []
         if moves:
             txt = "、".join(

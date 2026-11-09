@@ -120,3 +120,17 @@ def test_mag7_symbols_group_together_without_touching_weekly_sectors(symbol):
     row = collect_row(symbol, None, provider=FakeProvider(), account=None, risk_pct=0.01)
     assert row.sector == "七巨头"
     assert SECTOR_MAP.get(symbol) != "七巨头"
+
+
+def test_stale_earnings_show_as_unknown(monkeypatch):
+    import jta.dashboard as dash
+    from jta.analyze import analyze as real_analyze
+
+    def stale_events(*a, **kw):
+        r = real_analyze(*a, **kw)
+        r["events"] = {"next_earnings": {"date": "2026-10-22", "already_reported": True}}
+        return r
+
+    monkeypatch.setattr(dash, "analyze", stale_events)
+    row = dash.collect_row("TEST", None, provider=FakeProvider(), account=None, risk_pct=0.01)
+    assert row.earnings == "未知"

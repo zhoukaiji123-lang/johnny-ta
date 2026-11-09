@@ -646,3 +646,74 @@ def test_past_earnings_date_does_not_trigger_event_mode():
         assert ne["sessions_away"] < 0 and ne["already_reported"] is True
         assert out["event_mode"] is False
         assert any("已过去" in w for w in out["warnings"])
+
+
+def _fetch_events_with(calendar, earnings_dates):
+    import pandas as pd
+
+    from jta.events import fetch_events
+    from jta.indicators.atr import atr
+
+    idx = pd.date_range("2026-08-03", periods=40, freq="B", tz="America/New_York")
+    df = pd.DataFrame(
+        {"open": 100.0, "high": 102.0, "low": 98.0, "close": 100.0, "volume": 1000.0},
+        index=idx,
+    )
+
+    class FakeTicker:
+        news = []
+
+    FakeTicker.calendar = calendar
+    FakeTicker.earnings_dates = earnings_dates
+
+    real = __import__("yfinance")
+    orig = real.Ticker
+    real.Ticker = lambda *a, **k: FakeTicker()
+    try:
+        return df, fetch_events("X", df, atr(df))
+    finally:
+        real.Ticker = orig
+
+
+def test_upcoming_earnings_uses_exchange_date_and_skips_past():
+    """日期按交易所时区算：UTC 11-18 00:30 是美东 11-17 盘后，不能算成 11-18。"""
+    import pandas as pd
+
+    from jta.events import upcoming_earnings
+
+    table = pd.DataFrame(
+        {"EPS Estimate": [1.0, 1.0]},
+        index=pd.DatetimeIndex(["2026-10-20 12:00", "2026-11-18 00:30"], tz="UTC"),
+    )
+    since = pd.Timestamp("2026-11-06", tz="America/New_York")
+    assert upcoming_earnings(table, since).date().isoformat() == "2026-11-17"
+    assert upcoming_earnings(table, pd.Timestamp("2026-12-01", tz="America/New_York")) is None
+    assert upcoming_earnings(None, since) is None
+
+
+def test_table_date_replaces_stale_calendar():
+    """calendar 还停在已发布的财报时，下次财报取 earnings_dates，EPS 预期不沿用旧季度。"""
+    import pandas as pd
+
+    stale = {"Earnings Date": [pd.Timestamp("2026-09-03").date()], "Earnings Average": 9.9}
+    placeholder = pd.DataFrame(
+        {"Reported EPS": [float("nan")]},
+        index=pd.DatetimeIndex(["2026-09-30 16:30"], tz="America/New_York"),
+    )
+    df, out = _fetch_events_with(stale, placeholder)
+    assert df.index[-1].date().isoformat() == "2026-09-25"
+
+    ne = out["next_earnings"]
+    assert ne["date"] == "2026-09-30" and ne["sessions_away"] == 3
+    assert ne["already_reported"] is False and ne["eps_estimate"] is None
+    assert out["event_mode"] is True
+    assert not any("已过去" in w for w in out["warnings"])
+
+
+def test_calendar_is_the_fallback_when_table_has_no_future_row():
+    import pandas as pd
+
+    current = {"Earnings Date": [pd.Timestamp("2026-10-01").date()], "Earnings Average": 1.5}
+    _, out = _fetch_events_with(current, None)
+    assert out["next_earnings"]["date"] == "2026-10-01"
+    assert out["next_earnings"]["eps_estimate"] == 1.5

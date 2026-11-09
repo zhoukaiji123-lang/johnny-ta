@@ -296,6 +296,7 @@ def collect_news(payload: dict[str, Any], symbols: list[str] | None = None,
     import yfinance as yf
 
     logging.getLogger("yfinance").setLevel(logging.CRITICAL)
+    from .events import upcoming_earnings
     from .weekly import ET
 
     monday = date.fromisoformat(payload["monday"])
@@ -330,9 +331,19 @@ def collect_news(payload: dict[str, Any], symbols: list[str] | None = None,
         news[sym] = rows
     for sym in members:
         try:
-            cal = yf.Ticker(sym).calendar or {}
-            ed = cal.get("Earnings Date")
-            ed = ed[0] if isinstance(ed, list) and ed else ed
+            ticker = yf.Ticker(sym)
+            try:
+                upcoming = upcoming_earnings(
+                    ticker.earnings_dates, datetime(now.year, now.month, now.day, tzinfo=ET),
+                )
+            except Exception:  # noqa: BLE001 ETF 没有这张表，回退到 calendar
+                upcoming = None
+            if upcoming is not None:
+                ed = upcoming.date()
+            else:
+                cal = ticker.calendar or {}
+                ed = cal.get("Earnings Date")
+                ed = ed[0] if isinstance(ed, list) and ed else ed
             if ed:
                 d = ed if isinstance(ed, date) else date.fromisoformat(str(ed)[:10])
                 earnings[sym] = {"date": d.isoformat(),

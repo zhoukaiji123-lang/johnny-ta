@@ -233,7 +233,8 @@ def collect_row(
     row.unreliable_emas = m.get("unreliable_emas", [])
     row.event_mode = bool(events.get("event_mode"))
     row.event_reason = events.get("event_mode_reason")
-    row.earnings = (events.get("next_earnings") or {}).get("date")
+    next_earnings = events.get("next_earnings") or {}
+    row.earnings = "未知" if next_earnings.get("already_reported") else next_earnings.get("date")
 
     # 2026-10-07 删除 A 后，L 是唯一的第一支撑方案，纳入分组与 best_rr；
     # validated=False 只在页面上标注"未经回测验证"，不再排除

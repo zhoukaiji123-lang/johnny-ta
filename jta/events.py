@@ -66,6 +66,21 @@ def _reaction_session(idx: pd.DatetimeIndex, ed: pd.Timestamp) -> int:
     return int(idx.searchsorted(day, side="right"))
 
 
+def upcoming_earnings(earnings: pd.DataFrame | None, since: Any) -> pd.Timestamp | None:
+    """earnings_dates 表里 since 当天及以后最早的一行，没有就返回 None。
+
+    比 calendar 可靠：calendar 用运行机器的时区把时间戳转成日期（东八区会晚一天），
+    财报发布后也要过一阵才刷新；这张表带时区，下一次的预估日期也已经排好。
+    """
+    if earnings is None or not len(earnings):
+        return None
+    since = pd.Timestamp(since)
+    idx = pd.DatetimeIndex(earnings.index)
+    idx = idx.tz_convert(since.tz) if idx.tz is not None else idx.tz_localize(since.tz)
+    upcoming = idx[idx.normalize() >= since.normalize()]
+    return upcoming.min() if len(upcoming) else None
+
+
 def historical_earnings_moves(
     df: pd.DataFrame, earnings: pd.DataFrame, atr: pd.Series, limit: int = 6
 ) -> list[EarningsMove]:
@@ -154,7 +169,18 @@ def fetch_events(
         }
 
     last_bar = df.index[-1]
-    earn = _to_ts(cal.get("Earnings Date"), tz)
+    try:
+        ed = getattr(ticker, "earnings_dates", None)
+    except Exception as exc:  # noqa: BLE001
+        ed = None
+        result["warnings"].append(f"历史财报反应不可用: {exc}")
+
+    cal_earn = _to_ts(cal.get("Earnings Date"), tz)
+    # calendar 过期时，它的 EPS 预期属于已发布的那个季度，不能挂到下一次财报上
+    cal_current = cal_earn is not None and cal_earn.normalize() >= last_bar.normalize()
+    earn = upcoming_earnings(ed, last_bar)
+    if earn is None:
+        earn = cal_earn
     if earn is not None:
         # 用交易日而不是自然日计算距离：10 个自然日和 10 个交易日差两周。
         # 不要钳到 0——负值表示财报已经发生，把它压成 0 会让过期日程一直
@@ -165,8 +191,10 @@ def fetch_events(
             "date": earn.date().isoformat(),
             "sessions_away": sessions,
             "already_reported": past,
-            "eps_estimate": cal.get("Earnings Average"),
-            "eps_range": [cal.get("Earnings Low"), cal.get("Earnings High")],
+            "eps_estimate": cal.get("Earnings Average") if cal_current else None,
+            "eps_range": [cal.get("Earnings Low"), cal.get("Earnings High")]
+            if cal_current
+            else [None, None],
         }
         if past:
             result["warnings"].append(
@@ -185,7 +213,6 @@ def fetch_events(
             result[name] = ts.date().isoformat()
 
     try:
-        ed = getattr(ticker, "earnings_dates", None)
         if ed is not None and len(ed):
             past = ed[ed.index <= last_bar]
             result["historical_earnings_moves"] = [

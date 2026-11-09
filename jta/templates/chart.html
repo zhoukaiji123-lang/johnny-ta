@@ -1119,8 +1119,9 @@ ecard(E.event_mode ? "事件模式 · 已降级" : "事件日程", c => {
   if (!E.available) { c.appendChild(h("div", "rule-line", E.reason)); return; }
   if (E.next_earnings) {
     const r = h("div", "kv");
-    r.appendChild(h("span", null, `下次财报 · ${E.next_earnings.sessions_away} 个交易日后`));
-    r.appendChild(h("span", null, E.next_earnings.date));
+    const unknown = E.next_earnings.already_reported;
+    r.appendChild(h("span", null, unknown ? "下次财报" : `下次财报 · ${E.next_earnings.sessions_away} 个交易日后`));
+    r.appendChild(h("span", null, unknown ? "未知" : E.next_earnings.date));
     c.appendChild(r);
   }
   if (E.ex_dividend) {
