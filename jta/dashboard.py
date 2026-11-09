@@ -43,9 +43,11 @@ STACK_LABELS = {"bull": "多头", "bear": "空头", "mixed": "交错", "unknown"
 
 #: 侧栏按行业分组的顺序；未登记的标的落进"其他"，排在最后
 SECTOR_ORDER = [
-    "指数/ETF", "存储", "光模块", "半导体设计", "硬件", "云计算", "汽车", "航天",
+    "指数/ETF", "七巨头", "存储", "光模块", "半导体设计", "硬件", "云计算", "汽车", "航天",
     "生物医药", "其他",
 ]
+#: 七巨头在侧栏单独成组，优先于 SECTOR_MAP；周报仍只按 SECTOR_MAP 分板块，不受影响
+MAG7 = frozenset({"AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA"})
 SECTOR_MAP = {
     "MU": "存储", "SNDK": "存储", "SKHY": "存储", "WDC": "存储",
     "LITE": "光模块", "COHR": "光模块",
@@ -174,7 +176,7 @@ def collect_row(
 ) -> Row:
     row = Row(
         symbol=symbol, benchmark=benchmark,
-        sector=SECTOR_MAP.get(symbol.upper(), "其他"),
+        sector="七巨头" if symbol.upper() in MAG7 else SECTOR_MAP.get(symbol.upper(), "其他"),
         display=DISPLAY_NAME.get(symbol.upper(), symbol),
     )
     try:

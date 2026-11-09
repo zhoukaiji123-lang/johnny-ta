@@ -111,3 +111,12 @@ def test_left_plan_counts_toward_actionable_group(monkeypatch):
     row = dash.collect_row("TEST", None, provider=FakeProvider(), account=None, risk_pct=0.01)
     assert row.group == "actionable"
     assert row.best_rr == 3.0
+
+
+@pytest.mark.parametrize("symbol", ["NVDA", "AAPL", "MSFT", "META", "GOOGL", "AMZN", "TSLA"])
+def test_mag7_symbols_group_together_without_touching_weekly_sectors(symbol):
+    from jta.dashboard import SECTOR_MAP, collect_row
+
+    row = collect_row(symbol, None, provider=FakeProvider(), account=None, risk_pct=0.01)
+    assert row.sector == "七巨头"
+    assert SECTOR_MAP.get(symbol) != "七巨头"

@@ -84,7 +84,8 @@ jobs:
           python -m jta.cli dashboard \
               MU:SOXX SNDK:SOXX SKHY:SOXX WDC:SOXX AVGO:SOXX AMD:SOXX INTC:SOXX \
               LITE:SOXX COHR:SOXX DELL:QQQ AMZN:QQQ GOOGL:QQQ NOW:QQQ NET:QQQ NBIS:QQQ \
-              TSLA:QQQ SPCX:QQQ SOXX:QQQ QQQ:SPY DRAM:SOXX MRNA \
+              TSLA:QQQ NVDA:SOXX AAPL:QQQ MSFT:QQQ META:QQQ \
+              SPCX:QQQ SOXX:QQQ QQQ:SPY DRAM:SOXX MRNA \
               --out-dir docs && echo "ok=true" >> "$GITHUB_OUTPUT"
 
       - name: 提交产物
